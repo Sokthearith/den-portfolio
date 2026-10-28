@@ -23,6 +23,7 @@ for (const route of routes) {
     .replace(/<title>.*?<\/title>/, `<title>${attr(route.title)}</title>`)
     .replace(/(<meta name="description" content=")[^"]*(")/, `$1${attr(route.description)}$2`)
     .replace(/(<meta property="og:title" content=")[^"]*(")/, `$1${attr(route.title)}$2`)
+    .replace(/(<meta property="og:url" content="https:\/\/[^/"]+)\/[^"]*(")/, `$1${route.path === '/' ? '/' : route.path}$2`)
     .replace('<div id="root"></div>', `<div id="root" data-route="${route.path}">${render(route.path, seed)}</div>${seedTag}`)
   const out = resolve(dist, route.file)
   await mkdir(dirname(out), { recursive: true })
