@@ -1,0 +1,26 @@
+[
+ {
+  "shape": "Workbench",
+  "theme": "ribbon",
+  "axes": "dark/grotesk-sans/chromatic-amber",
+  "hero": "Poster",
+  "nav": "floating pill",
+  "footer": "statement",
+  "imagery": "the night drawn on a generated canvas; project screenshots pending",
+  "photos": [],
+  "entry": "none",
+  "fingerprint": "poster-night/split-cases/rack-band/statement-rows/statement-footer",
+  "sections": [
+   "Hero (drawn night)",
+   "Work (two cases, split and mirrored)",
+   "Skills (3D rack, readout, keys) on a band",
+   "About (statement and rows)",
+   "Footer (statement)"
+  ],
+  "signature": "the skills rack, machined keys that light the projects built with them",
+  "waived": [],
+  "prompt": "personal portfolio of a full-stack developer and CS student, 3D interactive, skills section",
+  "date": "2026-10-28",
+  "mode": "build"
+ }
+]

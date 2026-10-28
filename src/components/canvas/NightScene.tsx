@@ -9,6 +9,15 @@ import { tokenRGB } from '../../lib/tokens'
 // line the CSS gradient draws.
 export const HORIZON = 0.18
 const START_TIME = 40 // a settled frame for the still and reduced-motion views
+const FPS = 30
+
+// Without a GPU the browser draws WebGL on the CPU; there the night stays still.
+const SOFTWARE = /swiftshader|llvmpipe|softpipe|software|basic render/i
+function isSoftware(gl: WebGLRenderingContext | WebGL2RenderingContext) {
+  const info = gl.getExtension('WEBGL_debug_renderer_info')
+  const name = info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)
+  return SOFTWARE.test(String(name))
+}
 
 const vertex = /* glsl */ `
   void main() { gl_Position = vec4(position.xy, 0.0, 1.0); }
@@ -125,6 +134,14 @@ function Night({ running }: { running: boolean }) {
     invalidate()
   }, [size, invalidate, material])
 
+  // The night moves on a 70 to 120 second cycle, so 30 frames a second is
+  // plenty; drawing on demand at that pace halves the GPU's work.
+  useEffect(() => {
+    if (!running) return
+    const id = window.setInterval(() => invalidate(), 1000 / FPS)
+    return () => window.clearInterval(id)
+  }, [running, invalidate])
+
   // Read the real drawing buffer each frame, so the horizon always meets the
   // CSS one whatever size or pixel ratio the canvas settled on.
   useFrame(({ gl }, delta) => {
@@ -141,14 +158,15 @@ function Night({ running }: { running: boolean }) {
   )
 }
 
-export default function NightScene({ running }: { running: boolean }) {
+export default function NightScene({ running, onStill }: { running: boolean; onStill: () => void }) {
   return (
     <Canvas
       className="night__canvas"
       aria-hidden="true"
-      dpr={[1, 1.5]}
-      frameloop={running ? 'always' : 'demand'}
+      dpr={[1, 1.25]}
+      frameloop="demand"
       gl={{ alpha: true, antialias: false, premultipliedAlpha: true, powerPreference: 'low-power' }}
+      onCreated={({ gl }) => { if (isSoftware(gl.getContext())) onStill() }}
       flat
       linear
     >

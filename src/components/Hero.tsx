@@ -1,27 +1,17 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { profile } from '../data/profile'
+import { useReducedMotion } from '../lib/hooks'
 
 const NightScene = lazy(() => import('./canvas/NightScene'))
-
-function useReducedMotion() {
-  const [reduced, setReduced] = useState(false)
-  useEffect(() => {
-    const mq = matchMedia('(prefers-reduced-motion: reduce)')
-    setReduced(mq.matches)
-    const on = () => setReduced(mq.matches)
-    mq.addEventListener('change', on)
-    return () => mq.removeEventListener('change', on)
-  }, [])
-  return reduced
-}
 
 export default function Hero() {
   const ref = useRef<HTMLElement>(null)
   const [mounted, setMounted] = useState(false)
   const [seen, setSeen] = useState(true)
   const [held, setHeld] = useState(false)
+  const [still, setStill] = useState(false)
   const reduced = useReducedMotion()
-  const running = mounted && seen && !held && !reduced
+  const running = mounted && seen && !held && !reduced && !still
 
   useEffect(() => {
     setMounted(true)
@@ -37,7 +27,7 @@ export default function Hero() {
       <div className="night" aria-hidden="true">
         {mounted && (
           <Suspense fallback={null}>
-            <NightScene running={running} />
+            <NightScene running={running} onStill={() => setStill(true)} />
           </Suspense>
         )}
         <div className="night__grain" />
@@ -53,9 +43,11 @@ export default function Hero() {
       </div>
 
       <div className="hero__foot container">
-        <button className="btn btn--small hero__pause" type="button" aria-pressed={held} onClick={() => setHeld((h) => !h)}>
-          {held ? 'Play the night' : 'Pause the night'}
-        </button>
+        {!still && (
+          <button className="btn btn--small hero__pause" type="button" onClick={() => setHeld((h) => !h)}>
+            {held ? 'Play the night' : 'Pause the night'}
+          </button>
+        )}
       </div>
     </section>
   )
