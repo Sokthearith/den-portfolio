@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import About from '../components/About'
 import Hero from '../components/Hero'
+import Now from '../components/Now'
 import Skills from '../components/Skills'
 import Work from '../components/Work'
 import { profile } from '../data/profile'
@@ -25,6 +26,7 @@ export default function Home() {
       <Work active={active} onPress={setActive} />
       <Skills active={active} onPress={setActive} />
       <About />
+      <Now />
     </>
   )
 }

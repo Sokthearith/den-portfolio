@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { profile } from '../data/profile'
+import { published } from '../lib/notes'
 import { routes } from '../routes'
 import { toggleTheme, useTheme } from '../lib/theme'
 import { toggleSound, useSound } from '../lib/sound'
@@ -34,7 +35,7 @@ export default function Palette() {
 
   const commands = useMemo<Command[]>(() => {
     const pages = routes
-      .filter((r) => r.path !== '/' && r.path !== '/404')
+      .filter((r) => r.path !== '/' && r.path !== '/404' && (r.path !== '/notes' || published.length || import.meta.env.DEV))
       .map((r) => ({ id: `page-${r.path}`, label: r.title.split(',')[0], kind: 'Page', run: () => { location.href = r.path } }))
     return [
       { id: 'top', label: 'Top of the page', kind: 'Section', keywords: 'home hero start', run: () => goTo('top') },

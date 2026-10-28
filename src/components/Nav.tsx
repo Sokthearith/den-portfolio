@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Moon, Search, Sun } from 'lucide-react'
 import { profile } from '../data/profile'
+import { published } from '../lib/notes'
 import { toggleTheme, useTheme } from '../lib/theme'
 
 // Absolute, so the links work from any page, not just the home page.
@@ -8,6 +9,8 @@ const links = [
   { href: '/#work', id: 'work', label: 'Work' },
   { href: '/#skills', id: 'skills', label: 'Skills' },
   { href: '/#about', id: 'about', label: 'About' },
+  // Notes joins the nav once there is a note to read (drafts count while developing).
+  ...(published.length || import.meta.env.DEV ? [{ href: '/notes', id: '/notes', label: 'Notes' }] : []),
   { href: '/lab', id: '/lab', label: 'Lab' },
 ]
 
@@ -20,7 +23,7 @@ export default function Nav() {
   // on another page, that page's link does.
   useEffect(() => {
     if (location.pathname !== '/') {
-      setHere(location.pathname.replace(/\/+$/, ''))
+      setHere(location.pathname.replace(/\/+$/, '').replace(/^(\/notes)\/.+$/, '$1'))
       return
     }
     const io = new IntersectionObserver(

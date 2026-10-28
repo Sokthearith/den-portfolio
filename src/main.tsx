@@ -10,9 +10,12 @@ const root = document.getElementById('root')!
 // A prerendered page names its route (the 404 is served at any address);
 // in dev the address decides.
 const path = root.dataset.route ?? location.pathname
+// The films the build fetched, so hydration starts from what the HTML shows.
+const seedEl = document.getElementById('now-seed')
+const seed = seedEl ? JSON.parse(seedEl.textContent || '{}') : undefined
 const app = (
   <StrictMode>
-    <App path={path} />
+    <App path={path} seed={seed} />
   </StrictMode>
 )
 

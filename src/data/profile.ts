@@ -17,7 +17,14 @@ export const about = {
   statement: 'Two years of code, four to five projects, and a degree to finish by 2028.',
   facts: [
     { label: 'Studying', value: 'Software engineering, class of 2028' },
-    { label: 'Learning next', value: 'Machine learning, AI engineering and cybersecurity' },
+    { label: 'Learning next', value: 'AI engineering and cybersecurity' },
     { label: 'Also on the list', value: 'Flutter, game development and project management' },
   ],
+}
+
+// The Now section's learning line. Films and music come from Letterboxd and
+// Spotify by themselves.
+export const now = {
+  subject: 'Machine learning',
+  with: 'Reading Designing Machine Learning Systems by Chip Huyen.',
 }
