@@ -49,7 +49,7 @@ export async function fetchFilms(limit = 4): Promise<Film[]> {
 
 export async function GET() {
   try {
-    return json({ films: await fetchFilms(), profile: `https://letterboxd.com/${USER}/` }, 3600)
+    return json({ films: await fetchFilms(6), profile: `https://letterboxd.com/${USER}/` }, 3600)
   } catch {
     return json({ films: [], profile: `https://letterboxd.com/${USER}/` }, 300, 502)
   }

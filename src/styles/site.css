@@ -8,6 +8,8 @@
 /* Hallmark · waive 44c · the lab opens on a Banner posture with its first experiment above the fold · a page of tools heads itself with a banner, not a second night over the hero */
 /* Hallmark · answered F8 · the owner asked for more scroll transitions; the three tell one story, the night passing: the nav's progress line, horizons drawing at each section, About's line lighting word by word */
 /* Hallmark · answered F7 · the pill radius rounds the 2px index lines (rails, the lit line under names and nav links, the progress line) and the keys, never a box */
+/* Hallmark · dismissed 23 · .radio__fill is the progress inside the receiver's 4px rail, so its accent is a hairline, never a field */
+/* Hallmark · answered F15 · every section grid shares --gap-columns; the 24 and 40px gaps sit inside panels (the receiver's face, Agrix's rail, the lab's dials) */
 /* Hallmark · dismissed 28a · the project screenshots sit far below the hero, whose headline is the LCP, so lazy is right for them */
 /* Hallmark · dismissed 29 · the nav pill is the genre's one glass licence, a backdrop blur over the drawn night, no other glass on the page */
 @import url("./tokens.css");
@@ -536,14 +538,6 @@ html:not(.js) .readout { grid-column: 1 / -1; }
 .now__body { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); row-gap: var(--space-3xl); align-items: start; }
 .now__watch { grid-column: 1 / 10; }
 .now__side { grid-column: 10 / 13; padding-left: var(--space-xl); display: flex; flex-direction: column; gap: var(--space-2xl); padding-top: calc(var(--space-lg) + 44px); }
-.now__listen { padding: var(--space-lg); }
-.track { display: flex; align-items: flex-start; gap: var(--space-md); margin-top: var(--space-md); }
-.track__art { flex-shrink: 0; width: 72px; height: 72px; border-radius: var(--radius-part); object-fit: cover; box-shadow: var(--shadow-part); }
-.track__text { display: flex; flex-direction: column; gap: var(--space-2xs); min-width: 0; }
-.track__state { font-size: var(--text-sm); font-weight: 500; color: var(--color-muted); }
-.track__state[data-playing="true"] { color: var(--color-accent); }
-.track__title { font: var(--display-weight) var(--text-title)/1.15 var(--font-display); letter-spacing: var(--tracking-display); color: var(--color-ink); overflow-wrap: break-word; }
-.track__artist { color: var(--color-ink-2); }
 .now__subject { margin-top: var(--space-md); font: var(--display-weight) var(--text-2xl)/1.1 var(--font-display); letter-spacing: var(--tracking-display); color: var(--color-ink); }
 .now__with { margin-top: var(--space-sm); color: var(--color-ink-2); }
 
@@ -593,3 +587,58 @@ html:not(.js) .readout { grid-column: 1 / -1; }
 .prose code { padding: 0.1em 0.35em; border-radius: var(--radius-part); background: var(--color-paper-2); font-size: 0.9em; }
 .prose strong { font-weight: 500; color: var(--color-ink); }
 .prose > :first-child { margin-top: 0; }
+
+/* ---------- The receiver: the night shift's radio ---------- */
+
+.now__body--radio { row-gap: var(--section-gap-s); }
+.radio { grid-column: 1 / 9; padding: var(--space-xl); }
+.now__body--radio .now__learn { grid-column: 10 / 13; align-self: center; }
+.now__body--radio .now__watch { grid-column: 1 / -1; }
+.now__body--radio .films { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+
+.radio__top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); }
+.radio__state { padding: var(--space-3xs) var(--space-sm); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-pill); font-size: var(--text-sm); font-weight: 500; color: var(--color-muted); white-space: nowrap; }
+.radio[data-on-air="true"] .radio__state { border-color: var(--color-accent); background: var(--color-accent-soft); color: var(--color-ink); }
+
+.radio__face { display: grid; grid-template-columns: 168px minmax(0, 1fr); gap: var(--space-lg); margin-top: var(--space-lg); }
+.radio__art { width: 168px; height: 168px; border-radius: var(--radius-part); object-fit: cover; box-shadow: var(--shadow-part); }
+/* A sunk display, backlit in the colour of the record (--art, sampled from the cover). */
+.radio__screen {
+  display: flex; flex-direction: column; justify-content: center; gap: var(--space-2xs); min-width: 0;
+  padding: var(--space-md) var(--space-lg); border-radius: var(--radius-part);
+  background: linear-gradient(to bottom, color-mix(in oklch, var(--art, var(--color-paper-3)) 30%, var(--color-paper)), color-mix(in oklch, var(--art, var(--color-paper-3)) 12%, var(--color-paper)));
+  box-shadow: inset 0 2px 8px color-mix(in oklch, var(--color-land) 80%, transparent), inset 0 0 0 1px var(--color-rule);
+  transition: background-color var(--dur-long) var(--ease-out);
+}
+.radio__title { font: var(--display-weight) var(--text-2xl)/1.1 var(--font-display); letter-spacing: var(--tracking-display); color: var(--color-ink); overflow-wrap: break-word; }
+.radio__title a { color: inherit; text-decoration-color: transparent; text-decoration-thickness: 2px; transition: text-decoration-color var(--dur-short) var(--ease-out); }
+.radio__title a:hover { text-decoration-color: var(--color-accent); }
+.radio__title a:focus-visible, .radio__tape a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; border-radius: var(--radius-part); }
+.radio__artist { color: var(--color-ink-2); }
+.radio__rail { position: relative; height: 4px; margin-top: var(--space-md); overflow: hidden; border-radius: var(--radius-pill); background: color-mix(in oklch, var(--color-ink) 16%, transparent); }
+.radio__fill { position: absolute; inset: 0; border-radius: var(--radius-pill); background: var(--color-accent); transform-origin: left center; transition: transform 1s linear; }
+.radio__times { display: flex; justify-content: space-between; margin-top: var(--space-2xs); font-size: var(--text-sm); font-variant-numeric: tabular-nums; color: var(--color-muted); }
+
+.radio__tape { margin-top: var(--space-xl); padding-top: var(--space-lg); border-top: var(--rule-hair) solid var(--color-rule); }
+.radio__tape h4 { margin: 0 0 var(--space-xs); font: 500 var(--text-sm)/1.4 var(--font-body); color: var(--color-muted); }
+.radio__tape ol { margin: 0; padding: 0; list-style: none; }
+.radio__tape li { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-md); padding-block: var(--space-xs); border-top: var(--rule-hair) solid var(--color-rule-2); }
+.radio__tape li:first-child { border-top: 0; }
+.radio__tape a { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--space-sm); min-width: 0; min-height: 32px; color: var(--color-ink); text-decoration: none; }
+.radio__tape a:hover .radio__song { text-decoration: underline; text-decoration-color: var(--color-accent); }
+.radio__song { overflow-wrap: anywhere; }
+.radio__by { font-size: var(--text-sm); color: var(--color-muted); }
+.radio__tape time { flex-shrink: 0; font-size: var(--text-sm); font-variant-numeric: tabular-nums; color: var(--color-muted); }
+@media (prefers-reduced-motion: reduce) { .radio__fill { transition: none; } }
+@media (max-width: 60rem) {
+  .radio, .now__body--radio .now__learn { grid-column: 1 / -1; }
+  .now__body--radio .films { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 40rem) {
+  .radio { padding: var(--space-lg); }
+  .radio__face { grid-template-columns: 96px minmax(0, 1fr); gap: var(--space-md); }
+  .radio__art { width: 96px; height: 96px; }
+  .radio__screen { padding: var(--space-sm) var(--space-md); }
+  .radio__title { font-size: var(--text-lg); }
+  .now__body--radio .films { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

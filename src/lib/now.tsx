@@ -4,8 +4,17 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 // in the page before any script runs; in the browser both refresh from /api.
 
 export type Film = { title: string; year: string; rating: number | null; watched: string; poster: string | null; url: string; rewatch: boolean }
-export type Track = { title: string; artist: string; album: string; art: string | null; url: string }
-export type Listening = { configured: boolean; playing?: boolean; track?: Track | null; playedAt?: string | null }
+export type Track = { title: string; artist: string; album: string; art: string | null; url: string; durationMs: number }
+export type Played = { title: string; artist: string; url: string; playedAt: string }
+export type Listening = {
+  configured: boolean
+  playing?: boolean
+  track?: Track | null
+  progressMs?: number
+  at?: number
+  playedAt?: string | null
+  recent?: Played[]
+}
 export type NowSeed = { films: Film[] }
 
 const Seed = createContext<NowSeed>({ films: [] })
@@ -33,9 +42,17 @@ export function useNow(active: boolean) {
     const poll = () => get<Listening>('/api/now-playing').then((d) => { if (alive && d) setListening(d) })
     poll()
     // Keep the song current while the section is on screen and the tab is open.
-    const id = window.setInterval(() => { if (!document.hidden) poll() }, 60_000)
+    const id = window.setInterval(() => { if (!document.hidden) poll() }, 30_000)
     return () => { alive = false; window.clearInterval(id) }
   }, [active])
+
+  // Ask again the moment the current song should have ended.
+  useEffect(() => {
+    if (!active || !listening?.playing || !listening.track || listening.at === undefined) return
+    const left = listening.track.durationMs - (listening.progressMs ?? 0) - (Date.now() - listening.at)
+    const id = window.setTimeout(() => get<Listening>('/api/now-playing').then((d) => d && setListening(d)), Math.max(2000, left + 1500))
+    return () => window.clearTimeout(id)
+  }, [active, listening])
 
   return { films, listening }
 }

@@ -12,7 +12,7 @@ const shell = await readFile(resolve(dist, 'index.html'), 'utf8')
 // The latest films, fetched once per build so they are in the HTML; if
 // Letterboxd is unreachable the page builds without them and the browser asks.
 const { fetchFilms } = await import(pathToFileURL(resolve('api/films.ts')).href)
-const films = await fetchFilms().catch((e) => { console.warn(`films skipped: ${e.message}`); return [] })
+const films = await fetchFilms(6).catch((e) => { console.warn(`films skipped: ${e.message}`); return [] })
 const seed = { films }
 const seedTag = `<script id="now-seed" type="application/json">${JSON.stringify(seed).replace(/</g, '\\u003c')}</script>`
 
