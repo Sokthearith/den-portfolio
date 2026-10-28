@@ -1,13 +1,20 @@
-import { Fragment, lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent } from 'react'
-import { profile } from '../data/profile'
+import { Fragment, lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent, type ReactNode } from 'react'
 import { useReducedMotion } from '../lib/hooks'
 import { createNightInput, lightWindow } from '../lib/night'
 
 const NightScene = lazy(() => import('./canvas/NightScene'))
 
-export default function Hero() {
+type Props = {
+  title: string
+  lede: string
+  actions: ReactNode
+  // 0 is the town awake; 1 is asleep with only den's window on.
+  lightsOut?: number
+}
+
+export default function Hero({ title, lede, actions, lightsOut = 0 }: Props) {
   const ref = useRef<HTMLElement>(null)
-  const input = useRef(createNightInput())
+  const input = useRef({ ...createNightInput(), lightsOut })
   const [mounted, setMounted] = useState(false)
   const [seen, setSeen] = useState(true)
   const [held, setHeld] = useState(false)
@@ -47,6 +54,13 @@ export default function Hero() {
     }
   }, [reduced, running])
 
+  // The palette's "turn on a light" lands here, somewhere along the horizon.
+  useEffect(() => {
+    const on = () => lightWindow(input.current, 0.08 + Math.random() * 0.84, !running)
+    window.addEventListener('night:light', on)
+    return () => window.removeEventListener('night:light', on)
+  }, [running])
+
   const track = (e: PointerEvent<HTMLElement>) => {
     const r = e.currentTarget.getBoundingClientRect()
     input.current.x = e.clientX - r.left
@@ -62,7 +76,7 @@ export default function Hero() {
     lightWindow(input.current, (e.clientX - r.left) / r.width, !running)
   }
 
-  const words = profile.headline.split(' ')
+  const words = title.split(' ')
 
   return (
     <section
@@ -94,11 +108,8 @@ export default function Hero() {
             </Fragment>
           ))}
         </h1>
-        <p className="lead hero__lede">{profile.lede}</p>
-        <div className="hero__actions">
-          <a className="btn btn--primary" href={`mailto:${profile.email}`}>Email me</a>
-          <a className="btn" href="#work">See my work</a>
-        </div>
+        <p className="lead hero__lede">{lede}</p>
+        <div className="hero__actions">{actions}</div>
       </div>
 
       <div className="hero__foot container">

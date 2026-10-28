@@ -1,16 +1,13 @@
-import { useState } from 'react'
-import About from './components/About'
 import Footer from './components/Footer'
-import Hero from './components/Hero'
 import Nav from './components/Nav'
-import Skills from './components/Skills'
-import Work from './components/Work'
-import { defaultSkill } from './data/skills'
+import Palette from './components/Palette'
 import { useReveal } from './lib/reveal'
+import { findRoute } from './routes'
 
-export default function App() {
-  // The pressed key on the rack; Work lights the projects that use it.
-  const [active, setActive] = useState(defaultSkill)
+// The shell every page shares: skip link, nav, the page, the footer, and the
+// Ctrl+K palette.
+export default function App({ path }: { path: string }) {
+  const { page: Page } = findRoute(path)
   useReveal()
 
   return (
@@ -18,12 +15,10 @@ export default function App() {
       <a className="skip" href="#main">Skip to content</a>
       <Nav />
       <main id="main">
-        <Hero />
-        <Work active={active} onPress={setActive} />
-        <Skills active={active} onPress={setActive} />
-        <About />
+        <Page />
       </main>
       <Footer />
+      <Palette />
     </>
   )
 }

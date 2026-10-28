@@ -16,7 +16,7 @@
 
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 
-body { font-size: 1.0625rem; line-height: 1.6; color: var(--color-ink); }
+body { font-size: 1.0625rem; line-height: 1.6; color: var(--color-ink); transition: background-color var(--dur-long) var(--ease-out), color var(--dur-long) var(--ease-out); }
 p { color: var(--color-muted); }
 h1, h2, h3 { color: var(--color-ink); line-height: 1.04; }
 
@@ -297,7 +297,7 @@ html:not(.js) .readout { grid-column: 1 / -1; }
   background: var(--color-land); color: var(--color-band-ink);
 }
 /* The second night: it rises out of the page's paper rather than starting on a seam. */
-.footer .night { background: linear-gradient(to bottom, var(--color-paper) 0%, var(--color-sky-lo) calc(100% - var(--horizon)), var(--color-land-hi) calc(100% - var(--horizon)), var(--color-land) 100%); }
+.footer .night { background: linear-gradient(to bottom, var(--color-page) 0%, var(--color-sky-lo) calc(100% - var(--horizon)), var(--color-land-hi) calc(100% - var(--horizon)), var(--color-land) 100%); }
 .footer__inner { align-self: start; }
 /* The drawn sky fades in from the page above, so there is no seam to cross. */
 .footer .night__canvas, .footer .night__grain { -webkit-mask-image: linear-gradient(to bottom, transparent, var(--color-ink) 28%); mask-image: linear-gradient(to bottom, transparent, var(--color-ink) 28%); }
@@ -408,3 +408,30 @@ html:not(.js) .readout { grid-column: 1 / -1; }
     .about__statement .sw { animation: sw-light linear both; animation-timeline: view(); animation-range: cover calc(12% + var(--i) * 2.4%) cover calc(26% + var(--i) * 2.4%); }
   }
 }
+
+/* ---------- Nav tools: the palette and dawn ---------- */
+
+.nav__tools { display: flex; gap: var(--space-3xs); }
+.nav__icon { display: inline-grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: var(--radius-pill); background: none; color: var(--color-muted); cursor: pointer; transition: color var(--dur-short) var(--ease-out), background-color var(--dur-short) var(--ease-out); }
+.nav__icon:hover { color: var(--color-ink); background: var(--color-paper-3); }
+.nav__icon:active { transform: translateY(1px); }
+.nav__icon:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.nav__icon[aria-pressed="true"] { color: var(--color-accent); }
+@media (max-width: 40rem) { .nav__jump { display: none; } .nav__pill { gap: var(--space-2xs); } }
+
+/* ---------- The palette ---------- */
+
+.palette { width: min(36rem, 100% - 2 * var(--space-md)); max-height: min(32rem, 100dvh - 2 * var(--space-xl)); margin: 14dvh auto auto; padding: 0; border: 0; background: none; color: var(--color-ink); overflow: visible; }
+.palette::backdrop { background: color-mix(in oklch, var(--color-band) 62%, transparent); }
+.palette__panel { display: flex; flex-direction: column; max-height: inherit; overflow: hidden; border-radius: var(--radius-card); background: linear-gradient(var(--color-paper-3), var(--color-paper-2)); box-shadow: var(--edge-light), var(--shadow-panel); }
+.palette__input { min-height: 56px; padding: 0 var(--space-lg); border: 0; border-bottom: var(--rule-hair) solid var(--color-rule); background: none; color: var(--color-ink); font-size: var(--text-lg); outline: 2px solid transparent; outline-offset: -2px; }
+.palette__input::placeholder { color: var(--color-muted); }
+.palette__input:focus-visible { outline-color: var(--color-focus); border-radius: var(--radius-card) var(--radius-card) 0 0; }
+.palette__list { flex: 1; margin: 0; padding: var(--space-xs); overflow-y: auto; list-style: none; }
+.palette__item { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); min-height: 44px; padding: 0 var(--space-md); border-radius: var(--radius-part); color: var(--color-ink-2); cursor: pointer; }
+.palette__item[aria-selected="true"] { background: var(--color-paper); color: var(--color-ink); box-shadow: inset 0 -2px 0 var(--color-accent); }
+.palette__kind { font-size: var(--text-sm); color: var(--color-muted); }
+.palette__empty { padding: var(--space-md); color: var(--color-muted); }
+.palette__foot { padding: var(--space-sm) var(--space-lg); border-top: var(--rule-hair) solid var(--color-rule); font-size: var(--text-sm); color: var(--color-muted); }
+@keyframes palette-in { from { opacity: 0; transform: translateY(-8px) scale(0.98); } }
+@media (prefers-reduced-motion: no-preference) { .palette[open] .palette__panel { animation: palette-in var(--dur-short) var(--ease-out); } }

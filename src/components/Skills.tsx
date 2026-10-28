@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from 
 import { dailyTools, skillGroups } from '../data/skills'
 import { projectsUsing } from '../data/projects'
 import { useMediaQuery, useReducedMotion } from '../lib/hooks'
+import { useTheme } from '../lib/theme'
 
 const SkillRack = lazy(() => import('./canvas/SkillRack'))
 
@@ -43,6 +44,7 @@ export default function Skills({ active, onPress }: Props) {
   const scroll = useRef<RackScroll>({ value: 0.5 })
   const wide = useMediaQuery('(min-width: 40.01rem)')
   const reduced = useReducedMotion()
+  const theme = useTheme()
 
   // Load the rack only as the section comes near; it is never needed on phones.
   useEffect(() => {
@@ -103,7 +105,7 @@ export default function Skills({ active, onPress }: Props) {
         <div className="rack" ref={ref} aria-hidden="true">
           {near && wide && (
             <Suspense fallback={null}>
-              <SkillRack active={active} reduced={reduced} entered={entered} scroll={scroll} onPress={onPress} />
+              <SkillRack active={active} reduced={reduced} entered={entered} theme={theme} scroll={scroll} onPress={onPress} />
             </Suspense>
           )}
         </div>

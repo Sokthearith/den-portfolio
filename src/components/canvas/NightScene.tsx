@@ -146,7 +146,12 @@ function Night({ running, input }: Props) {
     return () => { inp.invalidate = undefined }
   }, [input, invalidate])
 
+  const gl = useThree((s) => s.gl)
+
+  // Colours come from the section the night sits in, which keeps the night's
+  // tokens even when the rest of the page is in dawn.
   const material = useMemo(() => {
+    const host = gl.domElement
     const v = (rgb: [number, number, number]) => new Vector3(...rgb)
     return new ShaderMaterial({
       vertexShader: vertex,
@@ -160,9 +165,9 @@ function Night({ running, input }: Props) {
         uRes: { value: new Vector2(1, 1) },
         uDpr: { value: 1 },
         uHorizon: { value: HORIZON },
-        uRibbon: { value: v(tokenRGB('--color-muted')) },
-        uWindow: { value: v(tokenRGB('--color-ink-2')) },
-        uAccent: { value: v(tokenRGB('--color-accent')) },
+        uRibbon: { value: v(tokenRGB('--color-muted', host)) },
+        uWindow: { value: v(tokenRGB('--color-ink-2', host)) },
+        uAccent: { value: v(tokenRGB('--color-accent', host)) },
         uPointer: { value: new Vector2(-9999, -9999) },
         uPointerOn: { value: 0 },
         uExit: { value: 0 },
@@ -171,12 +176,11 @@ function Night({ running, input }: Props) {
         uNow: { value: 0 },
       },
     })
-  }, [])
+  }, [gl])
 
   // The horizon comes from the --horizon of the section the night sits in (the
   // hero or the footer), so the CSS land and the drawn windows share one line;
   // a still night redraws on resize.
-  const gl = useThree((s) => s.gl)
   useEffect(() => {
     const host = gl.domElement.closest('.night')
     const h = host ? parseFloat(getComputedStyle(host).getPropertyValue('--horizon')) / 100 : NaN

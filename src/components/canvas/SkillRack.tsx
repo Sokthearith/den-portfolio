@@ -20,7 +20,8 @@ const keyWidth = (s: string) => Math.max(1.0, 0.44 + s.length * 0.17)
 
 type Palette = { metal: Color; bed: Color; ink: Color; label: Color; accent: Color; idle: Color }
 
-function usePalette(): Palette {
+// Re-read whenever the theme changes, so the rack is aluminium at dawn.
+function usePalette(theme: string): Palette {
   return useMemo(() => {
     const c = (name: string) => new Color().setRGB(...tokenRGB(name), SRGBColorSpace)
     return {
@@ -32,7 +33,7 @@ function usePalette(): Palette {
       accent: c('--color-focus'),
       idle: c('--color-rule'),
     }
-  }, [])
+  }, [theme])
 }
 
 function useLayout() {
@@ -181,10 +182,10 @@ function Fit({ width, depth, scroll }: { width: number; depth: number; scroll: R
   return null
 }
 
-type RackProps = { active: string; reduced: boolean; entered: boolean; scroll: RefObject<RackScroll>; onPress: (name: string) => void }
+type RackProps = { active: string; reduced: boolean; entered: boolean; theme: string; scroll: RefObject<RackScroll>; onPress: (name: string) => void }
 
-function Rack({ active, reduced, entered, scroll, onPress }: RackProps) {
-  const palette = usePalette()
+function Rack({ active, reduced, entered, theme, scroll, onPress }: RackProps) {
+  const palette = usePalette(theme)
   const { rows, width, depth, ox, oz } = useLayout()
   const lit = rows.flatMap((r) => r.keys.map((k) => ({ ...k, z: r.z }))).find((k) => k.name === active)
 
@@ -223,7 +224,7 @@ function Rack({ active, reduced, entered, scroll, onPress }: RackProps) {
   )
 }
 
-export default function SkillRack({ active, reduced, entered, scroll, onPress }: RackProps) {
+export default function SkillRack({ active, reduced, entered, theme, scroll, onPress }: RackProps) {
   return (
     <Canvas
       className="rack__canvas"
@@ -239,7 +240,7 @@ export default function SkillRack({ active, reduced, entered, scroll, onPress }:
         <Lightformer form="rect" intensity={2.2} position={[0, 6, 0]} rotation-x={Math.PI / 2} scale={[12, 4, 1]} />
         <Lightformer form="rect" intensity={0.35} position={[0, 1.5, 7]} scale={[12, 1.5, 1]} />
       </Environment>
-      <Rack active={active} reduced={reduced} entered={entered} scroll={scroll} onPress={onPress} />
+      <Rack active={active} reduced={reduced} entered={entered} theme={theme} scroll={scroll} onPress={onPress} />
     </Canvas>
   )
 }

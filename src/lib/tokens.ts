@@ -1,7 +1,7 @@
-// Reads a colour token from :root and resolves it to sRGB (0 to 1), so the
-// WebGL scenes paint with the same colours as the CSS.
-export function tokenRGB(name: string): [number, number, number] {
-  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+// Reads a colour token as an element sees it (the page root by default) and
+// resolves it to sRGB (0 to 1), so the WebGL scenes paint with the CSS colours.
+export function tokenRGB(name: string, el: Element = document.documentElement): [number, number, number] {
+  const value = getComputedStyle(el).getPropertyValue(name).trim()
   const canvas = document.createElement('canvas')
   canvas.width = canvas.height = 1
   const ctx = canvas.getContext('2d', { willReadFrequently: true })
