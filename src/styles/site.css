@@ -5,6 +5,7 @@
  * finish-review: subagent · fix · 5 findings · 5 resolved (Agrix as a named system map and Planify's schedule as steps on lit panels, About and footer rewritten in den's facts, the About echo of the hero cut, rack legends larger in ink with the pressed key in amber and the head beside the board, the theme's panel carried into Work) · gap: project screenshots still to come */
 /* Hallmark · pre-emit critique: P4 H5 E4 S4 R5 V4 · weakest: S, a night sky could open any developer's page; made it den's own with the far row of windows and the one amber light, the copy says mostly at night, no stars, no moon, no mouse parallax */
 /* Hallmark · waive 39b · tag buttons at 32px with a 44px hit area · the stack tags double as keys for the rack and must stay tag-sized beside the plain tags in each project */
+/* Hallmark · waive 44c · the lab opens on a Banner posture with its first experiment above the fold · a page of tools heads itself with a banner, not a second night over the hero */
 /* Hallmark · answered F8 · the owner asked for more scroll transitions; the three tell one story, the night passing: the nav's progress line, horizons drawing at each section, About's line lighting word by word */
 /* Hallmark · answered F7 · the pill radius rounds the 2px index lines (rails, the lit line under names and nav links, the progress line) and the keys, never a box */
 /* Hallmark · dismissed 28a · the project screenshots sit far below the hero, whose headline is the LCP, so lazy is right for them */
@@ -435,3 +436,76 @@ html:not(.js) .readout { grid-column: 1 / -1; }
 .palette__foot { padding: var(--space-sm) var(--space-lg); border-top: var(--rule-hair) solid var(--color-rule); font-size: var(--text-sm); color: var(--color-muted); }
 @keyframes palette-in { from { opacity: 0; transform: translateY(-8px) scale(0.98); } }
 @media (prefers-reduced-motion: no-preference) { .palette[open] .palette__panel { animation: palette-in var(--dur-short) var(--ease-out); } }
+
+/* ---------- Listen: the night's sound and its mixer ---------- */
+
+.hero__controls { display: flex; align-items: center; gap: var(--space-xs); }
+.listen { position: relative; }
+.listen__button[data-playing="true"] { border-color: var(--color-accent); box-shadow: inset 0 -2px 0 var(--color-accent), var(--edge-light), var(--shadow-part); }
+.listen__panel {
+  position: absolute; right: 0; bottom: calc(100% + var(--space-sm)); z-index: var(--z-dropdown);
+  display: flex; flex-direction: column; align-items: stretch; gap: var(--space-md);
+  padding: var(--space-lg); border-radius: var(--radius-card);
+  background: linear-gradient(var(--color-paper-3), var(--color-paper-2)); box-shadow: var(--edge-light), var(--shadow-panel);
+}
+.listen__faders { display: flex; gap: var(--space-lg); padding: var(--space-md) var(--space-lg); border-radius: var(--radius-part); background: var(--color-paper); box-shadow: inset 0 2px 8px color-mix(in oklch, var(--color-land) 80%, transparent); }
+.fader { display: flex; flex-direction: column; align-items: center; gap: var(--space-xs); cursor: pointer; }
+.fader__value { font: var(--display-weight) var(--text-lg)/1 var(--font-display); font-variant-numeric: tabular-nums; color: var(--color-ink); }
+.fader__name { font-size: var(--text-sm); color: var(--color-muted); }
+
+/* A real range input, stood on end: a sunk slot and a machined cap. */
+.fader__input { writing-mode: vertical-lr; direction: rtl; appearance: none; -webkit-appearance: none; width: 32px; height: 132px; margin: 0; background: none; cursor: pointer; }
+.fader__input::-webkit-slider-runnable-track { inline-size: 100%; block-size: 4px; border-radius: var(--radius-pill); background: var(--color-rule); box-shadow: inset 0 1px 2px color-mix(in oklch, var(--color-land) 80%, transparent); }
+.fader__input::-moz-range-track { width: 4px; border-radius: var(--radius-pill); background: var(--color-rule); }
+.fader__input::-moz-range-progress { width: 4px; border-radius: var(--radius-pill); background: var(--color-accent); }
+.fader__input::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 30px; height: 16px; margin-left: calc(-1 * var(--space-sm)); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-part); background: linear-gradient(var(--metal-hi), var(--metal-lo)); box-shadow: var(--edge-light), var(--shadow-part), inset 0 -2px 0 var(--color-accent); }
+.fader__input::-moz-range-thumb { width: 30px; height: 16px; border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-part); background: linear-gradient(var(--metal-hi), var(--metal-lo)); box-shadow: var(--edge-light), var(--shadow-part), inset 0 -2px 0 var(--color-accent); }
+.fader__input:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; border-radius: var(--radius-part); }
+@media (max-width: 40rem) { .listen__panel { right: auto; left: 0; } }
+
+/* ---------- The lab ---------- */
+
+.labhead { display: grid; align-items: end; min-height: 58svh; padding-block: var(--space-4xl) var(--space-2xl); }
+.labhead h1 { max-width: 14ch; font-size: clamp(3.25rem, 7vw, 7rem); }
+.labhead .lead { margin-top: var(--space-lg); color: var(--color-ink-2); }
+.exp { padding-block: var(--space-3xl) var(--section-gap-s); }
+.exp__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); row-gap: var(--space-2xl); align-items: start; }
+.exp__head { grid-column: 1 / 5; }
+.exp__head .lead { margin-top: var(--space-md); color: var(--color-ink-2); }
+.exp__tools { margin-top: var(--space-lg); }
+.exp__grid > :last-child { grid-column: 6 / 13; }
+.exp--flip .exp__head { grid-column: 9 / 13; grid-row: 1; }
+.exp--flip .exp__grid > :last-child { grid-column: 1 / 8; grid-row: 1; }
+.exp--wide .exp__head { max-width: 40rem; }
+@media (max-width: 60rem) {
+  .exp__head, .exp__grid > :last-child, .exp--flip .exp__head, .exp--flip .exp__grid > :last-child { grid-column: 1 / -1; grid-row: auto; }
+}
+
+/* The night, by hand. */
+.labnight__stage { --horizon: 24%; position: relative; isolation: isolate; aspect-ratio: 16 / 10; overflow: hidden; border-radius: var(--radius-card); background: var(--color-land); box-shadow: var(--edge-light), var(--shadow-panel); cursor: crosshair; }
+.labnight__dials { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; align-items: center; gap: var(--space-md) var(--space-xl); margin-top: var(--space-lg); }
+.dial { display: grid; grid-template-columns: auto minmax(0, 1fr) 3.5rem; align-items: center; gap: var(--space-sm); min-width: 0; }
+@media (max-width: 40rem) { .labnight__dials { grid-template-columns: minmax(0, 1fr); } .labnight__dials .btn { justify-self: start; } }
+.dial__name { font-size: var(--text-sm); font-weight: 500; color: var(--color-muted); }
+.dial__value { font-size: var(--text-sm); font-variant-numeric: tabular-nums; color: var(--color-ink-2); }
+.dial input { width: 100%; min-height: 44px; accent-color: var(--color-accent); cursor: pointer; }
+.dial input:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+/* Type that leans in. */
+@font-face { font-family: "Instrument Sans Lean"; src: url("/fonts/instrument-sans-var-latin.woff2") format("woff2"); font-weight: 400 700; font-stretch: 75% 100%; font-display: swap; }
+.lean { margin-top: var(--space-2xl); font-family: var(--font-lean); font-size: clamp(2.5rem, 7.6vw, 7.25rem); line-height: 1.02; overflow-wrap: break-word; min-width: 0; letter-spacing: -0.03em; color: var(--color-ink); text-wrap: balance; cursor: default; user-select: none; }
+.lean__w { display: inline-block; white-space: nowrap; }
+.lean__l { display: inline-block; font-variation-settings: "wdth" calc(75 + var(--k, 0) * 25), "wght" calc(400 + var(--k, 0) * 300); color: color-mix(in oklch, var(--color-ink) calc(100% - var(--k, 0) * 100%), var(--color-accent)); transition: font-variation-settings 0.5s var(--ease-out), color 0.5s var(--ease-out); }
+@media (prefers-reduced-motion: reduce) { .lean__l { transition: none; } }
+
+/* The rack, loose. */
+.labrack__stage { position: relative; aspect-ratio: 16 / 10; cursor: grab; }
+.labrack__stage:active { cursor: grabbing; }
+.labrack__readout { margin-top: var(--space-md); font-size: var(--text-lead); color: var(--color-ink-2); }
+.labrack__readout strong { font-weight: 500; color: var(--color-ink); }
+.labrack__keys { margin-top: var(--space-lg); }
+@media (max-width: 40rem) { .labrack__stage { display: none; } }
+/* The lab opens on a banner: its first experiment starts inside the first screen. */
+.labhead { min-height: 0; padding-bottom: calc(var(--section-gap-s) - var(--space-2xl)); }
+.labhead + .exp { padding-top: 0; }
+.labhead + .exp .horizon { margin-bottom: var(--space-2xl); }

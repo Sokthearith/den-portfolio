@@ -8,6 +8,7 @@ const links = [
   { href: '/#work', id: 'work', label: 'Work' },
   { href: '/#skills', id: 'skills', label: 'Skills' },
   { href: '/#about', id: 'about', label: 'About' },
+  { href: '/lab', id: '/lab', label: 'Lab' },
 ]
 
 export default function Nav() {
@@ -15,13 +16,18 @@ export default function Nav() {
   const [here, setHere] = useState('')
   const theme = useTheme()
 
-  // The link for the section in the middle of the screen reads as current.
+  // The link for the section in the middle of the screen reads as current;
+  // on another page, that page's link does.
   useEffect(() => {
+    if (location.pathname !== '/') {
+      setHere(location.pathname.replace(/\/+$/, ''))
+      return
+    }
     const io = new IntersectionObserver(
       (entries) => entries.forEach((e) => { if (e.isIntersecting) setHere(e.target.id) }),
       { rootMargin: '-45% 0px -50% 0px' },
     )
-    ;['top', ...links.map((l) => l.id)].forEach((id) => {
+    ;['top', ...links.map((l) => l.id).filter((id) => !id.startsWith('/'))].forEach((id) => {
       const el = document.getElementById(id)
       if (el) io.observe(el)
     })

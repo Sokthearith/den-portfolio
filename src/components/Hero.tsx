@@ -1,6 +1,8 @@
 import { Fragment, lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent, type ReactNode } from 'react'
 import { useReducedMotion } from '../lib/hooks'
 import { createNightInput, lightWindow } from '../lib/night'
+import { useSound } from '../lib/sound'
+import Listen from './Listen'
 
 const NightScene = lazy(() => import('./canvas/NightScene'))
 
@@ -21,6 +23,13 @@ export default function Hero({ title, lede, actions, lightsOut = 0 }: Props) {
   const [still, setStill] = useState(false)
   const reduced = useReducedMotion()
   const running = mounted && seen && !held && !reduced && !still
+  const sound = useSound()
+
+  // What you hear, you see: the rain fader brings rain into the night.
+  useEffect(() => {
+    input.current.rain = sound.playing ? sound.levels.rain : 0
+    input.current.invalidate?.()
+  }, [sound])
 
   useEffect(() => {
     setMounted(true)
@@ -71,7 +80,7 @@ export default function Hero({ title, lede, actions, lightsOut = 0 }: Props) {
   // A click or tap on the sky turns on a window below it; links and buttons
   // keep their own jobs.
   const light = (e: MouseEvent<HTMLElement>) => {
-    if ((e.target as Element).closest('a, button')) return
+    if ((e.target as Element).closest('a, button, input, label, .listen')) return
     const r = e.currentTarget.getBoundingClientRect()
     lightWindow(input.current, (e.clientX - r.left) / r.width, !running)
   }
@@ -113,11 +122,14 @@ export default function Hero({ title, lede, actions, lightsOut = 0 }: Props) {
       </div>
 
       <div className="hero__foot container">
-        {!still && (
-          <button className="btn btn--small hero__pause" type="button" onClick={() => setHeld((h) => !h)}>
-            {held ? 'Play the night' : 'Pause the night'}
-          </button>
-        )}
+        <div className="hero__controls">
+          {mounted && <Listen />}
+          {!still && (
+            <button className="btn btn--small hero__pause" type="button" onClick={() => setHeld((h) => !h)}>
+              {held ? 'Play the night' : 'Pause the night'}
+            </button>
+          )}
+        </div>
         {!still && (
           <p className="hero__hint" aria-hidden="true">
             <span className="hint--fine">Click</span><span className="hint--coarse">Tap</span> the sky to turn on a light.

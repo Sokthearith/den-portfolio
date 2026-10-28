@@ -2,6 +2,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState, type Keyboard
 import { profile } from '../data/profile'
 import { routes } from '../routes'
 import { toggleTheme, useTheme } from '../lib/theme'
+import { toggleSound, useSound } from '../lib/sound'
 
 type Command = { id: string; label: string; kind: string; keywords?: string; run: () => void | Promise<void> }
 
@@ -26,6 +27,7 @@ export default function Palette() {
   const [index, setIndex] = useState(0)
   const [status, setStatus] = useState('')
   const theme = useTheme()
+  const sound = useSound()
   const list = useId()
 
   const close = useCallback(() => dialog.current?.close(), [])
@@ -56,9 +58,10 @@ export default function Palette() {
       { id: 'github', label: 'Open GitHub', kind: 'Link', keywords: 'code repositories', run: () => { window.open(profile.links.github, '_blank', 'noopener') } },
       { id: 'linkedin', label: 'Open LinkedIn', kind: 'Link', keywords: 'profile cv', run: () => { window.open(profile.links.linkedin, '_blank', 'noopener') } },
       { id: 'theme', label: theme === 'dawn' ? 'Back to night' : 'Switch to dawn', kind: 'Action', keywords: 'theme light dark mode', run: toggleTheme },
+      { id: 'sound', label: sound.playing ? 'Stop the night sounds' : 'Play the night sounds', kind: 'Action', keywords: 'rain wind audio listen music', run: () => { toggleSound() } },
       { id: 'light', label: 'Turn on a light', kind: 'Action', keywords: 'window night sky', run: () => { goTo('top'); window.dispatchEvent(new Event('night:light')) } },
     ]
-  }, [theme, close])
+  }, [theme, sound.playing, close])
 
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase()

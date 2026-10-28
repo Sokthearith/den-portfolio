@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber'
-import { Environment, Lightformer, RoundedBox, Text } from '@react-three/drei'
+import { Environment, Lightformer, OrbitControls, RoundedBox, Text } from '@react-three/drei'
 import { Color, MathUtils, SRGBColorSpace, type Group, type PerspectiveCamera } from 'three'
 import { skillGroups } from '../../data/skills'
 import { tokenRGB } from '../../lib/tokens'
@@ -184,14 +184,15 @@ function Fit({ width, depth, scroll }: { width: number; depth: number; scroll: R
 
 type RackProps = { active: string; reduced: boolean; entered: boolean; theme: string; scroll: RefObject<RackScroll>; onPress: (name: string) => void }
 
-function Rack({ active, reduced, entered, theme, scroll, onPress }: RackProps) {
+// In the lab the visitor holds the camera, so the scroll does not.
+function Rack({ active, reduced, entered, theme, scroll, onPress, loose = false }: RackProps & { loose?: boolean }) {
   const palette = usePalette(theme)
   const { rows, width, depth, ox, oz } = useLayout()
   const lit = rows.flatMap((r) => r.keys.map((k) => ({ ...k, z: r.z }))).find((k) => k.name === active)
 
   return (
     <group>
-      <Fit width={width + PAD * 2} depth={depth + PAD * 2} scroll={scroll} />
+      {!loose && <Fit width={width + PAD * 2} depth={depth + PAD * 2} scroll={scroll} />}
       {/* The bed the keys sit in. */}
       <RoundedBox args={[width + PAD * 2, 0.24, depth + PAD * 2]} radius={0.12} smoothness={4} position={[0, -0.12, 0]}>
         <meshStandardMaterial color={palette.bed} metalness={0.55} roughness={0.5} />
@@ -224,6 +225,19 @@ function Rack({ active, reduced, entered, theme, scroll, onPress }: RackProps) {
   )
 }
 
+function Light() {
+  return (
+    <>
+      <ambientLight intensity={0.15} />
+      <directionalLight position={[1.5, 8, 2]} intensity={1.4} />
+      <Environment resolution={64} frames={1}>
+        <Lightformer form="rect" intensity={2.2} position={[0, 6, 0]} rotation-x={Math.PI / 2} scale={[12, 4, 1]} />
+        <Lightformer form="rect" intensity={0.35} position={[0, 1.5, 7]} scale={[12, 1.5, 1]} />
+      </Environment>
+    </>
+  )
+}
+
 export default function SkillRack({ active, reduced, entered, theme, scroll, onPress }: RackProps) {
   return (
     <Canvas
@@ -234,13 +248,28 @@ export default function SkillRack({ active, reduced, entered, theme, scroll, onP
       camera={{ position: [0, 7, 5.2], fov: FOV }}
       gl={{ alpha: true, antialias: true }}
     >
-      <ambientLight intensity={0.15} />
-      <directionalLight position={[1.5, 8, 2]} intensity={1.4} />
-      <Environment resolution={64} frames={1}>
-        <Lightformer form="rect" intensity={2.2} position={[0, 6, 0]} rotation-x={Math.PI / 2} scale={[12, 4, 1]} />
-        <Lightformer form="rect" intensity={0.35} position={[0, 1.5, 7]} scale={[12, 1.5, 1]} />
-      </Environment>
+      <Light />
       <Rack active={active} reduced={reduced} entered={entered} theme={theme} scroll={scroll} onPress={onPress} />
+    </Canvas>
+  )
+}
+
+// The lab's loose rack: drag to turn it round, press a key. The camera keeps
+// above the bed so the keys never vanish under it.
+export function LooseRack({ active, reduced, theme, onPress }: Pick<RackProps, 'active' | 'reduced' | 'theme' | 'onPress'>) {
+  const scroll = useRef<RackScroll>({ value: 0.5 })
+  return (
+    <Canvas
+      className="rack__canvas"
+      aria-hidden="true"
+      frameloop="demand"
+      dpr={[1, 2]}
+      camera={{ position: [0, 12.5, 12.5], fov: 30 }}
+      gl={{ alpha: true, antialias: true }}
+    >
+      <Light />
+      <Rack active={active} reduced={reduced} entered theme={theme} scroll={scroll} onPress={onPress} loose />
+      <OrbitControls enablePan={false} enableZoom={false} enableDamping={!reduced} minPolarAngle={0.15} maxPolarAngle={1.25} rotateSpeed={0.7} />
     </Canvas>
   )
 }

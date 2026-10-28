@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import Home from './pages/Home'
+import Lab from './pages/Lab'
 import NotFound from './pages/NotFound'
 
 // Every page of the site. The build prerenders each to its own HTML file
@@ -13,6 +14,13 @@ export const routes: Route[] = [
     title: 'den, full-stack developer',
     description: 'Kheng Sokthearith (den), full-stack developer and software engineering student at CADT. Projects, skills and how to reach me.',
     page: Home,
+  },
+  {
+    path: '/lab',
+    file: 'lab/index.html',
+    title: 'The lab, den',
+    description: 'Small experiments from den\'s site: the night by hand, type that leans in, and the skills rack off its stand.',
+    page: Lab,
   },
   {
     path: '/404',

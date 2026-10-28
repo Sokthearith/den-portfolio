@@ -36,6 +36,7 @@ const fragment = /* glsl */ `
   uniform float uPointerOn;
   uniform float uExit;
   uniform float uLightsOut;
+  uniform float uRain;
   uniform vec3 uLit[${MAX_LIT}];
   uniform float uNow;
 
@@ -110,6 +111,25 @@ const fragment = /* glsl */ `
       alpha += refl + ra;
     }
 
+    // Rain, when the visitor has it playing: fine streaks falling through the
+    // sky, leaning a little with the wind, gone at the horizon.
+    if (uRain > 0.001 && px.y > uHorizon * uRes.y) {
+      float colW = 7.0 * uDpr;
+      float rc = floor(px.x / colW);
+      float falling = step(1.0 - uRain * 0.75, hash(rc + 49.0));
+      float speed = (520.0 + 300.0 * hash(rc + 41.0)) * uDpr;
+      float len = (22.0 + 34.0 * hash(rc + 43.0)) * uDpr;
+      float span = uRes.y + len;
+      float head = uRes.y - mod(uTime * speed + hash(rc + 47.0) * span, span);
+      float dd = px.y - head;
+      float cx = (rc + 0.5) * colW + dd * 0.12;
+      float dx = abs(px.x - cx) / uDpr;
+      float streak = exp(-dx * dx / 0.3) * step(0.0, dd) * step(dd, len) * (1.0 - dd / len);
+      float drop = streak * falling * uRain * 0.16;
+      col += uRibbon * drop;
+      alpha += drop;
+    }
+
     // The windows a visitor turned on, warming up over most of a second.
     for (int j = 0; j < ${MAX_LIT}; j++) {
       vec3 L = uLit[j];
@@ -172,6 +192,7 @@ function Night({ running, input }: Props) {
         uPointerOn: { value: 0 },
         uExit: { value: 0 },
         uLightsOut: { value: 0 },
+        uRain: { value: 0 },
         uLit: { value: Array.from({ length: MAX_LIT }, () => new Vector3(-1, 0, 0)) },
         uNow: { value: 0 },
       },
@@ -208,6 +229,7 @@ function Night({ running, input }: Props) {
     u.uPointer.value.set(inp.x * dpr, gl.domElement.clientHeight * dpr - inp.y * dpr)
     u.uExit.value = inp.exit
     u.uLightsOut.value = inp.lightsOut
+    u.uRain.value += (inp.rain - u.uRain.value) * Math.min(1, Math.min(delta, 0.05) * 3)
 
     for (let i = 0; i < MAX_LIT; i++) u.uLit.value[i].set(inp.lit[i * 3], inp.lit[i * 3 + 1], inp.lit[i * 3 + 2])
   })

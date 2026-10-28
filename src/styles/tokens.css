@@ -21,7 +21,7 @@
   --shadow-panel: 0 1px 0 oklch(6% 0.01 258 / 0.5), 0 24px 48px -16px oklch(6% 0.02 258 / 0.8);
   --color-sky-hi: oklch(11% 0.024 258); --color-sky-lo: oklch(19% 0.035 245); --color-land: oklch(9.5% 0.016 258); --color-land-hi: oklch(13.5% 0.024 250); --color-glass: oklch(16.4% 0.022 258 / 0.62);
   --font-display: "Instrument Sans", ui-sans-serif, system-ui, sans-serif; --font-body: "Figtree", ui-sans-serif, system-ui, sans-serif;
-  --font-outlier: "JetBrains Mono", ui-monospace, monospace;
+  --font-lean: "Instrument Sans Lean", "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
   --radius-card: 20px; --radius-part: 6px; --radius-pill: 999px; --rule-hair: 1px;
   --shadow-card: none;
   --tracking-display: -0.035em; --display-weight: 400;
@@ -44,7 +44,7 @@
   --shadow-panel: 0 1px 0 oklch(20% 0.01 80 / 0.2), 0 24px 48px -16px oklch(20% 0.02 80 / 0.35);
   --color-glass: oklch(98.2% 0.008 82 / 0.72);
 }
-:root[data-theme="dawn"] :is(.hero, .footer) {
+:root[data-theme="dawn"] :is(.hero, .footer, .labnight__stage) {
   color-scheme: dark;
   --color-paper: oklch(13.2% 0.022 258);
   --color-paper-2: oklch(16.4% 0.022 258);
