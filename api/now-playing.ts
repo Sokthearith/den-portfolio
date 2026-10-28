@@ -41,7 +41,11 @@ async function accessToken(id: string, secret: string, refresh: string) {
 
 export async function GET() {
   const { SPOTIFY_CLIENT_ID: id, SPOTIFY_CLIENT_SECRET: secret, SPOTIFY_REFRESH_TOKEN: refresh } = process.env
-  if (!id || !secret || !refresh) return json({ configured: false }, 300)
+  if (!id || !secret || !refresh) {
+    // Names only, never values: enough to see which key the host is missing.
+    const missing = Object.entries({ SPOTIFY_CLIENT_ID: id, SPOTIFY_CLIENT_SECRET: secret, SPOTIFY_REFRESH_TOKEN: refresh }).filter(([, v]) => !v).map(([k]) => k)
+    return json({ configured: false, missing }, 60)
+  }
   try {
     const token = await accessToken(id, secret, refresh)
     const auth = { authorization: `Bearer ${token}` }
