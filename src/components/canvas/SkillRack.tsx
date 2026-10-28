@@ -58,22 +58,43 @@ type KeyProps = {
   w: number
   active: boolean
   reduced: boolean
+  entered: boolean
+  delay: number
   palette: Palette
   onPress: (name: string) => void
 }
 
-function Key({ name, w, active, reduced, palette, onPress }: KeyProps) {
+// Before the rack is on screen the keys sit sunk inside the bed; on arrival
+// they rise into place row by row.
+const SUNK = -0.6
+
+function Key({ name, w, active, reduced, entered, delay, palette, onPress }: KeyProps) {
   const ref = useRef<Group>(null)
+  const since = useRef<number | null>(null)
   const [hover, setHover] = useState(false)
   const invalidate = useThree((s) => s.invalidate)
   const target = active ? -0.14 : hover ? 0.03 : 0
 
   useEffect(() => invalidate(), [target, invalidate])
+  useEffect(() => {
+    if (entered && since.current === null) {
+      since.current = performance.now() / 1000
+      invalidate()
+    }
+  }, [entered, invalidate])
 
   useFrame((_, dt) => {
     const g = ref.current
     if (!g) return
-    const y = reduced ? target : MathUtils.damp(g.position.y, target, 16, dt)
+    if (!reduced) {
+      const waited = since.current === null ? -1 : performance.now() / 1000 - since.current
+      if (waited < delay) {
+        g.position.y = SUNK
+        if (since.current !== null) invalidate()
+        return
+      }
+    }
+    const y = reduced ? target : MathUtils.damp(g.position.y, target, g.position.y < -0.2 ? 9 : 16, dt)
     g.position.y = Math.abs(y - target) < 0.0005 ? target : y
     if (g.position.y !== target) invalidate()
   })
@@ -145,7 +166,9 @@ function Fit({ width, depth }: { width: number; depth: number }) {
   return null
 }
 
-function Rack({ active, reduced, onPress }: { active: string; reduced: boolean; onPress: (name: string) => void }) {
+type RackProps = { active: string; reduced: boolean; entered: boolean; onPress: (name: string) => void }
+
+function Rack({ active, reduced, entered, onPress }: RackProps) {
   const palette = usePalette()
   const { rows, width, depth, ox, oz } = useLayout()
   const lit = rows.flatMap((r) => r.keys.map((k) => ({ ...k, z: r.z }))).find((k) => k.name === active)
@@ -159,7 +182,7 @@ function Rack({ active, reduced, onPress }: { active: string; reduced: boolean; 
       </RoundedBox>
 
       <group position={[ox, 0, oz]}>
-        {rows.map((row) => (
+        {rows.map((row, r) => (
           <group key={row.label} position={[0, 0, row.z]}>
             <Text
               font={FONT}
@@ -172,9 +195,9 @@ function Rack({ active, reduced, onPress }: { active: string; reduced: boolean; 
             >
               {row.label}
             </Text>
-            {row.keys.map((k) => (
+            {row.keys.map((k, i) => (
               <group key={k.name} position={[k.x, 0, 0]}>
-                <Key name={k.name} w={k.w} active={k.name === active} reduced={reduced} palette={palette} onPress={onPress} />
+                <Key name={k.name} w={k.w} active={k.name === active} reduced={reduced} entered={entered} delay={r * 0.14 + i * 0.05} palette={palette} onPress={onPress} />
               </group>
             ))}
           </group>
@@ -185,7 +208,7 @@ function Rack({ active, reduced, onPress }: { active: string; reduced: boolean; 
   )
 }
 
-export default function SkillRack({ active, reduced, onPress }: { active: string; reduced: boolean; onPress: (name: string) => void }) {
+export default function SkillRack({ active, reduced, entered, onPress }: RackProps) {
   return (
     <Canvas
       className="rack__canvas"
@@ -201,7 +224,7 @@ export default function SkillRack({ active, reduced, onPress }: { active: string
         <Lightformer form="rect" intensity={2.2} position={[0, 6, 0]} rotation-x={Math.PI / 2} scale={[12, 4, 1]} />
         <Lightformer form="rect" intensity={0.35} position={[0, 1.5, 7]} scale={[12, 1.5, 1]} />
       </Environment>
-      <Rack active={active} reduced={reduced} onPress={onPress} />
+      <Rack active={active} reduced={reduced} entered={entered} onPress={onPress} />
     </Canvas>
   )
 }

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from 'react'
 import { dailyTools, skillGroups } from '../data/skills'
 import { projectsUsing } from '../data/projects'
 import { useMediaQuery, useReducedMotion } from '../lib/hooks'
@@ -37,6 +37,7 @@ function Readout({ active }: { active: string }) {
 export default function Skills({ active, onPress }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const [near, setNear] = useState(false)
+  const [entered, setEntered] = useState(false)
   const wide = useMediaQuery('(min-width: 40.01rem)')
   const reduced = useReducedMotion()
 
@@ -51,21 +52,29 @@ export default function Skills({ active, onPress }: Props) {
       }
     }, { rootMargin: '400px 0px' })
     io.observe(el)
-    return () => io.disconnect()
+    // The keys rise into the bed once most of the rack is on screen.
+    const seen = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) {
+        setEntered(true)
+        seen.disconnect()
+      }
+    }, { threshold: 0.45 })
+    seen.observe(el)
+    return () => { io.disconnect(); seen.disconnect() }
   }, [])
 
   return (
     <section className="skills" id="skills" aria-labelledby="skills-title">
       <div className="container skills__grid">
         <div className="skills__head">
-          <h2 id="skills-title">The stack, one key each.</h2>
-          <p className="lead">Press a key to see which project uses it.</p>
+          <h2 id="skills-title" data-reveal="head">The stack, one key each.</h2>
+          <p className="lead" data-reveal style={{ '--d': 150 } as CSSProperties}>Press a key to see which project uses it.</p>
         </div>
 
         <div className="rack" ref={ref} aria-hidden="true">
           {near && wide && (
             <Suspense fallback={null}>
-              <SkillRack active={active} reduced={reduced} onPress={onPress} />
+              <SkillRack active={active} reduced={reduced} entered={entered} onPress={onPress} />
             </Suspense>
           )}
         </div>
@@ -73,8 +82,8 @@ export default function Skills({ active, onPress }: Props) {
         <Readout active={active} />
 
         <div className="keys" role="group" aria-label="Skills">
-          {skillGroups.map((g) => (
-            <div className="keys__group" key={g.name}>
+          {skillGroups.map((g, i) => (
+            <div className="keys__group" data-reveal style={{ '--d': i * 90 } as CSSProperties} key={g.name}>
               <p className="keys__label" id={`keys-${g.name}`}>{g.name}</p>
               <ul className="keys__list" aria-labelledby={`keys-${g.name}`}>
                 {g.skills.map((s) => (

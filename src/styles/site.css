@@ -4,6 +4,8 @@
  * hero-review: fix · 5 findings · 4 resolved (poster-scale head, brighter night, den's own line as the head, phone column rests above the water) · 1 unresolved (no real work on the first screen until Agrix screenshots exist) 
  * finish-review: subagent · fix · 5 findings · 5 resolved (Agrix as a named system map and Planify's schedule as steps on lit panels, About and footer rewritten in den's facts, the About echo of the hero cut, rack legends larger in ink with the pressed key in amber and the head beside the board, the theme's panel carried into Work) · gap: project screenshots still to come */
 /* Hallmark · pre-emit critique: P4 H5 E4 S4 R5 V4 · weakest: S, a night sky could open any developer's page; made it den's own with the far row of windows and the one amber light, the copy says mostly at night, no stars, no moon, no mouse parallax */
+/* Hallmark · waive 39b · tag buttons at 32px with a 44px hit area · the stack tags double as keys for the rack and must stay tag-sized beside the plain tags in each project */
+/* Hallmark · answered F7 · the pill radius rounds the 2px index lines (rails, the lit line under names and nav links, the progress line) and the keys, never a box */
 /* Hallmark · dismissed 28a · the project screenshots sit far below the hero, whose headline is the LCP, so lazy is right for them */
 /* Hallmark · dismissed 29 · the nav pill is the genre's one glass licence, a backdrop blur over the drawn night, no other glass on the page */
 @import url("./tokens.css");
@@ -107,12 +109,30 @@ h1, h2, h3 { color: var(--color-ink); line-height: 1.04; }
 html:not(.js) .hero__pause { display: none; }
 @media (prefers-reduced-motion: reduce) { .hero__pause { display: none; } }
 
-/* The one settle: visible by default, a slow rise once. */
-@keyframes settle { from { opacity: 0; transform: translateY(8px); } }
-.js .hero__inner > * { animation: settle 0.7s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 80ms); }
-.hero__lede { --i: 1; }
-.hero__actions { --i: 2; }
-@media (prefers-reduced-motion: reduce) { .js .hero__inner > * { animation: none; } }
+/* Arrival: the headline rises word by word out of its own baseline, then the
+   line and the actions settle. Visible by default; only .js plays it. */
+.word { display: inline-block; overflow: clip; overflow-clip-margin: 0.08em; padding-bottom: 0.14em; margin-bottom: -0.14em; vertical-align: top; }
+.word__in { display: inline-block; }
+@keyframes word-rise { from { transform: translateY(108%); } }
+@keyframes settle { from { opacity: 0; transform: translateY(12px); } }
+@media (prefers-reduced-motion: no-preference) {
+  .js .word__in { animation: word-rise 0.8s var(--ease-out) both; animation-delay: calc(100ms + var(--i, 0) * 60ms); }
+  .js .hero__lede, .js .hero__actions, .js .hero__foot { animation: settle 0.7s var(--ease-out) both; }
+  .js .hero__lede { animation-delay: 420ms; }
+  .js .hero__actions { animation-delay: 520ms; }
+  .js .hero__foot { animation-delay: 900ms; }
+
+  /* Leaving: scrubbed to the scroll by Hero, which sets --exit from 0 to 1. */
+  .hero__inner { transform: translateY(calc(var(--exit, 0) * -1 * var(--space-3xl))); opacity: calc(1 - var(--exit, 0) * 1.3); }
+  .hero__foot { opacity: calc(1 - var(--exit, 0) * 2); }
+}
+.hero { cursor: default; }
+.hero__foot { align-items: center; justify-content: space-between; gap: var(--space-md); }
+.hero__hint { order: -1; font-size: var(--text-sm); color: var(--color-muted); }
+.hint--coarse { display: none; }
+@media (hover: none) { .hint--fine { display: none; } .hint--coarse { display: inline; } }
+html:not(.js) .hero__hint { display: none; }
+@media (prefers-reduced-motion: reduce) { .hero__hint { display: none; } }
 
 @media (max-width: 40rem) {
   .hero { --horizon: 24%; padding-top: calc(var(--space-3xl) + var(--space-lg)); }
@@ -145,25 +165,30 @@ html:not(.js) .hero__pause { display: none; }
 .system, .flow { margin: 0 0 var(--space-xl); padding-bottom: var(--space-xl); border-bottom: var(--rule-hair) solid var(--color-rule); }
 
 /* A part sits on the rail; its index line lights when it runs on the pressed key. */
-.part { position: relative; display: flex; flex-direction: column; gap: var(--space-2xs); min-width: 0; padding-top: var(--space-md); border-top: 2px solid var(--color-rule); transition: border-color var(--dur-short) var(--ease-out); }
-.part[data-lit="true"] { border-top-color: var(--color-accent); }
+.part { position: relative; display: flex; flex-direction: column; gap: var(--space-2xs); min-width: 0; padding-top: var(--space-md); }
+.part__rail { position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: var(--radius-pill); background: var(--color-rule); transform-origin: left center; transition: background-color var(--dur-short) var(--ease-out); }
+.part[data-lit="true"] > .part__rail { background: var(--color-accent); }
 .part__name { font: var(--display-weight) var(--text-title)/1.15 var(--font-display); letter-spacing: var(--tracking-display); color: var(--color-ink); overflow-wrap: break-word; }
 .part__detail { font-size: var(--text-sm); color: var(--color-ink-2); }
 
 .system__parts, .flow__steps { display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); gap: var(--space-lg); margin: 0; padding: 0; list-style: none; }
 .flow__steps { --cols: 3; counter-reset: step; }
 /* The rail runs on across each gap, with a small tip where it meets the next part. */
-.system__parts > .part:not(:last-child)::after { content: ""; position: absolute; top: -2px; right: calc(-1 * var(--space-lg)); width: var(--space-lg); height: 2px; background: var(--color-rule); }
-.system__parts > .part:not(:last-child)::before { content: ""; position: absolute; top: -6px; right: calc(-1 * var(--space-lg) - 1px); width: 7px; height: 10px; background: var(--color-muted); clip-path: polygon(0 0, 100% 50%, 0 100%); }
+.system__track { position: relative; }
+.system__parts > .part:not(:last-child)::after { content: ""; position: absolute; top: 0; right: calc(-1 * var(--space-lg)); width: var(--space-lg); height: 2px; background: var(--color-rule); transform-origin: left center; }
+.system__parts > .part:not(:last-child)::before { content: ""; position: absolute; top: -4px; right: calc(-1 * var(--space-lg) - 1px); width: 7px; height: 10px; background: var(--color-muted); clip-path: polygon(0 0, 100% 50%, 0 100%); }
+/* One amber pulse that runs the rail once, the reading on its way. */
+.system__pulse { position: absolute; top: 0; left: 0; right: 0; height: 2px; overflow: hidden; pointer-events: none; }
+.system__pulse::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 14%; background: linear-gradient(90deg, transparent, var(--color-focus), transparent); opacity: 0; }
 .system__branch {
   --gap: var(--space-lg);
   width: calc((100% - 3 * var(--gap)) / 4 * 1.5);
   margin-top: var(--space-xl); margin-left: calc((100% - 3 * var(--gap)) / 4 * var(--from) + var(--gap) * var(--from));
-  padding-top: 0; padding-left: var(--space-md); border-top: 0; border-left: 2px solid var(--color-rule);
+  padding-top: 0; padding-left: var(--space-md);
 }
-.system__branch[data-lit="true"] { border-left-color: var(--color-accent); }
+.system__branch > .part__rail { right: auto; bottom: 0; width: 2px; height: auto; transform-origin: center top; }
 .step::before { counter-increment: step; content: counter(step); margin-bottom: var(--space-xs); font: var(--display-weight) var(--text-2xl)/1 var(--font-display); font-variant-numeric: tabular-nums; color: var(--color-muted); }
-@media (prefers-reduced-motion: reduce) { .part { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .part__rail { transition: none; } }
 
 .project__name { max-width: none; font-size: var(--text-display-s); }
 /* The rack's lit index line, carried onto the project that uses the pressed key. */
@@ -192,7 +217,7 @@ html:not(.js) .hero__pause { display: none; }
 @media (max-width: 40rem) {
   .panel { padding: var(--space-lg); }
   .system__parts, .flow__steps { grid-template-columns: minmax(0, 1fr); }
-  .system__parts > .part:not(:last-child)::after, .system__parts > .part:not(:last-child)::before { display: none; }
+  .system__parts > .part:not(:last-child)::after, .system__parts > .part:not(:last-child)::before, .system__pulse { display: none; }
   .system__branch { width: auto; margin-left: var(--space-lg); }
 }
 
@@ -274,4 +299,68 @@ html:not(.js) .readout { grid-column: 1 / -1; }
 
 @media (max-width: 40rem) {
   .footer__email { font-size: var(--text-lg); }
+}
+
+/* ---------- Tags that press keys ---------- */
+
+.chip--key { position: relative; min-height: 32px; font: inherit; font-size: var(--text-sm); background: none; cursor: pointer; }
+/* The tag stays tag-sized; its hit area grows to 44px. */
+.chip--key::after { content: ""; position: absolute; inset: -6px -2px; }
+.chip--key:hover { border-color: var(--color-muted); color: var(--color-ink); }
+.chip--key:active { transform: translateY(1px); }
+.chip--key:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.chip--key[aria-pressed="true"] { border-color: var(--color-accent); background: var(--color-accent-soft); color: var(--color-ink); }
+
+/* ---------- Nav: where you are, and how far ---------- */
+
+.nav__links a { position: relative; }
+.nav__links a::after { content: ""; position: absolute; left: 0; right: 0; bottom: var(--space-xs); height: 2px; border-radius: var(--radius-pill); background: var(--color-accent); transform: scaleX(0); transform-origin: left center; transition: transform var(--dur-long) var(--ease-out); }
+.nav__links a[aria-current] { color: var(--color-ink); }
+.nav__links a[aria-current]::after { transform: scaleX(1); }
+.nav__progress { position: absolute; left: var(--space-xl); right: var(--space-xl); bottom: -1px; height: 2px; border-radius: var(--radius-pill); background: var(--color-focus); transform: scaleX(0); transform-origin: left center; pointer-events: none; }
+@keyframes progress-grow { to { transform: scaleX(1); } }
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .nav__progress { animation: progress-grow linear both; animation-timeline: scroll(root); }
+  }
+}
+@media (prefers-reduced-motion: reduce) { .nav__links a::after { transition: none; } }
+
+/* ---------- Arrivals: light reaching each section once ---------- */
+/* Everything is visible by default. Only with script and motion allowed does
+   [data-reveal] start hidden, and useReveal adds .is-in as it comes into view. */
+
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal] { opacity: 0; transform: translateY(24px); transition: opacity 0.7s var(--ease-out), transform 0.9s var(--ease-out); transition-delay: calc(var(--d, 0) * 1ms); }
+  .js [data-reveal].is-in { opacity: 1; transform: none; }
+
+  /* Heads wipe up out of their own line. */
+  .js [data-reveal="head"] { opacity: 1; transform: none; clip-path: inset(0 0 100% 0); translate: 0 0.35em; transition: clip-path 1s var(--ease-out), translate 1s var(--ease-out); }
+  .js [data-reveal="head"].is-in { clip-path: inset(-0.1em -0.1em -0.25em -0.1em); translate: 0 0; }
+
+  /* About's rows slide in from the left edge of their rule. */
+  .js [data-reveal="row"] { transform: translateX(-16px); }
+
+  /* Agrix: the rail draws part by part, the parts light up behind it, the
+     branch drops to Telegram, then one pulse runs the length. */
+  .js [data-reveal="system"], .js [data-reveal="flow"] { opacity: 1; transform: none; }
+  .js [data-reveal="system"] .part__rail, .js [data-reveal="flow"] .part__rail { transform: scaleX(0); transition: transform 0.6s var(--ease-out), background-color var(--dur-short) var(--ease-out); transition-delay: calc(200ms + var(--i, 0) * 260ms), 0ms; }
+  .js [data-reveal="system"] .system__parts > .part:not(:last-child)::after { transform: scaleX(0); transition: transform 0.3s var(--ease-out); transition-delay: calc(560ms + var(--i, 0) * 260ms); }
+  .js [data-reveal="system"] .system__parts > .part:not(:last-child)::before { opacity: 0; transition: opacity 0.2s linear; transition-delay: calc(760ms + var(--i, 0) * 260ms); }
+  .js [data-reveal="system"] .system__branch > .part__rail { transform: scaleY(0); }
+  .js [data-reveal="system"] .part > :not(.part__rail), .js [data-reveal="flow"] .part > :not(.part__rail) { opacity: 0; transform: translateY(8px); transition: opacity 0.5s var(--ease-out), transform 0.6s var(--ease-out); transition-delay: calc(360ms + var(--i, 0) * 260ms); }
+  .js [data-reveal="flow"] .step::before { opacity: 0; transition: opacity 0.5s var(--ease-out); transition-delay: calc(200ms + var(--i, 0) * 300ms); }
+  .js [data-reveal="flow"] .part__rail, .js [data-reveal="flow"] .part > :not(.part__rail) { transition-delay: calc(260ms + var(--i, 0) * 300ms), 0ms; }
+
+  .js .is-in[data-reveal="system"] .part__rail, .js .is-in[data-reveal="flow"] .part__rail { transform: none; }
+  .js .is-in[data-reveal="system"] .system__parts > .part:not(:last-child)::after { transform: none; }
+  .js .is-in[data-reveal="system"] .system__parts > .part:not(:last-child)::before { opacity: 1; }
+  .js .is-in[data-reveal="system"] .part > :not(.part__rail), .js .is-in[data-reveal="flow"] .part > :not(.part__rail), .js .is-in[data-reveal="flow"] .step::before { opacity: 1; transform: none; }
+  .js .is-in[data-reveal="system"] .system__pulse::before { animation: pulse-run 1.8s var(--ease-in-out) 1.5s both; }
+}
+@keyframes pulse-run {
+  0% { opacity: 0; transform: translateX(-100%); }
+  12% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(714%); }
 }

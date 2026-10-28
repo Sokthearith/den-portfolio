@@ -6,10 +6,12 @@ import Nav from './components/Nav'
 import Skills from './components/Skills'
 import Work from './components/Work'
 import { defaultSkill } from './data/skills'
+import { useReveal } from './lib/reveal'
 
 export default function App() {
   // The pressed key on the rack; Work lights the projects that use it.
   const [active, setActive] = useState(defaultSkill)
+  useReveal()
 
   return (
     <>
@@ -17,7 +19,7 @@ export default function App() {
       <Nav />
       <main id="main">
         <Hero />
-        <Work active={active} />
+        <Work active={active} onPress={setActive} />
         <Skills active={active} onPress={setActive} />
         <About />
       </main>

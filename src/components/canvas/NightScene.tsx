@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, type RefObject } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { ShaderMaterial, Vector2, Vector3 } from 'three'
 import { tokenRGB } from '../../lib/tokens'
+import { MAX_LIT, nightClock, type NightInput } from '../../lib/night'
 
 // The night drawn as light: slow ribbons over a low horizon and a far row of
 // lit windows, one of them amber. One full-screen shader, transparent, over
@@ -32,6 +33,11 @@ const fragment = /* glsl */ `
   uniform vec3 uRibbon;
   uniform vec3 uWindow;
   uniform vec3 uAccent;
+  uniform vec2 uPointer;
+  uniform float uPointerOn;
+  uniform float uExit;
+  uniform vec3 uLit[${MAX_LIT}];
+  uniform float uNow;
 
   float hash(float n) { return fract(sin(n * 127.1) * 43758.5453); }
 
@@ -51,12 +57,19 @@ const fragment = /* glsl */ `
       float y = base
         + 0.04 * sin(p.x * aspect * freq + uTime * speed + fi * 1.7)
         + 0.015 * sin(p.x * aspect * freq * 2.3 - uTime * speed * 0.6 + fi);
+      // The visitor's pointer pushes the light aside, like a breath of wind,
+      // and the ribbon brightens where it bends.
+      float dxp = (px.x - uPointer.x) / (240.0 * uDpr);
+      float dyp = (y * uRes.y - uPointer.y) / uDpr;
+      float near = uPointerOn * exp(-dxp * dxp) * exp(-abs(dyp) / 220.0);
+      y += near * sign(dyp + 0.001) * 60.0 * uDpr / uRes.y;
       float d = abs(p.y - y) * uRes.y / uDpr;
       float core = exp(-d * d / 2.2);
       float halo = exp(-d / 56.0);
       float along = smoothstep(0.0, 0.25, p.x) * smoothstep(1.0, 0.7, p.x);
       float pulse = 0.35 + 0.65 * (0.5 + 0.5 * sin(p.x * 2.4 - uTime * 0.07 + fi * 2.1));
       float k = (core * 0.42 + halo * 0.2) * along * pulse * (0.45 + 0.55 * hash(fi + 11.0));
+      k *= (1.0 + near * 2.0) * (1.0 - uExit * 0.85);
       col += uRibbon * k;
       alpha += k;
     }
@@ -95,14 +108,41 @@ const fragment = /* glsl */ `
       alpha += refl + ra;
     }
 
+    // The windows a visitor turned on, warming up over most of a second.
+    for (int j = 0; j < ${MAX_LIT}; j++) {
+      vec3 L = uLit[j];
+      if (L.x < 0.0) continue;
+      float on = smoothstep(L.z, L.z + 0.8, uNow);
+      vec2 w = vec2(L.x * uRes.x, uHorizon * uRes.y + (L.y * 8.0 + 4.0) * uDpr);
+      float dl = length(px - w) / uDpr;
+      // A brief flare as it comes on, so the visitor sees their light land.
+      float age = max(uNow - L.z, 0.0);
+      float flare = exp(-age * 1.4) * exp(-dl / 22.0) * 0.9 * step(L.z, uNow);
+      float glow = (exp(-dl * dl / 3.2) + exp(-dl / 8.0) * 0.36) * on + flare;
+      float under = (uHorizon * uRes.y - px.y) / uDpr;
+      float dxl = abs(px.x - w.x) / uDpr;
+      float refl = under > 0.0 ? exp(-dxl * dxl / 1.8) * exp(-under / 50.0) * 0.3 * on : 0.0;
+      col += uWindow * (glow + refl);
+      alpha += glow + refl;
+    }
+
     gl_FragColor = vec4(col, clamp(alpha, 0.0, 1.0));
   }
 `
 
-function Night({ running }: { running: boolean }) {
+type Props = { running: boolean; input: RefObject<NightInput> }
+
+function Night({ running, input }: Props) {
   const time = useRef(START_TIME)
+  const pointerOn = useRef(0)
   const size = useThree((s) => s.size)
   const invalidate = useThree((s) => s.invalidate)
+
+  useEffect(() => {
+    const inp = input.current
+    inp.invalidate = invalidate
+    return () => { inp.invalidate = undefined }
+  }, [input, invalidate])
 
   const material = useMemo(() => {
     const v = (rgb: [number, number, number]) => new Vector3(...rgb)
@@ -121,6 +161,11 @@ function Night({ running }: { running: boolean }) {
         uRibbon: { value: v(tokenRGB('--color-muted')) },
         uWindow: { value: v(tokenRGB('--color-ink-2')) },
         uAccent: { value: v(tokenRGB('--color-accent')) },
+        uPointer: { value: new Vector2(-9999, -9999) },
+        uPointerOn: { value: 0 },
+        uExit: { value: 0 },
+        uLit: { value: Array.from({ length: MAX_LIT }, () => new Vector3(-1, 0, 0)) },
+        uNow: { value: 0 },
       },
     })
   }, [])
@@ -145,10 +190,24 @@ function Night({ running }: { running: boolean }) {
   // Read the real drawing buffer each frame, so the horizon always meets the
   // CSS one whatever size or pixel ratio the canvas settled on.
   useFrame(({ gl }, delta) => {
+    const u = material.uniforms
+    const inp = input.current
+    const dpr = gl.getPixelRatio()
     if (running) time.current += Math.min(delta, 0.1)
-    gl.getDrawingBufferSize(material.uniforms.uRes.value)
-    material.uniforms.uDpr.value = gl.getPixelRatio()
-    material.uniforms.uTime.value = time.current
+    gl.getDrawingBufferSize(u.uRes.value)
+    u.uDpr.value = dpr
+    u.uTime.value = time.current
+    u.uNow.value = nightClock()
+
+    // The pointer's push eases in and out; it only plays while the night does.
+    const target = running && inp.inside ? 1 : 0
+    pointerOn.current += (target - pointerOn.current) * Math.min(1, delta * 5)
+    if (!running) pointerOn.current = 0
+    u.uPointerOn.value = pointerOn.current
+    u.uPointer.value.set(inp.x * dpr, gl.domElement.clientHeight * dpr - inp.y * dpr)
+    u.uExit.value = inp.exit
+
+    for (let i = 0; i < MAX_LIT; i++) u.uLit.value[i].set(inp.lit[i * 3], inp.lit[i * 3 + 1], inp.lit[i * 3 + 2])
   })
 
   return (
@@ -158,7 +217,7 @@ function Night({ running }: { running: boolean }) {
   )
 }
 
-export default function NightScene({ running, onStill }: { running: boolean; onStill: () => void }) {
+export default function NightScene({ running, input, onStill }: Props & { onStill: () => void }) {
   return (
     <Canvas
       className="night__canvas"
@@ -170,7 +229,7 @@ export default function NightScene({ running, onStill }: { running: boolean; onS
       flat
       linear
     >
-      <Night running={running} />
+      <Night running={running} input={input} />
     </Canvas>
   )
 }
