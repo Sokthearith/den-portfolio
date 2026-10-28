@@ -5,6 +5,7 @@
  * finish-review: subagent · fix · 5 findings · 5 resolved (Agrix as a named system map and Planify's schedule as steps on lit panels, About and footer rewritten in den's facts, the About echo of the hero cut, rack legends larger in ink with the pressed key in amber and the head beside the board, the theme's panel carried into Work) · gap: project screenshots still to come */
 /* Hallmark · pre-emit critique: P4 H5 E4 S4 R5 V4 · weakest: S, a night sky could open any developer's page; made it den's own with the far row of windows and the one amber light, the copy says mostly at night, no stars, no moon, no mouse parallax */
 /* Hallmark · waive 39b · tag buttons at 32px with a 44px hit area · the stack tags double as keys for the rack and must stay tag-sized beside the plain tags in each project */
+/* Hallmark · answered F8 · the owner asked for more scroll transitions; the three tell one story, the night passing: the nav's progress line, horizons drawing at each section, About's line lighting word by word */
 /* Hallmark · answered F7 · the pill radius rounds the 2px index lines (rails, the lit line under names and nav links, the progress line) and the keys, never a box */
 /* Hallmark · dismissed 28a · the project screenshots sit far below the hero, whose headline is the LCP, so lazy is right for them */
 /* Hallmark · dismissed 29 · the nav pill is the genre's one glass licence, a backdrop blur over the drawn night, no other glass on the page */
@@ -95,6 +96,8 @@ h1, h2, h3 { color: var(--color-ink); line-height: 1.04; }
   background: linear-gradient(to bottom, var(--color-sky-hi) 0%, var(--color-sky-lo) calc(100% - var(--horizon)), var(--color-land-hi) calc(100% - var(--horizon)), var(--color-land) 100%);
 }
 .night__canvas { position: absolute !important; inset: 0; }
+.js .night__canvas { opacity: 0; transition: opacity 1.4s var(--ease-out); }
+.js .night__canvas[data-ready] { opacity: 1; }
 .night__grain { position: absolute; inset: 0; background-image: var(--grain); background-size: 160px; mix-blend-mode: soft-light; opacity: 0.45; pointer-events: none; }
 
 .hero__inner {
@@ -142,7 +145,7 @@ html:not(.js) .hero__hint { display: none; }
 
 /* ---------- Work: the two apps, each opened as a case ---------- */
 
-.work { padding-block: var(--section-gap-l) var(--section-gap); }
+.work { padding-block: var(--space-3xl) var(--section-gap); }
 .work__head { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); align-items: end; margin-bottom: var(--space-3xl); }
 .work__head h2 { grid-column: 1 / 7; }
 .work__head .lead { grid-column: 8 / 13; color: var(--color-ink-2); }
@@ -223,7 +226,7 @@ html:not(.js) .hero__hint { display: none; }
 
 /* ---------- Skills: the rack, on a band of paper-2 ---------- */
 
-.skills { padding-block: var(--section-gap); background: var(--color-paper-2); color: var(--color-ink); }
+.skills { padding-block: var(--space-3xl) var(--section-gap); background: var(--color-paper-2); color: var(--color-ink); }
 .skills__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); row-gap: var(--space-2xl); }
 .skills__head { grid-column: 9 / 13; grid-row: 1; align-self: start; }
 html:not(.js) .skills__head { grid-column: 1 / -1; }
@@ -270,7 +273,7 @@ html:not(.js) .readout { grid-column: 1 / -1; }
 
 /* ---------- About: one statement, then the facts as rows ---------- */
 
-.about { padding-block: var(--section-gap-l) var(--section-gap); }
+.about { padding-block: var(--space-3xl) var(--section-gap); }
 .about__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); row-gap: var(--space-3xl); }
 .about__statement { grid-column: 1 / 11; max-width: 24ch; font-size: var(--text-display-s); }
 .about__facts { grid-column: 1 / -1; margin: 0; }
@@ -286,12 +289,24 @@ html:not(.js) .readout { grid-column: 1 / -1; }
 
 /* ---------- Footer: a statement on the night's land colour ---------- */
 
-.footer { padding-block: var(--section-gap-s) var(--space-xl); background: var(--color-band); color: var(--color-band-ink); }
+.footer {
+  --horizon: 30%;
+  position: relative; isolation: isolate;
+  display: grid; grid-template-rows: 1fr auto; min-height: 88svh;
+  padding-block: var(--section-gap-s) var(--space-lg);
+  background: var(--color-land); color: var(--color-band-ink);
+}
+/* The second night: it rises out of the page's paper rather than starting on a seam. */
+.footer .night { background: linear-gradient(to bottom, var(--color-paper) 0%, var(--color-sky-lo) calc(100% - var(--horizon)), var(--color-land-hi) calc(100% - var(--horizon)), var(--color-land) 100%); }
+.footer__inner { align-self: start; }
+/* The drawn sky fades in from the page above, so there is no seam to cross. */
+.footer .night__canvas, .footer .night__grain { -webkit-mask-image: linear-gradient(to bottom, transparent, var(--color-ink) 28%); mask-image: linear-gradient(to bottom, transparent, var(--color-ink) 28%); }
+@media (max-width: 40rem) { .footer { --horizon: 26%; min-height: 80svh; } }
 .footer__statement { max-width: 20ch; font: var(--display-weight) var(--text-section)/1.04 var(--font-display); letter-spacing: var(--tracking-display); color: var(--color-band-ink); text-wrap: balance; overflow-wrap: break-word; min-width: 0; }
 .footer__email { display: inline-flex; align-items: center; min-height: 44px; margin-top: var(--space-lg); font: var(--display-weight) var(--text-2xl)/1.2 var(--font-display); letter-spacing: var(--tracking-display); color: var(--color-band-ink); text-decoration-color: var(--color-accent); text-decoration-thickness: 2px; text-underline-offset: 0.2em; overflow-wrap: break-word; min-width: 0; transition: color var(--dur-short) var(--ease-out); }
 .footer__email:hover { color: var(--color-accent); }
 .footer__email:focus-visible, .footer__links a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; border-radius: var(--radius-part); }
-.footer__base { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-md); margin-top: var(--space-3xl); padding-top: var(--space-lg); border-top: var(--rule-hair) solid var(--color-rule); }
+.footer__base { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-md); padding-top: var(--space-lg); }
 .footer__links { display: flex; flex-wrap: wrap; gap: var(--space-lg); margin: 0; padding: 0; list-style: none; }
 .footer__links a { display: inline-flex; align-items: center; min-height: 44px; font-size: var(--text-sm); color: var(--color-muted); text-decoration: none; white-space: nowrap; transition: color var(--dur-short) var(--ease-out); }
 .footer__links a:hover { color: var(--color-band-ink); }
@@ -338,6 +353,9 @@ html:not(.js) .readout { grid-column: 1 / -1; }
   .js [data-reveal="head"] { opacity: 1; transform: none; clip-path: inset(0 0 100% 0); translate: 0 0.35em; transition: clip-path 1s var(--ease-out), translate 1s var(--ease-out); }
   .js [data-reveal="head"].is-in { clip-path: inset(-0.1em -0.1em -0.25em -0.1em); translate: 0 0; }
 
+  /* The sticky project intro only fades; sliding a sticking element jitters. */
+  .js [data-reveal="fade"] { transform: none; }
+
   /* About's rows slide in from the left edge of their rule. */
   .js [data-reveal="row"] { transform: translateX(-16px); }
 
@@ -363,4 +381,30 @@ html:not(.js) .readout { grid-column: 1 / -1; }
   12% { opacity: 1; }
   85% { opacity: 1; }
   100% { opacity: 0; transform: translateX(714%); }
+}
+
+/* ---------- Between sections: a horizon draws across ---------- */
+/* Each section opens on a hairline horizon with one amber glint at its centre.
+   It draws outward from the middle as it scrolls in, and the glint burns off.
+   Without scroll-timeline support it is simply a hairline. */
+
+.horizon { position: relative; height: 1px; margin-bottom: var(--space-3xl); background: var(--color-rule); }
+.horizon::after { content: ""; position: absolute; left: 50%; top: -1px; width: min(24rem, 40%); height: 3px; border-radius: var(--radius-pill); background: linear-gradient(90deg, transparent, var(--color-focus), transparent); transform: translateX(-50%); opacity: 0.35; }
+@keyframes horizon-draw { from { transform: scaleX(0); } }
+@keyframes glint-burn { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0.25; } }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) and (min-width: 40rem) {
+    .horizon { transform-origin: center; animation: horizon-draw linear both; animation-timeline: view(); animation-range: entry 0% cover 40%; }
+    .horizon::after { animation: glint-burn linear both; animation-timeline: view(); animation-range: entry 20% cover 55%; }
+  }
+}
+
+/* ---------- About: the line comes on word by word, like windows ---------- */
+
+.sw { display: inline; }
+@keyframes sw-light { from { opacity: 0.14; } }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) and (min-width: 40rem) {
+    .about__statement .sw { animation: sw-light linear both; animation-timeline: view(); animation-range: cover calc(12% + var(--i) * 2.4%) cover calc(26% + var(--i) * 2.4%); }
+  }
 }

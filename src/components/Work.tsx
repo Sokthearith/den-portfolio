@@ -81,7 +81,7 @@ function ProjectCase({ project, active, onPress, flip }: { project: Project; fli
       )}
 
       <div className="project__body">
-        <div className="project__intro" data-reveal>
+        <div className="project__intro" data-reveal="fade">
           <h3 className="project__name" id={`${project.id}-name`}>{project.name}</h3>
           <p className="project__line">{project.line}</p>
           <a className="project__link" href={project.github} target="_blank" rel="noreferrer">Code on GitHub</a>
@@ -112,6 +112,7 @@ export default function Work({ active, onPress }: Press) {
   return (
     <section className="work" id="work" aria-labelledby="work-title">
       <div className="container">
+        <div className="horizon" aria-hidden="true" />
         <div className="work__head">
           <h2 id="work-title" data-reveal="head">Two full-stack apps.</h2>
           <p className="lead" data-reveal style={{ '--d': 150 } as CSSProperties}>A farm dashboard and a study planner, each with its own API.</p>

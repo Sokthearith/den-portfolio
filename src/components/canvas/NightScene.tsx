@@ -10,7 +10,6 @@ import { MAX_LIT, nightClock, type NightInput } from '../../lib/night'
 // line the CSS gradient draws.
 export const HORIZON = 0.18
 const START_TIME = 40 // a settled frame for the still and reduced-motion views
-const FPS = 30
 
 // Without a GPU the browser draws WebGL on the CPU; there the night stays still.
 const SOFTWARE = /swiftshader|llvmpipe|softpipe|software|basic render/i
@@ -36,6 +35,7 @@ const fragment = /* glsl */ `
   uniform vec2 uPointer;
   uniform float uPointerOn;
   uniform float uExit;
+  uniform float uLightsOut;
   uniform vec3 uLit[${MAX_LIT}];
   uniform float uNow;
 
@@ -78,7 +78,9 @@ const fragment = /* glsl */ `
     float cellW = 9.0 * uDpr;
     float cell = floor(px.x / cellW);
     float town = step(0.34, hash(floor(cell / 10.0) + 31.0));
-    float lit = step(0.5, hash(cell + 1.0)) * town;
+    // Going to sleep: as uLightsOut rises the town's windows go dark, each at
+    // its own moment, until only den's is left.
+    float lit = step(0.5, hash(cell + 1.0)) * town * step(uLightsOut, hash(cell + 21.0) * 0.98);
     float flick = mix(1.0, step(0.0, sin(uTime * 0.04 + hash(cell + 5.0) * 60.0)), step(0.88, hash(cell + 9.0)));
     float row = floor(hash(cell + 2.0) * 4.0);
     vec2 c = vec2((cell + 0.5) * cellW, uHorizon * uRes.y + (row * 8.0 + 4.0) * uDpr);
@@ -164,28 +166,23 @@ function Night({ running, input }: Props) {
         uPointer: { value: new Vector2(-9999, -9999) },
         uPointerOn: { value: 0 },
         uExit: { value: 0 },
+        uLightsOut: { value: 0 },
         uLit: { value: Array.from({ length: MAX_LIT }, () => new Vector3(-1, 0, 0)) },
         uNow: { value: 0 },
       },
     })
   }, [])
 
-  // The horizon comes from the hero's --horizon, so the CSS land and the drawn
-  // windows always share one line; a still night redraws on resize.
+  // The horizon comes from the --horizon of the section the night sits in (the
+  // hero or the footer), so the CSS land and the drawn windows share one line;
+  // a still night redraws on resize.
+  const gl = useThree((s) => s.gl)
   useEffect(() => {
-    const hero = document.querySelector('.hero')
-    const h = hero ? parseFloat(getComputedStyle(hero).getPropertyValue('--horizon')) / 100 : NaN
+    const host = gl.domElement.closest('.night')
+    const h = host ? parseFloat(getComputedStyle(host).getPropertyValue('--horizon')) / 100 : NaN
     material.uniforms.uHorizon.value = Number.isFinite(h) ? h : HORIZON
     invalidate()
-  }, [size, invalidate, material])
-
-  // The night moves on a 70 to 120 second cycle, so 30 frames a second is
-  // plenty; drawing on demand at that pace halves the GPU's work.
-  useEffect(() => {
-    if (!running) return
-    const id = window.setInterval(() => invalidate(), 1000 / FPS)
-    return () => window.clearInterval(id)
-  }, [running, invalidate])
+  }, [size, invalidate, material, gl])
 
   // Read the real drawing buffer each frame, so the horizon always meets the
   // CSS one whatever size or pixel ratio the canvas settled on.
@@ -201,11 +198,12 @@ function Night({ running, input }: Props) {
 
     // The pointer's push eases in and out; it only plays while the night does.
     const target = running && inp.inside ? 1 : 0
-    pointerOn.current += (target - pointerOn.current) * Math.min(1, delta * 5)
+    pointerOn.current += (target - pointerOn.current) * Math.min(1, Math.min(delta, 0.05) * 5)
     if (!running) pointerOn.current = 0
     u.uPointerOn.value = pointerOn.current
     u.uPointer.value.set(inp.x * dpr, gl.domElement.clientHeight * dpr - inp.y * dpr)
     u.uExit.value = inp.exit
+    u.uLightsOut.value = inp.lightsOut
 
     for (let i = 0; i < MAX_LIT; i++) u.uLit.value[i].set(inp.lit[i * 3], inp.lit[i * 3 + 1], inp.lit[i * 3 + 2])
   })
@@ -223,9 +221,13 @@ export default function NightScene({ running, input, onStill }: Props & { onStil
       className="night__canvas"
       aria-hidden="true"
       dpr={[1, 1.25]}
-      frameloop="demand"
+      frameloop={running ? 'always' : 'demand'}
       gl={{ alpha: true, antialias: false, premultipliedAlpha: true, powerPreference: 'low-power' }}
-      onCreated={({ gl }) => { if (isSoftware(gl.getContext())) onStill() }}
+      onCreated={({ gl }) => {
+        if (isSoftware(gl.getContext())) onStill()
+        // Fade the night in once its first frame is drawn, rather than popping.
+        requestAnimationFrame(() => gl.domElement.parentElement?.parentElement?.setAttribute('data-ready', ''))
+      }}
       flat
       linear
     >

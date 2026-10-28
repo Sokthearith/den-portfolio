@@ -9,6 +9,7 @@ export type NightInput = {
   y: number
   inside: boolean
   exit: number
+  lightsOut: number
   lit: Float32Array
   next: number
   invalidate?: () => void
@@ -19,6 +20,7 @@ export const createNightInput = (): NightInput => ({
   y: 0,
   inside: false,
   exit: 0,
+  lightsOut: 0,
   lit: new Float32Array(MAX_LIT * 3).fill(-1),
   next: 0,
 })

@@ -35,7 +35,7 @@ export default function Hero() {
       const p = Math.min(1, Math.max(0, window.scrollY / (el.offsetHeight * 0.85)))
       el.style.setProperty('--exit', p.toFixed(3))
       input.current.exit = p
-      input.current.invalidate?.()
+      if (!running) input.current.invalidate?.()
     }
     const onScroll = () => { if (!frame) frame = requestAnimationFrame(update) }
     update()
@@ -45,7 +45,7 @@ export default function Hero() {
       cancelAnimationFrame(frame)
       el.style.removeProperty('--exit')
     }
-  }, [reduced])
+  }, [reduced, running])
 
   const track = (e: PointerEvent<HTMLElement>) => {
     const r = e.currentTarget.getBoundingClientRect()
@@ -72,6 +72,8 @@ export default function Hero() {
       aria-labelledby="hero-title"
       onPointerMove={track}
       onPointerLeave={() => { input.current.inside = false }}
+      onPointerUp={(e) => { if (e.pointerType !== 'mouse') input.current.inside = false }}
+      onPointerCancel={() => { input.current.inside = false }}
       onClick={light}
     >
       <div className="night" aria-hidden="true">

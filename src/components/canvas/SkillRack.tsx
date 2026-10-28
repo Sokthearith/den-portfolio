@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber'
 import { Environment, Lightformer, RoundedBox, Text } from '@react-three/drei'
 import { Color, MathUtils, SRGBColorSpace, type Group, type PerspectiveCamera } from 'three'
@@ -143,39 +143,54 @@ function Key({ name, w, active, reduced, entered, delay, palette, onPress }: Key
   )
 }
 
-// Frames the rack from above at TILT, as close as the canvas's shape allows.
-const TILT = MathUtils.degToRad(52)
+// Frames the rack as close as the canvas's shape allows. The scroll swings
+// the camera: from nearly overhead as the rack arrives to a low, slightly
+// turned look as it leaves. Reduced motion holds the middle view.
 const FOV = 16
-function Fit({ width, depth }: { width: number; depth: number }) {
+const TILT_IN = MathUtils.degToRad(66)
+const TILT_OUT = MathUtils.degToRad(40)
+export type RackScroll = { value: number; invalidate?: () => void }
+
+function Fit({ width, depth, scroll }: { width: number; depth: number; scroll: RefObject<RackScroll> }) {
   const camera = useThree((s) => s.camera) as PerspectiveCamera
   const size = useThree((s) => s.size)
   const invalidate = useThree((s) => s.invalidate)
+
   useEffect(() => {
+    const sc = scroll.current
+    sc.invalidate = invalidate
+    invalidate()
+    return () => { sc.invalidate = undefined }
+  }, [scroll, invalidate, size])
+
+  useFrame(() => {
+    const p = scroll.current.value
+    const tilt = MathUtils.lerp(TILT_IN, TILT_OUT, p)
     const aspect = size.width / size.height
     const v = Math.tan(MathUtils.degToRad(FOV) / 2)
     const h = v * aspect
     const across = (width / 2) / h
-    const down = (depth / 2) * Math.sin(TILT) / v + (depth / 2) * Math.cos(TILT)
-    const dist = Math.max(across, down) * 1.03 + (depth / 2) * Math.cos(TILT) * 0.6
+    const down = (depth / 2) * Math.sin(tilt) / v + (depth / 2) * Math.cos(tilt)
+    const dist = Math.max(across, down) * 1.05 + (depth / 2) * Math.cos(tilt) * 0.6
+    const turn = (p - 0.5) * 0.22
     camera.fov = FOV
-    camera.position.set(0, dist * Math.sin(TILT), dist * Math.cos(TILT))
+    camera.position.set(Math.sin(turn) * dist * Math.cos(tilt), dist * Math.sin(tilt), Math.cos(turn) * dist * Math.cos(tilt))
     camera.lookAt(0, 0, 0)
     camera.updateProjectionMatrix()
-    invalidate()
-  }, [camera, size, width, depth, invalidate])
+  })
   return null
 }
 
-type RackProps = { active: string; reduced: boolean; entered: boolean; onPress: (name: string) => void }
+type RackProps = { active: string; reduced: boolean; entered: boolean; scroll: RefObject<RackScroll>; onPress: (name: string) => void }
 
-function Rack({ active, reduced, entered, onPress }: RackProps) {
+function Rack({ active, reduced, entered, scroll, onPress }: RackProps) {
   const palette = usePalette()
   const { rows, width, depth, ox, oz } = useLayout()
   const lit = rows.flatMap((r) => r.keys.map((k) => ({ ...k, z: r.z }))).find((k) => k.name === active)
 
   return (
     <group>
-      <Fit width={width + PAD * 2} depth={depth + PAD * 2} />
+      <Fit width={width + PAD * 2} depth={depth + PAD * 2} scroll={scroll} />
       {/* The bed the keys sit in. */}
       <RoundedBox args={[width + PAD * 2, 0.24, depth + PAD * 2]} radius={0.12} smoothness={4} position={[0, -0.12, 0]}>
         <meshStandardMaterial color={palette.bed} metalness={0.55} roughness={0.5} />
@@ -208,7 +223,7 @@ function Rack({ active, reduced, entered, onPress }: RackProps) {
   )
 }
 
-export default function SkillRack({ active, reduced, entered, onPress }: RackProps) {
+export default function SkillRack({ active, reduced, entered, scroll, onPress }: RackProps) {
   return (
     <Canvas
       className="rack__canvas"
@@ -224,7 +239,7 @@ export default function SkillRack({ active, reduced, entered, onPress }: RackPro
         <Lightformer form="rect" intensity={2.2} position={[0, 6, 0]} rotation-x={Math.PI / 2} scale={[12, 4, 1]} />
         <Lightformer form="rect" intensity={0.35} position={[0, 1.5, 7]} scale={[12, 1.5, 1]} />
       </Environment>
-      <Rack active={active} reduced={reduced} entered={entered} onPress={onPress} />
+      <Rack active={active} reduced={reduced} entered={entered} scroll={scroll} onPress={onPress} />
     </Canvas>
   )
 }
