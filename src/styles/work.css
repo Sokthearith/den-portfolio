@@ -198,3 +198,7 @@
 
 /* Sections own the gap above them, so the last case leaves Skills its own. */
 .case:last-of-type .case__more { padding-bottom: 0; }
+
+/* Dawn: the app screens take the light room's roles; the one alarming
+   reading needs a deeper amber to read on the pale tile. */
+:root[data-theme="dawn"] [data-ui] .ax__kpi[data-broken] .ax__value { color: oklch(from var(--accent) calc(l - 0.06) c h); }
