@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { ShaderMaterial, Vector2, Vector3 } from 'three'
 import { tokenRGB } from '../../lib/tokens'
 import { MAX_LIT, nightClock, type NightInput } from '../../lib/night'
+import { useTheme } from '../../lib/theme'
 
 // The night drawn as light: slow ribbons over a low horizon and a far row of
 // lit windows, one of them amber. One full-screen shader, transparent, over
@@ -169,9 +170,11 @@ function Night({ running, input, amber = 0.64 }: Props) {
   }, [input, invalidate])
 
   const gl = useThree((s) => s.gl)
+  const theme = useTheme()
 
-  // Colours come from the section the night sits in, which keeps the night's
-  // tokens even when the rest of the page is in dawn.
+  // Colours come from the section the night sits in, read again whenever the
+  // theme changes (theme is a dependency for that reason), so at dawn the
+  // town is drawn in dawn's colours.
   const material = useMemo(() => {
     const host = gl.domElement
     const v = (rgb: [number, number, number]) => new Vector3(...rgb)
@@ -200,7 +203,8 @@ function Night({ running, input, amber = 0.64 }: Props) {
         uAmber: { value: amber },
       },
     })
-  }, [gl, amber])
+  }, [gl, amber, theme])
+  useEffect(() => () => material.dispose(), [material])
 
   // The horizon comes from the --horizon of the section the night sits in (the
   // hero or the footer), so the CSS land and the drawn windows share one line;
