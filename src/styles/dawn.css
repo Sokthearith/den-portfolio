@@ -2,33 +2,41 @@
    here (and in the dawn block of tokens.css), imported last so it wins. */
 
 /* ---------- The sky behind the page ---------- */
-/* The night passing, seen by day: the morning window's blue at the hero, a
-   shade cooler through the middle, and clearer daylight toward the close.
-   The hours stay in one blue family because they are mixed in oklch, where
-   a turn toward rose would pass through violet; the sunrise itself is drawn
-   in the close's own sky. Every hour keeps the soft ink above 6:1. */
+/* The night passing, seen by day: morning paper at the hero, a shade of
+   sand through the middle, and the warmer light of full morning toward the
+   close. The hours stay in one warm family, so the cross-fade never passes
+   through grey; the sunrise itself is drawn in the hero's and the close's
+   own skies. Every hour keeps the soft ink above 6:1. */
 :root[data-theme="dawn"] {
   --sky-late: var(--bg);
-  --sky-small-hours: oklch(93.5% 0.013 236);
-  --sky-first-light: oklch(96.5% 0.008 222);
+  --sky-small-hours: oklch(95.6% 0.016 80);
+  --sky-first-light: oklch(96.4% 0.022 72);
 }
 
 /* ---------- The drawn town, at first light ---------- */
-/* The same town and the same shader, painted with the dawn tokens: a pale
-   sky, the land in its blue morning haze, the last lamps, clouds where the
-   night had ribbons of light, and the sun where den's window was. */
+/* The same town and the same shader, painted with the dawn tokens: a sky
+   going from lavender to peach-gold at the horizon, the land in its
+   lavender haze, the last lamps, clouds where the night had ribbons of
+   light, and the sun where den's window was, its glow rising from behind
+   the land. */
 :root[data-theme="dawn"] .night {
   --sky: var(--dawn-sky);
   --land: var(--dawn-land);
   --color-muted: var(--dawn-ribbon);
   --color-ink-2: var(--dawn-window);
   --color-accent: var(--dawn-sun);
+  background:
+    radial-gradient(ellipse 34% 26% at 64% calc(100% - var(--horizon, 20%)), color-mix(in oklch, var(--dawn-sun) 70%, transparent), transparent 72%),
+    linear-gradient(to bottom, var(--dawn-sky-top), var(--sky) 78%);
 }
-/* The close warms toward sunrise as its lamps go out, mixed in oklab so
-   the blue meets the rose directly instead of turning through violet. */
+/* The land in morning haze: palest where it meets the sky, settling into
+   its lavender further down. */
+:root[data-theme="dawn"] .night::before { background: linear-gradient(to bottom, color-mix(in oklch, var(--land), var(--dawn-sky) 45%), var(--land) 70%); }
+/* The close warms toward full sunrise as its lamps go out, the peach at
+   its horizon turning rose. */
 :root[data-theme="dawn"] .contact .night { --sky: color-mix(in oklab, var(--dawn-sky), var(--dawn-sun-sky) calc(var(--first-light, 0) * 100%)); }
 /* The lab's bench has no land colour of its own at dawn: it is the sky. */
-:root[data-theme="dawn"] :is(.nightbench__stage, .night.nightbench__night) { background: var(--sky, var(--dawn-sky)); }
+:root[data-theme="dawn"] :is(.nightbench__stage, .night.nightbench__night) { background: linear-gradient(to bottom, var(--dawn-sky-top), var(--dawn-sky)); }
 
 /* The hero's two buttons sit on the pale sky, so they take the ground's
    tone to stand off it. */
@@ -39,7 +47,7 @@
 /* At night the card is the one lit sheet on a dark town. At dawn it is
    still a sheet of the room's own light on the sky, set in the ink; its
    action keeps the sun's colour. */
-:root[data-theme="dawn"] .card { --ink: inherit; --muted: inherit; --surface-2: inherit; background: var(--bg); }
+:root[data-theme="dawn"] .card { --ink: inherit; --muted: inherit; --surface-2: inherit; background: var(--bg); box-shadow: 0 1px 0 color-mix(in oklch, var(--ink) 8%, transparent); }
 :root[data-theme="dawn"] .card :focus-visible { outline-color: var(--ink); }
 :root[data-theme="dawn"] .field__input { background: var(--surface); }
 
@@ -49,6 +57,13 @@
 @media (max-width: 40rem) {
   :root[data-theme="dawn"] body:has(.hero) .nav { color-scheme: light; --bg: inherit; --surface: inherit; --surface-2: inherit; --ink: inherit; }
 }
+
+/* ---------- Amber that has to be read ---------- */
+/* On paper the amber is a fill, never a word: anything set in the accent
+   takes the deeper bronze, and the main button deepens its amber on hover
+   instead of turning bronze under dark words. */
+:root[data-theme="dawn"] :is(.nav__icon[aria-pressed="true"], .deck[data-on-air="true"] .deck__state, .notes__draft, .note__draft) { color: var(--color-focus); }
+:root[data-theme="dawn"] .btn--primary:hover { background: oklch(70% 0.15 60); }
 
 /* ---------- The palette ---------- */
 /* The chosen row's name takes the deeper sunrise, which holds 5:1 on the
@@ -61,7 +76,7 @@
    (Selectors carry .cinema so they outrank now.css, which loads later.) */
 :root[data-theme="dawn"] .cinema .cinema__room { background: var(--surface); }
 :root[data-theme="dawn"] .cinema .cinema__screen { background: var(--bg); }
-:root[data-theme="dawn"] .cinema .cinema__beam { background: var(--accent-ink); opacity: 0.6; }
+:root[data-theme="dawn"] .cinema .cinema__beam { background: oklch(99.5% 0.008 85); opacity: 0.6; }
 @keyframes cinema-flicker-day {
   0% { opacity: 0.6; } 9% { opacity: 0.52; } 11% { opacity: 0.63; } 38% { opacity: 0.57; }
   41% { opacity: 0.48; } 43% { opacity: 0.6; } 72% { opacity: 0.55; } 74% { opacity: 0.62; }

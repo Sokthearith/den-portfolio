@@ -57,32 +57,36 @@
   --radius-card: var(--radius); --radius-part: var(--radius); --radius-pill: var(--radius); --rule-hair: 0;
 }
 
-/* Dawn: the same room with the curtains open at first light. A designed
-   colourway, not the night turned over: the ground is the pale blue of a
-   morning window, the night itself becomes the ink, and the one lit thing is
-   the sun coming up, a vermilion where the night had den's amber window. */
+/* Dawn: the same room with the curtains open at sunrise. A designed
+   colourway, not the night turned over: the ground is warm morning paper,
+   the cards a step of sand, the night itself becomes the ink, and den's
+   amber stays the one lit thing, now the sun coming up. */
 :root[data-theme="dawn"] {
   color-scheme: light;
-  --bg: oklch(95.5% 0.01 230);
-  --surface: oklch(92% 0.012 230);
-  --surface-2: oklch(88.5% 0.014 230);
+  --bg: oklch(97.2% 0.011 85);
+  --surface: oklch(94.2% 0.017 82);
+  --surface-2: oklch(90.6% 0.022 80);
   --ink: oklch(22% 0.035 255);
-  --muted: oklch(42% 0.03 248);
-  --accent: oklch(53% 0.19 36);
-  --accent-ink: oklch(99.5% 0 0);
+  --muted: oklch(44% 0.03 255);
+  --accent: oklch(78% 0.135 68);
+  --accent-ink: oklch(20% 0.035 60);
   --field-1: oklch(22% 0.035 255);
-  --field-1-ink: oklch(95.5% 0.01 230);
-  --color-focus: oklch(47% 0.18 34);
-  /* The rack in brushed aluminium, cool like the room. */
-  --metal-hi: oklch(96% 0.008 230); --metal-lo: oklch(80% 0.014 232);
+  --field-1-ink: oklch(97.2% 0.011 85);
+  /* Amber as text falls short on paper; where the accent has to be read,
+     it is this deeper bronze (5:1 on the ground). */
+  --color-focus: oklch(47% 0.11 58);
+  /* The rack in brushed aluminium, warmed by the morning. */
+  --metal-hi: oklch(96.5% 0.01 80); --metal-lo: oklch(81% 0.02 75);
 
-  /* The drawn town at first light: a pale sky, the town still in its blue
-     morning haze, the last lamps on, clouds catching the sun, and the sun
-     itself where den's window was. NightScene paints with these. */
-  --dawn-sky: oklch(86% 0.032 230);
-  --dawn-sun-sky: oklch(88% 0.035 35);
-  --dawn-land: oklch(70% 0.028 238);
-  --dawn-ribbon: oklch(98.5% 0.01 70);
-  --dawn-window: oklch(98% 0.03 85);
-  --dawn-sun: var(--accent);
+  /* The drawn town at sunrise: the sky lavender-blue high up and peach-gold
+     at the horizon, the town still in its lavender haze, the last lamps on,
+     clouds catching the light, and the sun where den's window was.
+     NightScene paints with these. */
+  --dawn-sky-top: oklch(85% 0.035 265);
+  --dawn-sky: oklch(90% 0.06 70);
+  --dawn-sun-sky: oklch(87% 0.075 45);
+  --dawn-land: oklch(66% 0.05 296);
+  --dawn-ribbon: oklch(99% 0.012 80);
+  --dawn-window: oklch(97% 0.05 85);
+  --dawn-sun: oklch(80% 0.15 62);
 }
