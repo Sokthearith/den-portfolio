@@ -1,20 +1,24 @@
 import Footer from './components/Footer'
 import Nav from './components/Nav'
 import Palette from './components/Palette'
+import { usePassage } from './lib/passage'
 import { useReveal } from './lib/reveal'
 import { NowProvider, type NowSeed } from './lib/now'
 import { findRoute } from './routes'
 
-// The shell every page shares: skip link, nav, the page, the footer, and the
-// Ctrl+K palette.
+// The shell every page shares: the sky the night passes in, skip link, nav,
+// the page, the footer, and the Ctrl+K palette.
 export default function App({ path, seed = { films: [] } }: { path: string; seed?: NowSeed }) {
-  const { page: Page } = findRoute(path)
+  const route = findRoute(path)
+  const { page: Page } = route
   useReveal()
+  usePassage()
 
   return (
     <NowProvider seed={seed}>
+      <div className="sky" aria-hidden="true" />
       <a className="skip" href="#main">Skip to content</a>
-      <Nav home={findRoute(path).path === '/'} />
+      <Nav home={route.path === '/'} />
       <main id="main">
         <Page />
       </main>

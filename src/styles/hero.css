@@ -10,25 +10,32 @@
 .night__grain { position: absolute; inset: 0; background-image: var(--grain); background-size: 160px; mix-blend-mode: soft-light; opacity: 0.45; pointer-events: none; }
 
 /* ---------- Hero: the night in a frame, the name crossing out of it ---------- */
+/* Still, the night hangs in a frame on the left half. On a wide screen with
+   motion the stage holds for one screen while the frame opens to the whole
+   screen (--open, 0 to 1, set by Hero) and the night becomes the page's sky. */
 
-.hero { position: relative; isolation: isolate; height: 100svh; min-height: 40rem; overflow: clip; }
+.hero { position: relative; isolation: isolate; }
+.hero__stage { position: relative; height: 100svh; min-height: 40rem; overflow: clip; }
+.hero.is-live { height: 200svh; }
+.hero.is-live .hero__stage { position: sticky; top: 0; }
 
 .hero__frame {
   --horizon: 20%;
-  position: absolute; top: var(--margin); bottom: var(--margin); left: var(--margin);
-  width: calc(47% - var(--margin));
+  --shut: calc(1 - var(--open, 0));
+  position: absolute; inset: 0;
+  clip-path: inset(calc(var(--margin) * var(--shut)) calc(53% * var(--shut)) calc(var(--margin) * var(--shut)) calc(var(--margin) * var(--shut)));
   isolation: isolate; overflow: hidden; cursor: default;
 }
-.hero__controls { position: absolute; left: 20px; bottom: 20px; z-index: 2; display: flex; align-items: center; gap: 8px; }
+.hero__controls { position: absolute; left: calc(var(--margin) + 20px); bottom: calc(var(--margin) + 20px); z-index: 2; display: flex; align-items: center; gap: 8px; }
 /* Just above the controls, clear of the bar and of the name. */
-.hero__hint { position: absolute; left: 20px; bottom: 80px; z-index: 2; font-size: var(--step-small); color: var(--ink); }
+.hero__hint { position: absolute; left: calc(var(--margin) + 20px); bottom: calc(var(--margin) + 80px); z-index: 2; font-size: var(--step-small); color: var(--ink); }
 .hint--coarse { display: none; }
 @media (hover: none) { .hint--fine { display: none; } .hint--coarse { display: inline; } }
 html:not(.js) .hero__hint, html:not(.js) .hero__pause { display: none; }
 @media (prefers-reduced-motion: reduce) { .hero__hint, .hero__pause { display: none; } }
 
 /* The one sentence, at 44% of the height, on the right half's own axis. */
-.hero__words { position: absolute; left: 47%; right: var(--margin); top: 44%; translate: 0 -50%; display: grid; justify-items: center; }
+.hero__words { position: absolute; left: 47%; right: var(--margin); top: 44%; z-index: 1; translate: 0 -50%; display: grid; justify-items: center; }
 .hero__sentence { width: min(100%, 26ch); font-size: var(--step-lead); line-height: 1.35; }
 /* Measured in the sentence's own size, so the button lines up under it. */
 .hero__actions { width: min(100%, 26ch); margin-top: 32px; font-size: var(--step-lead); }
@@ -49,10 +56,10 @@ html:not(.js) .hero__hint, html:not(.js) .hero__pause { display: none; }
 /* On a phone the night takes the top of the screen, the name runs under it
    overlapping its edge, and the sentence follows. */
 @media (max-width: 40rem) {
-  .hero { display: flex; flex-direction: column; height: auto; min-height: 0; padding-bottom: 48px; }
+  .hero__stage { display: flex; flex-direction: column; height: auto; min-height: 0; padding-bottom: 48px; }
   .hero__name { order: 1; }
   .hero__words { order: 2; }
-  .hero__frame { position: relative; inset: auto; width: auto; height: 58svh; margin: 12px; }
+  .hero__frame { position: relative; inset: auto; height: 58svh; margin: 12px; clip-path: none; }
   .hero__hint { display: none; }
   .hero__controls { left: 12px; bottom: 12px; }
   .hero__name { position: relative; left: auto; bottom: auto; margin: -0.2em 0 0 calc(var(--margin) - 0.04em); font-size: 34vw; }

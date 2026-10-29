@@ -4,6 +4,9 @@
 .close { margin-top: var(--section-gap); }
 
 .contact { --horizon: 26%; position: relative; isolation: isolate; min-height: 100svh; }
+/* First light: the sky over the town pales toward morning as its windows go
+   out (--first-light, 0 to 1, set by Footer); den's window stays on. */
+.contact .night { --sky: color-mix(in oklch, oklch(15% 0.03 252), oklch(31% 0.05 246) calc(var(--first-light, 0) * 100%)); }
 /* The windows go out as it scrolls in; the card is the one lit thing left. */
 .card {
   --ink: var(--field-1-ink); --muted: oklch(40% 0.02 258); --surface-2: oklch(88% 0.008 250);
