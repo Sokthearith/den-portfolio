@@ -3,7 +3,7 @@
    it at reading size. Sections are parted by darkness, never by a line. The
    amber stays inside the experiments: the night's windows and the rack's key. */
 
-.labtop { padding-block: clamp(120px, 12vw, 160px) calc(var(--section-gap) / 2); }
+.labtop { padding-top: clamp(120px, 12vw, 160px); }
 /* The page's name at the wordmark size, its sentence beside it on the baseline. */
 .labtop__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); row-gap: 24px; align-items: end; }
 .labtop h1 { grid-column: 1 / 9; max-width: none; font-size: var(--step-display); font-weight: 300; line-height: 0.9; letter-spacing: -0.04em; color: var(--ink); }
@@ -14,7 +14,9 @@
 }
 @media (max-width: 40rem) { .labtop h1 { font-size: 21vw; } }
 
-.bench { padding-bottom: var(--section-gap); background: var(--bg); color: var(--ink); }
+/* Each bench owns only the gap above it, like every section of the site. */
+.bench { padding-top: var(--section-gap); background: var(--bg); color: var(--ink); }
+.labtop + .bench { padding-top: calc(var(--section-gap) / 2); }
 .bench__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); row-gap: 40px; align-items: start; }
 .bench__head { grid-column: 1 / 5; min-width: 0; }
 .bench__grid > :last-child { grid-column: 6 / 13; min-width: 0; }

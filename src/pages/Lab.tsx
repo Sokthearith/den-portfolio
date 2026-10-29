@@ -4,12 +4,12 @@ import LabRack from '../components/lab/LabRack'
 import LeanType from '../components/lab/LeanType'
 import '../styles/lab.css'
 
-type Experiment = { id: string; name: string; line: string; tools: string[] }
+type Experiment = { id: string; name: string; line: string; tools: string[]; how: string }
 
 const experiments: Record<string, Experiment> = {
-  night: { id: 'night', name: 'The night, by hand', line: 'Set the hour, call the rain, switch a window on.', tools: ['React Three Fiber', 'GLSL'] },
-  type: { id: 'type', name: 'Type that leans in', line: 'Run the pointer along the line; the letters widen and thicken toward it.', tools: ['Variable fonts', 'Instrument Sans'] },
-  rack: { id: 'rack', name: 'The rack, loose', line: 'Drag it round. Press a key.', tools: ['drei', 'OrbitControls'] },
+  night: { id: 'night', name: 'The night, by hand', line: 'Set the hour, call the rain, switch a window on.', tools: ['React Three Fiber', 'GLSL'], how: 'the same full-screen shader that draws the night at the top of the site' },
+  type: { id: 'type', name: 'Type that leans in', line: 'Run the pointer along the line; the letters widen and thicken toward it.', tools: ['Variable fonts', 'Instrument Sans'], how: 'width and weight are two axes of one font file, set letter by letter' },
+  rack: { id: 'rack', name: 'The rack, loose', line: 'Drag it round. Press a key.', tools: ['drei', 'OrbitControls'], how: 'the skills rack from the home page, taken off its stand' },
 }
 
 const and = (items: string[]) => items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}` : items[0]
@@ -19,7 +19,7 @@ function Head({ e }: { e: Experiment }) {
     <div className="bench__head">
       <h2 id={`${e.id}-title`} data-reveal="head">{e.name}</h2>
       <p className="bench__line" data-reveal style={{ '--d': 120 } as CSSProperties}>{e.line}</p>
-      <p className="bench__tools" data-reveal style={{ '--d': 220 } as CSSProperties}>Built with {and(e.tools)}.</p>
+      <p className="bench__tools" data-reveal style={{ '--d': 220 } as CSSProperties}>Built with {and(e.tools)}: {e.how}.</p>
     </div>
   )
 }

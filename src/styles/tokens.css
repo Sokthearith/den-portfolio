@@ -73,7 +73,10 @@
   --color-focus: oklch(50% 0.14 55);
   --metal-hi: oklch(97% 0.006 85); --metal-lo: oklch(85% 0.01 85);
 }
-:root[data-theme="dawn"] :is(.night, .labnight__stage) {
+/* The night stays night: the drawn sky, the lab's stage, the contact (whose
+   card is the lit thing on it), and the wordmark where it sits on the hero's
+   frame (every page with a hero but home, which shows no wordmark). */
+:root[data-theme="dawn"] :is(.night, .nightbench__stage, .contact, body:has(.hero) .nav__mark) {
   color-scheme: dark;
   --bg: oklch(12.5% 0.022 258);
   --surface: oklch(16.5% 0.022 258);
@@ -82,6 +85,9 @@
   --muted: oklch(76% 0.015 250);
   --accent: oklch(80% 0.12 68);
   --accent-ink: oklch(18% 0.03 60);
+  --field-1: oklch(94% 0.006 250);
+  --field-1-ink: oklch(12.5% 0.022 258);
+  --color-focus: oklch(84% 0.13 68);
   /* Aliases resolve where they are declared, so the night re-declares the
      ones its WebGL reads. */
   --color-paper: var(--bg); --color-ink: var(--ink); --color-ink-2: var(--ink); --color-muted: var(--muted); --color-accent: var(--accent);
