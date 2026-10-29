@@ -1,6 +1,8 @@
+import type { CSSProperties } from 'react'
 import LabNight from '../components/lab/LabNight'
 import LabRack from '../components/lab/LabRack'
 import LeanType from '../components/lab/LeanType'
+import '../styles/lab.css'
 
 type Experiment = { id: string; name: string; line: string; tools: string[] }
 
@@ -10,14 +12,14 @@ const experiments: Record<string, Experiment> = {
   rack: { id: 'rack', name: 'The rack, loose', line: 'Drag it round. Press a key.', tools: ['drei', 'OrbitControls'] },
 }
 
+const and = (items: string[]) => items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}` : items[0]
+
 function Head({ e }: { e: Experiment }) {
   return (
-    <div className="exp__head">
+    <div className="bench__head">
       <h2 id={`${e.id}-title`} data-reveal="head">{e.name}</h2>
-      <p className="lead">{e.line}</p>
-      <ul className="chips exp__tools" aria-label="Built with">
-        {e.tools.map((t) => <li className="chip" key={t}>{t}</li>)}
-      </ul>
+      <p className="bench__line" data-reveal style={{ '--d': 120 } as CSSProperties}>{e.line}</p>
+      <p className="bench__tools" data-reveal style={{ '--d': 220 } as CSSProperties}>Built with {and(e.tools)}.</p>
     </div>
   )
 }
@@ -27,38 +29,31 @@ export default function Lab() {
   const { night, type, rack } = experiments
   return (
     <>
-      <section className="labhead" aria-labelledby="lab-title">
-        <div className="container">
+      <section className="labtop" aria-labelledby="lab-title">
+        <div className="container labtop__grid">
           <h1 id="lab-title" data-reveal="head">The lab.</h1>
-          <p className="lead">Pieces of this site, taken apart to play with.</p>
+          <p className="labtop__lead" data-reveal style={{ '--d': 200 } as CSSProperties}>Pieces of this site, taken apart to play with.</p>
         </div>
       </section>
 
-      <section className="exp" id={night.id} aria-labelledby={`${night.id}-title`}>
-        <div className="container">
-          <div className="horizon" aria-hidden="true" />
-          <div className="exp__grid">
-            <Head e={night} />
-            <LabNight />
-          </div>
+      <section className="bench" id={night.id} aria-labelledby={`${night.id}-title`}>
+        <div className="container bench__grid">
+          <Head e={night} />
+          <LabNight />
         </div>
       </section>
 
-      <section className="exp exp--wide" id={type.id} aria-labelledby={`${type.id}-title`}>
+      <section className="bench bench--wide" id={type.id} aria-labelledby={`${type.id}-title`}>
         <div className="container">
-          <div className="horizon" aria-hidden="true" />
           <Head e={type} />
           <LeanType />
         </div>
       </section>
 
-      <section className="exp exp--flip" id={rack.id} aria-labelledby={`${rack.id}-title`}>
-        <div className="container">
-          <div className="horizon" aria-hidden="true" />
-          <div className="exp__grid">
-            <Head e={rack} />
-            <LabRack />
-          </div>
+      <section className="bench bench--flip" id={rack.id} aria-labelledby={`${rack.id}-title`}>
+        <div className="container bench__grid">
+          <Head e={rack} />
+          <LabRack />
         </div>
       </section>
     </>

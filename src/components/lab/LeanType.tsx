@@ -1,8 +1,8 @@
 import { Fragment, useEffect, useRef, type CSSProperties } from 'react'
 import { profile } from '../../data/profile'
 
-// The headline set in variable Instrument Sans: each letter widens and
-// thickens as the pointer comes near, and settles back as it leaves.
+// The headline set in variable Instrument Sans: each letter widens, thickens
+// and comes up to full light as the pointer nears, and settles back as it leaves.
 const RADIUS = 220
 
 export default function LeanType() {
@@ -11,7 +11,7 @@ export default function LeanType() {
   useEffect(() => {
     const el = line.current
     if (!el) return
-    const letters = [...el.querySelectorAll<HTMLSpanElement>('.lean__l')]
+    const letters = [...el.querySelectorAll<HTMLSpanElement>('.leanline__l')]
     let centres: { x: number; y: number }[] = []
     let frame = 0
     let pointer: { x: number; y: number } | null = null
@@ -55,12 +55,12 @@ export default function LeanType() {
   let n = 0
 
   return (
-    <p className="lean" ref={line}>
+    <p className="leanline" ref={line} data-reveal style={{ '--d': 150 } as CSSProperties}>
       <span className="visually-hidden">{profile.headline}</span>
       {words.map((w, wi) => (
         <Fragment key={wi}>
-          <span className="lean__w" aria-hidden="true">
-            {[...w].map((ch) => <span className="lean__l" style={{ '--n': n++ } as CSSProperties} key={n}>{ch}</span>)}
+          <span className="leanline__w" aria-hidden="true">
+            {[...w].map((ch) => <span className="leanline__l" style={{ '--n': n++ } as CSSProperties} key={n}>{ch}</span>)}
           </span>
           {wi < words.length - 1 && ' '}
         </Fragment>

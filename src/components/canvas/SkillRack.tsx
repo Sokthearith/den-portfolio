@@ -6,8 +6,8 @@ import { skillGroups } from '../../data/skills'
 import { tokenRGB } from '../../lib/tokens'
 
 // The stack as a rack of machined keys, one light from above. A pressed key
-// sits low with its index line lit in the accent; the HTML buttons beside the
-// canvas drive the same state and are the accessible control.
+// sits low with its index line lit in the accent; the list beside the canvas
+// drives the same state and is the accessible control.
 
 const FONT = '/fonts/figtree-500-latin.woff'
 const KEY_H = 0.34
@@ -36,22 +36,51 @@ function usePalette(theme: string): Palette {
   }, [theme])
 }
 
-function useLayout() {
+type Layout = {
+  labels: { text: string; x: number; z: number }[]
+  keys: { name: string; x: number; z: number; w: number; delay: number }[]
+  width: number
+  depth: number
+}
+
+// Positions are measured from the rack's top-left corner and centred at the
+// end. Wide: one row per group, its name in a column on the left. Tall: each
+// group's name on its own line above keys that wrap at WRAP, so the rack
+// stands upright in the home page's portrait frame.
+const WRAP = 6.2
+// A label sits near the back of its line, clear of the keys' height in front of it.
+const LABEL_D = 0.75
+
+function useLayout(tall: boolean): Layout {
   return useMemo(() => {
-    const rows = skillGroups.map((g, r) => {
-      let x = LABEL_W
-      const keys = g.skills.map((name) => {
+    const labels: Layout['labels'] = []
+    const keys: Layout['keys'] = []
+    let width = 0
+    let top = 0
+    skillGroups.forEach((g, r) => {
+      if (tall) {
+        labels.push({ text: g.name, x: 0.05, z: top + 0.22 })
+        top += LABEL_D
+      } else {
+        labels.push({ text: g.name, x: 0.05, z: top + KEY_D / 2 })
+      }
+      const left = tall ? 0 : LABEL_W
+      let x = left
+      g.skills.forEach((name, i) => {
         const w = keyWidth(name)
-        const key = { name, x: x + w / 2, w }
+        if (tall && x > left && x + w > WRAP) {
+          x = left
+          top += KEY_D + GAP
+        }
+        keys.push({ name, x: x + w / 2, z: top + KEY_D / 2, w, delay: r * 0.14 + i * 0.05 })
         x += w + GAP
-        return key
+        width = Math.max(width, x - GAP)
       })
-      return { label: g.name, z: r * (KEY_D + ROW_GAP), keys, width: x - GAP }
+      top += KEY_D + ROW_GAP
     })
-    const width = Math.max(...rows.map((r) => r.width))
-    const depth = (rows.length - 1) * (KEY_D + ROW_GAP) + KEY_D
-    return { rows, width, depth, ox: -width / 2, oz: -depth / 2 + KEY_D / 2 }
-  }, [])
+    const depth = top - ROW_GAP
+    return { labels, keys, width, depth }
+  }, [tall])
 }
 
 type KeyProps = {
@@ -187,8 +216,8 @@ type RackProps = { active: string; reduced: boolean; entered: boolean; theme: st
 // In the lab the visitor holds the camera, so the scroll does not.
 function Rack({ active, reduced, entered, theme, scroll, onPress, loose = false }: RackProps & { loose?: boolean }) {
   const palette = usePalette(theme)
-  const { rows, width, depth, ox, oz } = useLayout()
-  const lit = rows.flatMap((r) => r.keys.map((k) => ({ ...k, z: r.z }))).find((k) => k.name === active)
+  const { labels, keys, width, depth } = useLayout(!loose)
+  const lit = keys.find((k) => k.name === active)
 
   return (
     <group>
@@ -198,25 +227,24 @@ function Rack({ active, reduced, entered, theme, scroll, onPress, loose = false 
         <meshStandardMaterial color={palette.bed} metalness={0.55} roughness={0.5} />
       </RoundedBox>
 
-      <group position={[ox, 0, oz]}>
-        {rows.map((row, r) => (
-          <group key={row.label} position={[0, 0, row.z]}>
-            <Text
-              font={FONT}
-              fontSize={0.23}
-              position={[0.05, 0.002, 0]}
-              rotation={[-Math.PI / 2, 0, 0]}
-              anchorX="left"
-              anchorY="middle"
-              color={palette.label}
-            >
-              {row.label}
-            </Text>
-            {row.keys.map((k, i) => (
-              <group key={k.name} position={[k.x, 0, 0]}>
-                <Key name={k.name} w={k.w} active={k.name === active} reduced={reduced} entered={entered} delay={r * 0.14 + i * 0.05} palette={palette} onPress={onPress} />
-              </group>
-            ))}
+      <group position={[-width / 2, 0, -depth / 2]}>
+        {labels.map((l) => (
+          <Text
+            key={l.text}
+            font={FONT}
+            fontSize={0.23}
+            position={[l.x, 0.002, l.z]}
+            rotation={[-Math.PI / 2, 0, 0]}
+            anchorX="left"
+            anchorY="middle"
+            color={palette.label}
+          >
+            {l.text}
+          </Text>
+        ))}
+        {keys.map((k) => (
+          <group key={k.name} position={[k.x, 0, k.z]}>
+            <Key name={k.name} w={k.w} active={k.name === active} reduced={reduced} entered={entered} delay={k.delay} palette={palette} onPress={onPress} />
           </group>
         ))}
         {lit && <pointLight position={[lit.x, 0.5, lit.z + 0.5]} color={palette.accent} intensity={1.6} distance={2.4} decay={2} />}
@@ -241,7 +269,7 @@ function Light() {
 export default function SkillRack({ active, reduced, entered, theme, scroll, onPress }: RackProps) {
   return (
     <Canvas
-      className="rack__canvas"
+      className="skillset__canvas"
       aria-hidden="true"
       frameloop="demand"
       dpr={[1, 2]}
@@ -260,7 +288,7 @@ export function LooseRack({ active, reduced, theme, onPress }: Pick<RackProps, '
   const scroll = useRef<RackScroll>({ value: 0.5 })
   return (
     <Canvas
-      className="rack__canvas"
+      className="loose__canvas"
       aria-hidden="true"
       frameloop="demand"
       dpr={[1, 2]}

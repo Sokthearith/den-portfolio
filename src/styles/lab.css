@@ -1,0 +1,87 @@
+/* ---------- The lab: three pieces of the site on the bench, in the dark room ---------- */
+/* Each experiment is one lit thing at a generous size with its words beside
+   it at reading size. Sections are parted by darkness, never by a line. The
+   amber stays inside the experiments: the night's windows and the rack's key. */
+
+.labtop { padding-block: clamp(120px, 12vw, 160px) calc(var(--section-gap) / 2); }
+/* The page's name at the wordmark size, its sentence beside it on the baseline. */
+.labtop__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); row-gap: 24px; align-items: end; }
+.labtop h1 { grid-column: 1 / 9; max-width: none; font-size: var(--step-display); font-weight: 300; line-height: 0.9; letter-spacing: -0.04em; color: var(--ink); }
+.labtop__lead { grid-column: 9 / 13; max-width: 26ch; padding-bottom: 0.4em; font-size: var(--step-lead); line-height: 1.4; color: var(--ink); }
+@media (max-width: 60rem) {
+  .labtop h1, .labtop__lead { grid-column: 1 / -1; }
+  .labtop__lead { padding-bottom: 0; }
+}
+@media (max-width: 40rem) { .labtop h1 { font-size: 21vw; } }
+
+.bench { padding-bottom: var(--section-gap); background: var(--bg); color: var(--ink); }
+.bench__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); row-gap: 40px; align-items: start; }
+.bench__head { grid-column: 1 / 5; min-width: 0; }
+.bench__grid > :last-child { grid-column: 6 / 13; min-width: 0; }
+.bench--flip .bench__head { grid-column: 9 / 13; grid-row: 1; }
+.bench--flip .bench__grid > :last-child { grid-column: 1 / 8; grid-row: 1; }
+.bench--wide .bench__head { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); align-items: start; }
+.bench--wide .bench__head h2 { grid-column: 1 / 6; grid-row: 1 / span 2; }
+.bench--wide .bench__line, .bench--wide .bench__tools { grid-column: 7 / 13; }
+.bench--wide .bench__line { margin-top: 0; }
+
+.bench__head h2 { max-width: 12ch; font-size: var(--step-head); font-weight: 300; line-height: 1; letter-spacing: -0.035em; color: var(--ink); }
+.bench__line { margin-top: var(--gap-columns); max-width: 34ch; font-size: var(--step-lead); line-height: 1.4; color: var(--ink); }
+.bench__tools { margin-top: 16px; font-size: var(--step-body); color: var(--muted); }
+
+@media (max-width: 60rem) {
+  .bench__head, .bench__grid > :last-child, .bench--flip .bench__head, .bench--flip .bench__grid > :last-child { grid-column: 1 / -1; grid-row: auto; }
+  .bench--wide .bench__head h2, .bench--wide .bench__line, .bench--wide .bench__tools { grid-column: 1 / -1; grid-row: auto; }
+  .bench--wide .bench__line { margin-top: var(--gap-columns); }
+}
+
+/* The night, by hand: the hero's night on a stage of its own land colour,
+   with its dials beneath in the text face. */
+.nightbench__stage { --horizon: 24%; position: relative; isolation: isolate; aspect-ratio: 16 / 10; overflow: hidden; border-radius: var(--radius); background: var(--color-land); cursor: crosshair; }
+.night.nightbench__night { background: var(--color-land); }
+.nightbench__dials { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; align-items: center; gap: 16px 40px; margin-top: 24px; }
+.nightbench__dial { display: grid; grid-template-columns: auto minmax(0, 1fr) 3.75rem; align-items: center; gap: 12px; min-width: 0; }
+.nightbench__name { font-size: var(--step-body); font-weight: 500; color: var(--ink); }
+.nightbench__value { font-size: var(--step-body); font-variant-numeric: tabular-nums; color: var(--muted); }
+.nightbench__dial input { width: 100%; min-height: 44px; margin: 0; accent-color: var(--ink); cursor: pointer; }
+.nightbench__dial input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+@media (max-width: 40rem) {
+  .nightbench__dials { grid-template-columns: minmax(0, 1fr); }
+  .nightbench__switch { justify-self: start; }
+}
+
+/* Type that leans in: the letters rest in the soft ink and come up to full
+   light, wider and heavier, as the pointer nears. */
+@font-face { font-family: "Instrument Sans Lean"; src: url("/fonts/instrument-sans-var-latin.woff2") format("woff2"); font-weight: 400 700; font-stretch: 75% 100%; font-display: swap; }
+.leanline {
+  margin-top: 48px; min-width: 0;
+  font-family: var(--font-lean); font-size: clamp(2.5rem, 7.6vw, 7.25rem); line-height: 1.02; letter-spacing: -0.03em;
+  color: var(--muted); overflow-wrap: break-word; text-wrap: balance; cursor: default; user-select: none;
+}
+.leanline__w { display: inline-block; white-space: nowrap; }
+.leanline__l {
+  display: inline-block;
+  font-variation-settings: "wdth" calc(75 + var(--k, 0) * 25), "wght" calc(400 + var(--k, 0) * 300);
+  color: color-mix(in oklch, var(--muted) calc(100% - var(--k, 0) * 100%), var(--ink));
+  transition: font-variation-settings 0.5s var(--ease-out), color 0.5s var(--ease-out);
+}
+@media (prefers-reduced-motion: reduce) { .leanline__l { transition: none; } }
+
+/* The rack, loose: drag the stage, or press a name below. Names rest in the
+   soft ink; the pressed one is full ink on a step of surface. */
+.loose__stage { position: relative; aspect-ratio: 16 / 10; cursor: grab; }
+.loose__stage:active { cursor: grabbing; }
+.loose__canvas { position: absolute !important; inset: 0; }
+.loose__readout { margin-top: 16px; font-size: var(--step-lead); line-height: 1.4; color: var(--muted); }
+.loose__readout strong { font-weight: 500; color: var(--ink); }
+.loose__keys { display: flex; flex-wrap: wrap; gap: 4px; margin: 24px 0 0; padding: 0; list-style: none; }
+.loose__key {
+  min-height: 48px; padding: 0 16px;
+  border: 0; border-radius: var(--radius); background: var(--bg);
+  color: var(--muted); font: 400 var(--step-body)/1 var(--font); white-space: nowrap; cursor: pointer;
+  transition: background-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out);
+}
+.loose__key:hover { color: var(--ink); }
+.loose__key[aria-pressed="true"] { background: var(--surface); color: var(--ink); }
+.loose__key:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+@media (max-width: 40rem) { .loose__stage { display: none; } .loose__key { padding: 0 12px; } }
