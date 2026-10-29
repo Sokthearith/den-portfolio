@@ -46,8 +46,9 @@ export default function Hero({ name, title, sentence, actions, lightsOut = 0 }: 
     return () => io.disconnect()
   }, [])
 
-  // Leaving the first screen: the name settles a few percent smaller and the
-  // ribbons dim, scrubbed to the scroll. Reduced motion keeps it as it is.
+  // Leaving the first screen: the ribbons dim with the scroll, and where the
+  // stage does not hold (phones) the name settles a few percent smaller.
+  // Reduced motion keeps it as it is.
   useEffect(() => {
     const el = ref.current
     if (!el || reduced) return
@@ -68,6 +69,39 @@ export default function Hero({ name, title, sentence, actions, lightsOut = 0 }: 
       el.style.removeProperty('--exit')
     }
   }, [reduced, running])
+
+  // Leaving the first screen on a wide screen: the stage holds for one screen
+  // while the framed night opens out to the whole screen, the sentence lifts
+  // away and the name grows and goes dark, so the night becomes the page's
+  // sky. Phones, reduced motion and no script keep the still composition.
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    let alive = true
+    let revert = () => {}
+    Promise.all([import('gsap'), import('gsap/ScrollTrigger')]).then(([{ gsap }, { ScrollTrigger }]) => {
+      if (!alive) return
+      gsap.registerPlugin(ScrollTrigger)
+      const mm = gsap.matchMedia()
+      mm.add('(min-width: 40.01rem) and (prefers-reduced-motion: no-preference)', () => {
+        el.classList.add('is-live')
+        const q = gsap.utils.selector(el)
+        gsap.timeline({ scrollTrigger: { trigger: el, start: 'top top', end: 'bottom bottom', scrub: true, invalidateOnRefresh: true } })
+          .fromTo(el, { '--open': 0 }, { '--open': 1, ease: 'power2.inOut', duration: 0.7 }, 0)
+          .to(q('.hero__words, .hero__controls, .hero__hint'), { autoAlpha: 0, y: -40, ease: 'power1.in', duration: 0.3 }, 0)
+          .to(q('.hero__name-in'), { scale: 1.18, ease: 'power2.inOut', duration: 0.7 }, 0)
+          .to(q('.hero__name-in'), { autoAlpha: 0, ease: 'power1.in', duration: 0.25 }, 0.72)
+        ScrollTrigger.refresh()
+        return () => el.classList.remove('is-live')
+      })
+      mm.add('(max-width: 40rem), (prefers-reduced-motion: reduce)', () => {
+        el.classList.add('is-rest')
+        return () => el.classList.remove('is-rest')
+      })
+      revert = () => mm.revert()
+    })
+    return () => { alive = false; revert() }
+  }, [])
 
   // The palette's "turn on a light" lands here, somewhere along the horizon.
   useEffect(() => {
@@ -92,47 +126,49 @@ export default function Hero({ name, title, sentence, actions, lightsOut = 0 }: 
   }
 
   return (
-    <section className="hero" id="top" ref={ref} aria-labelledby="hero-title">
-      <div
-        className="hero__frame"
-        onPointerMove={track}
-        onPointerLeave={() => { input.current.inside = false }}
-        onPointerUp={(e) => { if (e.pointerType !== 'mouse') input.current.inside = false }}
-        onPointerCancel={() => { input.current.inside = false }}
-        onClick={light}
-      >
-        <div className="night" aria-hidden="true">
-          {mounted && (
-            <Suspense fallback={null}>
-              <NightScene running={running} input={input} onStill={() => setStill(true)} />
-            </Suspense>
-          )}
-          <div className="night__grain" />
-        </div>
-        <div className="hero__controls">
-          {mounted && <Listen />}
+    <section className="hero scene" data-scene="night-opens" id="top" ref={ref} aria-labelledby="hero-title">
+      <div className="hero__stage">
+        <div
+          className="hero__frame"
+          onPointerMove={track}
+          onPointerLeave={() => { input.current.inside = false }}
+          onPointerUp={(e) => { if (e.pointerType !== 'mouse') input.current.inside = false }}
+          onPointerCancel={() => { input.current.inside = false }}
+          onClick={light}
+        >
+          <div className="night" aria-hidden="true">
+            {mounted && (
+              <Suspense fallback={null}>
+                <NightScene running={running} input={input} amber={0.3} onStill={() => setStill(true)} />
+              </Suspense>
+            )}
+            <div className="night__grain" />
+          </div>
+          <div className="hero__controls">
+            {mounted && <Listen />}
+            {!still && (
+              <button className="btn btn--small hero__pause" type="button" onClick={() => setHeld((h) => !h)}>
+                {held ? 'Play the night' : 'Pause the night'}
+              </button>
+            )}
+          </div>
           {!still && (
-            <button className="btn btn--small hero__pause" type="button" onClick={() => setHeld((h) => !h)}>
-              {held ? 'Play the night' : 'Pause the night'}
-            </button>
+            <p className="hero__hint" aria-hidden="true">
+              <span className="hint--fine">Click</span><span className="hint--coarse">Tap</span> the sky to turn on a light.
+            </p>
           )}
         </div>
-        {!still && (
-          <p className="hero__hint" aria-hidden="true">
-            <span className="hint--fine">Click</span><span className="hint--coarse">Tap</span> the sky to turn on a light.
-          </p>
-        )}
-      </div>
 
-      <div className="hero__words">
-        <p className="hero__sentence">{sentence}</p>
-        {actions && <div className="hero__actions">{actions}</div>}
-      </div>
+        <div className="hero__words">
+          <p className="hero__sentence">{sentence}</p>
+          {actions && <div className="hero__actions">{actions}</div>}
+        </div>
 
-      <h1 id="hero-title" className="hero__name">
-        <span className="visually-hidden">{title}</span>
-        <span className="hero__name-in" aria-hidden="true">{name}</span>
-      </h1>
+        <h1 id="hero-title" className="hero__name">
+          <span className="visually-hidden">{title}</span>
+          <span className="hero__name-in" aria-hidden="true">{name}</span>
+        </h1>
+      </div>
     </section>
   )
 }

@@ -67,6 +67,7 @@ export default function Footer() {
     if (!el) return
     if (reduced) {
       input.current.lightsOut = 1
+      el.style.setProperty('--first-light', '1')
       input.current.invalidate?.()
       return
     }
@@ -76,6 +77,8 @@ export default function Footer() {
       const r = el.getBoundingClientRect()
       const p = (window.innerHeight - r.top) / r.height
       input.current.lightsOut = Math.min(1, Math.max(0, (p - 0.25) / 0.65))
+      // As the last windows go out the sky behind them starts to pale.
+      el.style.setProperty('--first-light', Math.min(1, Math.max(0, (p - 0.45) / 0.55)).toFixed(3))
       if (!running) input.current.invalidate?.()
     }
     const onScroll = () => { if (!frame) frame = requestAnimationFrame(update) }
@@ -105,7 +108,7 @@ export default function Footer() {
 
         <TownLights lights={lights} />
 
-        <div className="card" data-reveal>
+        <div className="card">
           <h2 className="card__title" id="contact-title">Write to me</h2>
           <p className="card__ask">{profile.closing}</p>
           <dl className="card__rows">

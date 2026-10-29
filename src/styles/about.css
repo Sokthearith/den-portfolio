@@ -28,3 +28,10 @@
   .about__window { width: 3.75em; height: 3.75em; }
   .about__facts { grid-template-columns: 1fr; }
 }
+
+/* The window switches on as the paragraph arrives: dark, a catch, then lit. */
+@keyframes pane-on { 0%, 30% { fill: var(--surface-2); } 36% { fill: var(--accent); } 42% { fill: var(--surface-2); } 58%, 100% { fill: var(--accent); } }
+@media (prefers-reduced-motion: no-preference) {
+  .js .about__lead:not(.is-in) .about__pane { fill: var(--surface-2); }
+  .js .about__lead.is-in .about__pane { animation: pane-on 1.2s linear both 400ms; }
+}

@@ -1,2 +1,30 @@
 /* The night passing: one night from the hero to dawn at the close, the sky
-   behind every section changing with the hour. */
+   behind every section changing with the hour. --hour runs 0 to 1 down the
+   page (usePassage); without script it rests at 0 and the sky is the night's
+   ground. The sky is a flat colour at every moment, mixed from three hours. */
+
+:root {
+  --hour: 0;
+  --sky-late: var(--bg);
+  --sky-small-hours: oklch(10% 0.03 268);
+  --sky-first-light: oklch(21% 0.045 250);
+}
+
+.sky {
+  --first: clamp(0, var(--hour) * 2, 1);
+  --second: clamp(0, var(--hour) * 2 - 1, 1);
+  position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background: color-mix(in oklch, color-mix(in oklch, var(--sky-late), var(--sky-small-hours) calc(var(--first) * 100%)), var(--sky-first-light) calc(var(--second) * 100%));
+}
+
+/* Sections let the sky through; panels inside keep their own surfaces. */
+body { background: var(--bg); }
+main, .close { background: none; }
+
+/* Weighted scrolling owns the smoothness when it runs. */
+html.is-smooth { scroll-behavior: auto; }
+
+/* Dawn has its own colourway (dawn.css and the dawn token block may set its
+   sky); until then the sky is dawn's ground at every hour, so dawn's ink
+   reads everywhere. */
+:root[data-theme="dawn"] { --sky-late: var(--bg); --sky-small-hours: var(--bg); --sky-first-light: var(--bg); }

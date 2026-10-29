@@ -3,12 +3,12 @@ import { profile } from '../data/profile'
 
 // den's lit window, drawn: the one amber pane in the dark that the whole site
 // is built around. It stands where a portrait would, as the paragraph's
-// drop capital.
+// drop capital, and switches on as the paragraph arrives.
 function Window() {
   return (
     <svg className="about__window" viewBox="0 0 36 36" role="img" aria-label="den's lit window">
       <rect width="36" height="36" fill="var(--surface)" />
-      <rect x="7" y="7" width="22" height="22" fill="var(--accent)" />
+      <rect className="about__pane" x="7" y="7" width="22" height="22" fill="var(--accent)" />
       <rect x="17" y="7" width="2" height="22" fill="var(--surface)" />
       <rect x="7" y="17" width="22" height="2" fill="var(--surface)" />
     </svg>

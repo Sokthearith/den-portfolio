@@ -39,6 +39,7 @@ const fragment = /* glsl */ `
   uniform float uRain;
   uniform vec3 uLit[${MAX_LIT}];
   uniform float uNow;
+  uniform float uAmber;
 
   float hash(float n) { return fract(sin(n * 127.1) * 43758.5453); }
 
@@ -91,7 +92,7 @@ const fragment = /* glsl */ `
     alpha += win;
 
     // The one lit window.
-    vec2 a = vec2(0.64 * uRes.x, uHorizon * uRes.y + 11.0 * uDpr);
+    vec2 a = vec2(uAmber * uRes.x, uHorizon * uRes.y + 11.0 * uDpr);
     float da = length(px - a) / uDpr;
     float amber = exp(-da * da / 6.0) + exp(-da / 14.0) * 0.45;
     col += uAccent * amber;
@@ -152,9 +153,10 @@ const fragment = /* glsl */ `
   }
 `
 
-type Props = { running: boolean; input: RefObject<NightInput> }
+// `amber` is where den's window sits, as a fraction of the width.
+type Props = { running: boolean; input: RefObject<NightInput>; amber?: number }
 
-function Night({ running, input }: Props) {
+function Night({ running, input, amber = 0.64 }: Props) {
   const time = useRef(START_TIME)
   const pointerOn = useRef(0)
   const size = useThree((s) => s.size)
@@ -195,9 +197,10 @@ function Night({ running, input }: Props) {
         uRain: { value: 0 },
         uLit: { value: Array.from({ length: MAX_LIT }, () => new Vector3(-1, 0, 0)) },
         uNow: { value: 0 },
+        uAmber: { value: amber },
       },
     })
-  }, [gl])
+  }, [gl, amber])
 
   // The horizon comes from the --horizon of the section the night sits in (the
   // hero or the footer), so the CSS land and the drawn windows share one line;
@@ -241,7 +244,7 @@ function Night({ running, input }: Props) {
   )
 }
 
-export default function NightScene({ running, input, onStill }: Props & { onStill: () => void }) {
+export default function NightScene({ running, input, amber, onStill }: Props & { onStill: () => void }) {
   return (
     <Canvas
       className="night__canvas"
@@ -257,7 +260,7 @@ export default function NightScene({ running, input, onStill }: Props & { onStil
       flat
       linear
     >
-      <Night running={running} input={input} />
+      <Night running={running} input={input} amber={amber} />
     </Canvas>
   )
 }
