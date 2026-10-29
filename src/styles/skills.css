@@ -3,7 +3,7 @@
    in the left column while the list scrolls past it; the pressed row and the
    pressed key are the same state. The rack's amber is the only amber here. */
 
-.skillset { --pad: var(--gap-columns); padding-block: calc(var(--section-gap) / 2) var(--section-gap); background: var(--bg); color: var(--ink); }
+.skillset { --pad: var(--gap-columns); padding-block: var(--section-gap) 0; background: var(--bg); color: var(--ink); }
 .skillset__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); align-items: start; }
 
 /* The photograph: 4:5, unframed on the ground, held 12vh from the top. Never
