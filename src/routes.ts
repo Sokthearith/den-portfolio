@@ -1,5 +1,6 @@
 import { createElement, type ComponentType } from 'react'
 import { notes } from './lib/notes'
+import Algorithms from './pages/Algorithms'
 import Home from './pages/Home'
 import Lab from './pages/Lab'
 import Note from './pages/Note'
@@ -17,6 +18,13 @@ export const routes: Route[] = [
     title: 'den, full-stack developer',
     description: 'Kheng Sokthearith (den), full-stack developer and software engineering student at CADT. Projects, skills and how to reach me.',
     page: Home,
+  },
+  {
+    path: '/algorithms',
+    file: 'algorithms/index.html',
+    title: 'Algorithms, by lamplight, den',
+    description: 'Data structures and algorithms visualized step by step: sorting, stacks and queues, trees, graphs and pathfinding, by Kheng Sokthearith (den).',
+    page: Algorithms,
   },
   {
     path: '/lab',

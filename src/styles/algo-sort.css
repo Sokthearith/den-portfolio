@@ -1,0 +1,37 @@
+/* Sorting the skyline. Buildings rest in a step of surface with their
+   windows dark; the two being compared stand up in the soft ink, a moving
+   one in the amber, and a building in its final place has every window lit.
+   Whatever lies outside the part being worked on dims back. */
+.skyline { --win: var(--bg); --win-dim: color-mix(in oklch, var(--bg), var(--accent) 22%); display: block; width: 100%; height: auto; padding: 24px 16px 0; box-sizing: border-box; overflow: visible; }
+.skyline__b { transition: transform var(--glide, 200ms) var(--ease-out), opacity var(--dur-short) linear; }
+.skyline__body { fill: var(--surface-2); transition: fill var(--dur-micro) linear; }
+.skyline__win { fill: var(--win); transition: fill var(--dur-short) linear; }
+.skyline__win[data-dim] { fill: var(--win-dim); }
+.skyline__ground { fill: var(--surface-2); }
+
+.skyline__b[data-out] { opacity: 0.38; }
+.skyline__b[data-sorted] .skyline__win { fill: var(--accent); }
+.skyline__b[data-flag="cmp"] .skyline__body { fill: var(--muted); }
+.skyline__b[data-flag="pivot"] .skyline__body { fill: color-mix(in oklch, var(--muted), var(--surface-2) 40%); }
+.skyline__b[data-flag="pivot"] .skyline__body { stroke: var(--ink); stroke-width: 1.5; }
+.skyline__b[data-flag="move"] .skyline__body { fill: var(--accent); }
+.skyline__b[data-flag="move"] .skyline__win { fill: var(--accent-ink); }
+
+/* By day the dark windows are the paper's own colour, set into sand. Set as
+   the window colours themselves, so the lit and moving states above still win. */
+:root[data-theme="dawn"] .skyline { --win: var(--surface); --win-dim: color-mix(in oklch, var(--surface), var(--accent) 30%); }
+:root[data-theme="dawn"] .skyline__b[data-flag="cmp"] .skyline__body { fill: color-mix(in oklch, var(--muted), var(--surface-2) 30%); }
+
+/* Race: two towns, one above the other, each with its name and its state. */
+.race { display: grid; gap: 16px; }
+.race__lane { display: grid; gap: 8px; }
+.race__head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: var(--step-body); }
+.race__name { font-weight: 500; }
+.race__state { font-variant-numeric: tabular-nums; color: var(--muted); }
+.race__state[data-done] { color: var(--ink); }
+.race__state[data-done]::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 8px; background: var(--accent); vertical-align: 0.05em; }
+.race__rival { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
+.lap { display: grid; gap: 8px; padding-top: 16px; border-top: 1px solid var(--surface-2); }
+.lap__name { font-weight: 500; }
+
+@media (prefers-reduced-motion: reduce) { .skyline__b, .skyline__body, .skyline__win { transition: none; } }

@@ -1,0 +1,112 @@
+/* The night map. Streets are laid in a step of surface with a faint lane
+   down the middle, each with its length on a small plate; the river is a
+   band of the deeper ground. Buildings stand with their windows dark, and
+   switch them on in the amber once visited, settled or joined. The road
+   being looked at draws itself in the amber, the roads kept light up in
+   full ink, and the place the running line is on is lit and glows. */
+.gm-stage { display: grid; }
+.gm-map {
+  /* The map's own shades, so dawn can retint them without outranking the
+     states (seen, lit, current) drawn over them. */
+  --gm-river: color-mix(in oklch, var(--bg), var(--surface) 50%);
+  --gm-body: color-mix(in oklch, var(--surface-2), var(--muted) 20%);
+  --gm-win: var(--bg);
+  --gm-win-dim: color-mix(in oklab, var(--bg), var(--accent) 24%);
+  display: block; width: 100%; height: auto; overflow: hidden; font-family: var(--font); -webkit-tap-highlight-color: transparent;
+}
+/* The wide sheet on a desk, the tall one on a phone. */
+.gm-map--tall { display: none; }
+@media (max-width: 40rem) { .gm-map--wide { display: none; } .gm-map--tall { display: block; } }
+
+.gm-river { fill: none; stroke: var(--gm-river); stroke-width: 28; stroke-linecap: round; stroke-linejoin: round; }
+
+.gm-road { transition: opacity var(--dur-short) linear; }
+.gm-road__bed { stroke: var(--surface-2); stroke-width: 14; stroke-linecap: round; }
+.gm-road__lane { stroke: color-mix(in oklch, var(--muted), transparent 72%); stroke-width: 1.5; stroke-dasharray: 6 8; }
+/* Dijkstra's best road so far to a place not yet settled. */
+.gm-road[data-near] .gm-road__lane { stroke: var(--muted); stroke-width: 2.5; stroke-dasharray: 4 5; }
+.gm-road[data-out] { opacity: 0.35; }
+/* A kept road draws in along its length; scrubbing back draws it out again. */
+.gm-road__lit {
+  stroke: var(--ink); stroke-width: 4; stroke-dasharray: 1 2; stroke-dashoffset: 1;
+  transition: stroke-dashoffset calc(var(--gm-glide, 300ms) * 1.6) var(--ease-out), stroke var(--dur-short) linear, stroke-width var(--dur-short) linear;
+}
+.gm-road__lit[data-lit] { stroke-dashoffset: 0; }
+.gm-road__lit:is([data-lit="route"], [data-lit="loop"]) { stroke: var(--accent); stroke-width: 6; }
+
+.gm-look { stroke: var(--accent); stroke-width: 7; stroke-linecap: round; stroke-dasharray: 1 2; animation: gm-draw var(--gm-glide, 300ms) var(--ease-out) both; }
+/* A road looked at and turned down: a thin amber thread, not a street. */
+.gm-look[data-bad] { stroke-width: 3; }
+@keyframes gm-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+
+.gm-len rect { fill: var(--surface); stroke: var(--surface-2); stroke-width: 1.5; transition: fill var(--dur-micro) linear, stroke var(--dur-micro) linear; }
+.gm-len text { fill: var(--muted); font-size: 14px; font-weight: 500; text-anchor: middle; font-variant-numeric: tabular-nums; transition: fill var(--dur-micro) linear; }
+.gm-len[data-lit] text { fill: var(--ink); }
+.gm-len[data-lit] rect { stroke: var(--muted); }
+.gm-len[data-on] rect { fill: var(--accent); stroke: var(--accent); }
+.gm-len[data-on] text { fill: var(--accent-ink); }
+.gm-len[data-out]:not([data-on]) { opacity: 0.45; }
+
+.gm-place { outline: none; }
+.gm-place[role="button"] { cursor: pointer; }
+.gm-place__hit { fill: transparent; }
+.gm-place__glow { fill: var(--accent); opacity: 0; transition: opacity var(--dur-short) linear; }
+.gm-place[data-flag="cur"] .gm-place__glow { opacity: 0.16; }
+/* The start wears a dashed ring, the route's end a solid amber one, and
+   the place under the keyboard a solid ink one. */
+.gm-place__ring { fill: none; stroke: var(--ink); stroke-width: 1.5; opacity: 0; }
+.gm-place[data-start] .gm-place__ring { opacity: 1; stroke-dasharray: 4 3; }
+.gm-place[data-target] .gm-place__ring { opacity: 1; stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: none; }
+.gm-place:focus-visible .gm-place__ring { opacity: 1; stroke: var(--ink); stroke-width: 2.5; stroke-dasharray: none; }
+.gm-place__body, .gm-place__roof { fill: var(--gm-body); transition: fill var(--dur-micro) linear; }
+.gm-place__win { fill: var(--gm-win); transition: fill var(--dur-short) linear; }
+.gm-place__win[data-dim] { fill: var(--gm-win-dim); }
+.gm-place[data-flag="seen"] :is(.gm-place__body, .gm-place__roof) { fill: var(--muted); }
+.gm-place[data-done] .gm-place__win { fill: var(--accent); }
+.gm-place[data-flag="cur"] :is(.gm-place__body, .gm-place__roof) { fill: var(--accent); }
+.gm-place[data-flag="cur"] .gm-place__win { fill: var(--accent-ink); }
+
+/* Words on the map keep a rim of the stage round them, so a road under a
+   name never cuts through it. */
+.gm-place text { text-anchor: middle; paint-order: stroke; stroke: var(--surface); stroke-width: 5; stroke-linejoin: round; }
+.gm-place__name { fill: var(--muted); font-size: 17px; }
+.gm-place:is([data-flag="cur"], [data-start], [data-target]) .gm-place__name { fill: var(--ink); }
+.gm-place[role="button"]:hover .gm-place__name { fill: var(--ink); }
+.gm-place__dist { fill: var(--ink); font-size: 17px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.gm-place__dist[data-new] { fill: var(--accent); }
+.gm-place__was { fill: var(--muted); font-weight: 400; }
+.gm-place__badge rect { fill: var(--field-1); }
+.gm-place__badge text { fill: var(--field-1-ink); stroke: none; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* On the phone sheet the map is drawn smaller, so its plates read a size up. */
+.gm-map--tall .gm-len text { font-size: 15px; }
+
+/* The strip under the map: whatever the algorithm keeps waiting, in order.
+   Its height is held, so the transport below stays put while it plays. */
+.gm-dock { display: flex; flex-wrap: wrap; align-items: center; align-content: flex-start; gap: 8px 12px; min-height: 6.5rem; padding: 14px 16px 10px; border-top: 1px solid var(--surface-2); }
+.gm-dock__name { flex: 0 0 100%; font-size: var(--step-small); color: var(--muted); }
+.gm-dock__empty { font-size: var(--step-small); color: var(--muted); }
+.gm-chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.gm-chip { display: inline-flex; align-items: baseline; gap: 6px; padding: 5px 8px; background: var(--surface-2); color: var(--ink); font-size: var(--step-small); line-height: 1.3; white-space: nowrap; }
+.gm-chip__val { color: var(--muted); font-variant-numeric: tabular-nums; }
+.gm-chip:is([data-flag="next"], [data-flag="on"]) { background: var(--accent); color: var(--accent-ink); }
+.gm-chip:is([data-flag="next"], [data-flag="on"]) .gm-chip__val { color: var(--accent-ink); }
+.gm-chip[data-flag="kept"] { background: none; box-shadow: inset 0 0 0 1px var(--ink); }
+.gm-chip[data-flag="out"] { background: none; color: var(--muted); text-decoration: line-through; }
+.gm-hint { margin: 0; padding: 0 16px 14px; }
+
+/* By day: the river is a shade deeper than the sand, the buildings are
+   grey stone with dark glass, and an amber number is the deeper bronze. */
+:root[data-theme="dawn"] .gm-map {
+  --gm-river: color-mix(in oklch, var(--surface-2), var(--muted) 5%);
+  --gm-body: color-mix(in oklch, var(--surface-2), var(--muted) 45%);
+  --gm-win: color-mix(in oklch, var(--muted), var(--surface-2) 15%);
+  --gm-win-dim: color-mix(in oklab, var(--muted), var(--accent) 50%);
+}
+:root[data-theme="dawn"] .gm-place[data-flag="seen"] .gm-place__win { fill: var(--surface-2); }
+:root[data-theme="dawn"] .gm-place__dist[data-new] { fill: var(--color-focus); }
+
+@media (prefers-reduced-motion: reduce) {
+  .gm-road, .gm-road__lit, .gm-len rect, .gm-len text, .gm-place__glow, .gm-place__body, .gm-place__roof, .gm-place__win { transition: none; }
+  .gm-look { animation: none; }
+}

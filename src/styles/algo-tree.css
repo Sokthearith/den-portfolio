@@ -1,0 +1,108 @@
+/* Growing a tree. Nodes are windows on the dark stage: unlit in a step of
+   surface, outlined in ink along the walk being taken, and lit amber where
+   the running line is. Windows a traversal has already passed keep a low
+   warm glow, the way the skyline's dim windows do. Everything that moves
+   slides on a transform, at a pace that follows the speed control. */
+
+.tg-opsrow { display: grid; gap: 10px; }
+.tg-ops { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.tg-ops__name { margin-right: 6px; font-size: var(--step-small); color: var(--muted); }
+
+.tg-field { display: inline-flex; align-items: center; gap: 10px; margin-right: 6px; }
+.tg-field__name { font-size: var(--step-small); color: var(--muted); }
+.tg-field__input {
+  width: 4.5ch; min-height: 44px; padding: 0 10px; box-sizing: content-box;
+  border: 1px solid var(--surface-2); border-radius: var(--radius); background: var(--surface);
+  color: var(--ink); font: 500 var(--step-body)/1 var(--font); font-variant-numeric: tabular-nums;
+  appearance: textfield; -moz-appearance: textfield;
+}
+.tg-field__input::-webkit-inner-spin-button, .tg-field__input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.tg-field__input:hover { border-color: var(--muted); }
+.tg-field__input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* The stage scrolls sideways when a tree is wider than the screen. */
+.tg-stage { display: grid; }
+.tg-scroll { overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: var(--surface-2) transparent; }
+.tg-svg { display: block; margin: 0 auto; overflow: visible; font-family: var(--font); }
+
+.tg-level line { stroke: var(--surface-2); stroke-width: 1; stroke-dasharray: 2 6; }
+.tg-level text { font-size: 11px; fill: var(--muted); opacity: 0.7; font-variant-numeric: tabular-nums; }
+.tg-empty, .tg-caption { font-size: 14px; fill: var(--muted); }
+
+.tg-edge {
+  stroke: color-mix(in oklab, var(--muted), var(--surface) 55%); stroke-width: 1.5; vector-effect: non-scaling-stroke;
+  transition: transform var(--tg-glide, 400ms) var(--ease-out), stroke var(--dur-short) linear;
+}
+.tg-edge[data-lit] { stroke: var(--ink); stroke-width: 2; }
+
+.tg-node { transition: transform var(--tg-glide, 400ms) var(--ease-out), opacity var(--dur-long) linear; }
+.tg-node__body { transform-box: fill-box; transform-origin: center; animation: tg-grow var(--dur-long) var(--ease-out) both; }
+.tg-node__box { fill: var(--surface-2); stroke: transparent; stroke-width: 2; transition: fill var(--dur-micro) linear, stroke var(--dur-micro) linear; }
+/* The number switches at once while its box fades: fading both, they pass
+   through the same lightness halfway and the number disappears. */
+.tg-node__v { font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums; fill: var(--ink); }
+
+.tg-node[data-done] .tg-node__box { fill: color-mix(in oklab, var(--surface-2), var(--accent) 26%); }
+.tg-node[data-flag="trail"] .tg-node__box { stroke: var(--ink); }
+.tg-node[data-flag="mark"] .tg-node__box { stroke: var(--accent); stroke-width: 3; }
+.tg-node[data-flag="succ"] .tg-node__box { stroke: var(--accent); stroke-dasharray: 5 3; fill: var(--surface-2); }
+.tg-node[data-flag="at"] .tg-node__box { fill: var(--accent); stroke: var(--accent); }
+.tg-node[data-flag="at"] .tg-node__v { fill: var(--accent-ink); }
+.tg-node[data-gone] { opacity: 0.28; }
+
+@keyframes tg-grow { from { transform: scale(0.2); opacity: 0; } }
+
+/* The value being walked down the tree rides at the shoulder of the node it
+   is compared with. */
+.tg-probe { transition: transform var(--tg-glide, 400ms) var(--ease-out); }
+.tg-probe rect { fill: var(--bg); stroke: var(--accent); stroke-width: 1.5; }
+.tg-probe text { font-size: 13px; font-weight: 500; fill: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* The heap's array: fixed slots with their indices above, items sliding
+   between them, and the parent in focus pointing to 2i+1 and 2i+2 below. */
+.tg-slot { transition: transform var(--tg-glide, 400ms) var(--ease-out); }
+.tg-slot rect { fill: none; stroke: var(--surface-2); stroke-width: 1; }
+.tg-slot__i { font-size: 11px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+.tg-cell { transition: transform var(--tg-glide, 400ms) var(--ease-out); }
+.tg-cell__box { fill: var(--surface-2); stroke: transparent; stroke-width: 2; transition: fill var(--dur-micro) linear, stroke var(--dur-micro) linear; }
+.tg-cell__v { font-size: 14px; font-weight: 500; fill: var(--ink); font-variant-numeric: tabular-nums; }
+.tg-cell[data-flag="trail"] .tg-cell__box { stroke: var(--ink); }
+.tg-cell[data-flag="mark"] .tg-cell__box { stroke: var(--accent); stroke-width: 3; }
+.tg-cell[data-flag="at"] .tg-cell__box { fill: var(--accent); stroke: var(--accent); }
+.tg-cell[data-flag="at"] .tg-cell__v { fill: var(--accent-ink); }
+.tg-arc path { fill: none; stroke: var(--ink); stroke-width: 1.5; }
+.tg-arc text { font-size: 11px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+.tg-tip { fill: var(--ink); }
+
+/* The tray under the stage. */
+.tg-tray { display: grid; gap: 10px; min-height: 52px; padding: 14px 16px 16px; border-top: 1px solid var(--surface-2); box-sizing: border-box; }
+.tg-tray__hint { margin: 0; align-self: center; font-size: var(--step-small); color: var(--muted); }
+.tg-tray__row { display: flex; align-items: baseline; gap: 14px; min-width: 0; }
+.tg-tray__name { flex: none; width: 4.5em; font-size: var(--step-small); color: var(--muted); }
+.tg-tray__vals { display: flex; flex-wrap: wrap; gap: 4px; min-height: 30px; margin: 0; padding: 0; list-style: none; }
+.tg-tray__v {
+  display: inline-grid; place-items: center; min-width: 30px; height: 30px; padding: 0 4px; box-sizing: border-box;
+  background: color-mix(in oklab, var(--surface-2), var(--accent) 26%); color: var(--ink);
+  font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums;
+  animation: tg-drop var(--dur-short) var(--ease-out) both;
+}
+.tg-tray__v[data-new] { background: var(--accent); color: var(--accent-ink); }
+.tg-tray__v--wait { background: none; box-shadow: inset 0 0 0 1px var(--surface-2); color: var(--muted); animation: none; }
+@keyframes tg-drop { from { transform: translateY(-6px); opacity: 0; } }
+
+/* By day the warm glow is set into sand, and the probe's outline is the
+   deeper bronze so it holds on paper. */
+:root[data-theme="dawn"] .tg-node[data-done]:not([data-flag="at"]) .tg-node__box { fill: color-mix(in oklab, var(--surface-2), var(--accent) 34%); }
+:root[data-theme="dawn"] .tg-tray__v { background: color-mix(in oklab, var(--surface-2), var(--accent) 34%); }
+:root[data-theme="dawn"] .tg-tray__v[data-new] { background: var(--accent); }
+:root[data-theme="dawn"] .tg-tray__v--wait { background: none; }
+:root[data-theme="dawn"] .tg-probe rect { fill: var(--surface); stroke: var(--color-focus); }
+:root[data-theme="dawn"] .tg-node[data-flag="mark"] .tg-node__box,
+:root[data-theme="dawn"] .tg-node[data-flag="succ"] .tg-node__box,
+:root[data-theme="dawn"] .tg-cell[data-flag="mark"] .tg-cell__box { stroke: var(--color-focus); }
+:root[data-theme="dawn"] .tg-edge:not([data-lit]) { stroke: color-mix(in oklab, var(--muted), var(--surface) 45%); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tg-edge, .tg-node, .tg-node__box, .tg-node__v, .tg-probe, .tg-slot, .tg-cell, .tg-cell__box { transition: none; }
+  .tg-node__body, .tg-tray__v { animation: none; }
+}

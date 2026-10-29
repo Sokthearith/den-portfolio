@@ -12,6 +12,7 @@ const links = [
   { href: '/#now', id: 'now', label: 'Now' },
   // Notes joins the nav once there is a note to read (drafts count while developing).
   ...(published.length || import.meta.env.DEV ? [{ href: '/notes', id: '/notes', label: 'Notes' }] : []),
+  { href: '/algorithms', id: '/algorithms', label: 'Algorithms' },
   { href: '/lab', id: '/lab', label: 'Lab' },
 ]
 

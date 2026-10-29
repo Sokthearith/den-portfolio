@@ -1,0 +1,104 @@
+/* ---------- Algorithms, by lamplight ---------- */
+/* The same dark room as the lab: one lit thing per screen, here the step
+   an algorithm is taking. Each visualizer is a stage with its transport
+   beneath and its code beside it; the running line is lit in the amber,
+   and so is whatever on the stage that line is touching. */
+
+.algotop { padding-top: clamp(120px, 12vw, 160px); }
+.algotop__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); row-gap: 24px; align-items: end; }
+.algotop h1 { grid-column: 1 / 9; max-width: none; font-size: var(--step-display); font-weight: 300; line-height: 0.9; letter-spacing: -0.04em; color: var(--ink); }
+.algotop__lead { grid-column: 9 / 13; max-width: 30ch; padding-bottom: 0.4em; font-size: var(--step-lead); line-height: 1.4; color: var(--ink); }
+.algotop__index { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 24px; margin: 24px 0 0; padding: 0; list-style: none; }
+.algotop__index a { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); font-size: var(--step-body); text-decoration: none; }
+.algotop__index a:hover { color: var(--ink); text-decoration: underline; text-decoration-color: var(--accent); }
+@media (max-width: 60rem) { .algotop h1, .algotop__lead { grid-column: 1 / -1; } .algotop__lead { padding-bottom: 0; } }
+@media (max-width: 40rem) { .algotop h1 { font-size: 17vw; } }
+
+/* Each visualizer owns only the gap above it. */
+.algo { padding-top: var(--section-gap); color: var(--ink); }
+.algotop + .algo { padding-top: calc(var(--section-gap) / 2); }
+.algo__head { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); align-items: end; margin-bottom: 40px; }
+.algo__head h2 { grid-column: 1 / 7; max-width: 14ch; font-size: var(--step-head); font-weight: 300; line-height: 1; letter-spacing: -0.035em; }
+.algo__line { grid-column: 8 / 13; max-width: 40ch; font-size: var(--step-lead); line-height: 1.4; }
+@media (max-width: 60rem) { .algo__head h2, .algo__line { grid-column: 1 / -1; } .algo__line { margin-top: 16px; } }
+
+/* The stage and its side: choices and the stage on the left, the code and
+   the readout on the right; one column on narrow screens. */
+.viz { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 24px var(--gap-columns); align-items: start; }
+.viz__main { display: grid; gap: 20px; min-width: 0; container-type: inline-size; }
+.viz__side { display: grid; gap: 20px; min-width: 0; }
+.viz__bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; }
+.viz__tools { display: flex; flex-wrap: wrap; gap: 6px; }
+.viz__stage { position: relative; min-width: 0; background: var(--surface); }
+.viz__hint { font-size: var(--step-small); color: var(--muted); }
+@media (max-width: 60rem) { .viz { grid-template-columns: minmax(0, 1fr); } }
+
+/* Choices: words in the soft ink; the chosen one is full ink on a step of surface. */
+.picker { display: flex; flex-wrap: wrap; gap: 2px; }
+.picker__opt {
+  min-height: 44px; padding: 0 14px; border: 0; border-radius: var(--radius); background: none;
+  color: var(--muted); font: 400 var(--step-body)/1 var(--font); white-space: nowrap; cursor: pointer;
+  transition: background-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out);
+}
+.picker__opt:hover { color: var(--ink); }
+.picker__opt[aria-checked="true"] { background: var(--surface-2); color: var(--ink); }
+.picker__opt:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+
+.act {
+  min-height: 44px; padding: 0 16px; border: 1px solid var(--surface-2); border-radius: var(--radius); background: none;
+  color: var(--ink); font: 500 var(--step-body)/1 var(--font); white-space: nowrap; cursor: pointer;
+  transition: background-color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out);
+}
+.act:hover:not(:disabled) { border-color: var(--muted); }
+.act:disabled { opacity: 0.45; cursor: default; }
+.act--primary { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+.act--primary:hover:not(:disabled) { border-color: var(--color-focus); background: var(--color-focus); }
+:root[data-theme="dawn"] .act--primary:hover:not(:disabled) { border-color: oklch(70% 0.15 60); background: oklch(70% 0.15 60); }
+.act:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* The transport: buttons, the scrubber with its step count, and the speed. */
+.playbar { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px 24px; }
+.playbar__buttons { display: flex; gap: 2px; }
+.playbar__btn { display: inline-grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: var(--radius); background: none; color: var(--ink); cursor: pointer; transition: background-color var(--dur-short) var(--ease-out); }
+.playbar__btn:hover:not(:disabled) { background: var(--surface-2); }
+.playbar__btn:disabled { color: var(--muted); opacity: 0.45; cursor: default; }
+.playbar__btn--play { background: var(--accent); color: var(--accent-ink); }
+.playbar__btn--play:hover:not(:disabled) { background: var(--color-focus); }
+:root[data-theme="dawn"] .playbar__btn--play:hover:not(:disabled) { background: oklch(70% 0.15 60); }
+.playbar__btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.playbar__scrub, .playbar__speed { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.playbar input[type="range"] { flex: 1; min-width: 0; min-height: 44px; margin: 0; accent-color: var(--ink); cursor: pointer; }
+.playbar__speed input[type="range"] { flex: none; width: 7rem; }
+.playbar__step, .playbar__speed-value { font-size: var(--step-small); font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+.playbar__step { min-width: 7ch; text-align: right; }
+.playbar__speed-name { font-size: var(--step-small); color: var(--muted); }
+/* The transport follows the width of its own column, not the screen: the
+   speed takes a row of its own first, then everything stacks. */
+@container (max-width: 760px) {
+  .playbar { grid-template-columns: auto minmax(0, 1fr); }
+  .playbar__speed { grid-column: 1 / -1; }
+  .playbar__speed input[type="range"] { flex: 1; width: auto; }
+}
+@container (max-width: 480px) {
+  .playbar { grid-template-columns: minmax(0, 1fr); }
+  .playbar__buttons { justify-content: space-between; }
+}
+
+/* The code: a plain listing in the soft ink, the running line in full ink
+   with an amber rule at its left. */
+.code {
+  margin: 0; padding: 16px 0; overflow-x: auto; background: var(--surface);
+  font: 400 0.875rem/1.7 ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace; color: var(--muted); tab-size: 2;
+}
+.code__line { display: block; padding: 0 16px 0 13px; border-left: 3px solid transparent; white-space: pre; transition: color var(--dur-micro) linear, background-color var(--dur-micro) linear; }
+.code__line[data-on] { border-left-color: var(--accent); background: var(--surface-2); color: var(--ink); }
+
+.readout { display: grid; gap: 16px; }
+.readout__note { min-height: 2.8em; font-size: var(--step-body); line-height: 1.4; color: var(--ink); }
+.readout__counts { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0; }
+.readout__counts div { display: grid; }
+.readout__counts dt { font-size: var(--step-small); color: var(--muted); }
+.readout__counts dt::first-letter { text-transform: uppercase; }
+.readout__counts dd { margin: 0; font-size: var(--step-lead); font-weight: 300; font-variant-numeric: tabular-nums; color: var(--ink); }
+
+@media (prefers-reduced-motion: reduce) { .code__line, .picker__opt, .act, .playbar__btn { transition: none; } }

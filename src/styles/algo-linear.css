@@ -1,0 +1,168 @@
+/* Stacks, queues and lists. Everything at rest sits in a step of surface
+   with its words in the ink; whatever the running line touches (the record
+   being pushed, the slot being written, the lamp the cursor is on, the wire
+   just rewired) takes the amber. Lamps the cursor has passed keep a little
+   of its warmth. Things slide between frames at the pace of --glide. */
+
+/* The yard's own roles: the fill of a thing at rest and its shaded edge,
+   the warmth a passed lamp keeps, and amber as a line or a word, which by
+   day is the deeper bronze so it can still be read on paper. */
+.ly-yard {
+  --ly-thing: oklch(27% 0.018 258);
+  --ly-edge: oklch(19% 0.018 258);
+  --ly-seen: color-mix(in oklab, var(--accent) 34%, var(--ly-thing));
+  --ly-amber: var(--accent);
+}
+:root[data-theme="dawn"] .ly-yard {
+  --ly-thing: oklch(85% 0.03 78);
+  --ly-edge: oklch(74% 0.035 76);
+  --ly-seen: color-mix(in oklab, var(--accent) 45%, oklch(91% 0.03 78));
+  --ly-amber: var(--color-focus);
+}
+
+/* ---------- The bar: a value, a dice, an index, and the operations ---------- */
+.ly-tools { align-items: center; gap: 8px 16px; }
+.ly-fields, .ly-ops { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.ly-field { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }
+.ly-field__name { font-size: var(--step-small); color: var(--muted); }
+.ly-field__input {
+  width: 4.25em; min-height: 44px; padding: 0 10px; border: 1px solid var(--surface-2); border-radius: var(--radius);
+  background: var(--surface); color: var(--ink); font: 500 var(--step-body)/1 var(--font); font-variant-numeric: tabular-nums;
+  appearance: textfield;
+}
+.ly-field__input::-webkit-inner-spin-button, .ly-field__input::-webkit-outer-spin-button { margin: 0; appearance: none; }
+.ly-field__input:hover { border-color: var(--muted); }
+.ly-field__input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.ly-dice {
+  display: inline-grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--surface-2); border-radius: var(--radius);
+  background: none; color: var(--ink); cursor: pointer; transition: border-color var(--dur-short) var(--ease-out);
+}
+.ly-dice:hover { border-color: var(--muted); }
+.ly-dice:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* ---------- The stage ---------- */
+/* The three drawings differ in height; the stage keeps one floor so the
+   page does not jump when the structure changes, and centres what it holds. */
+.ly-stage { display: grid; align-items: center; min-height: 400px; }
+.ly-stage > div { min-width: 0; }
+/* Text centres on its point unless it says otherwise: set on the svg and
+   inherited, so a text's own anchor attribute still wins. */
+.ly-svg { display: block; width: 100%; height: auto; max-height: 460px; margin: 0 auto; padding: 16px; box-sizing: border-box; overflow: visible; font-family: var(--font); text-anchor: middle; dominant-baseline: central; }
+@media (max-width: 37.49rem) { .ly-stage { min-height: 0; } .ly-svg { max-height: none; padding: 12px 8px; } }
+
+/* Shared marks: the small index numbers, quiet notes, and a refusal. */
+.ly-index { fill: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.ly-note { fill: var(--muted); font-size: 13px; }
+.ly-banner { fill: var(--ly-amber); font-size: 22px; font-weight: 500; letter-spacing: -0.01em; dominant-baseline: auto; }
+.ly-slide { transition: transform var(--glide, 300ms) var(--ease-out); }
+
+/* ---------- The stack ---------- */
+.ly-spindle { fill: color-mix(in oklab, var(--muted) 55%, var(--surface)); }
+.ly-platter { fill: color-mix(in oklab, var(--muted) 30%, var(--surface)); }
+.ly-plinth { fill: var(--surface-2); }
+.ly-ghost { fill: none; stroke: color-mix(in oklab, var(--muted) 28%, var(--surface)); stroke-dasharray: 3 5; }
+
+.ly-rec { transition: transform var(--glide, 300ms) var(--ease-out); }
+.ly-rec__face { fill: var(--ly-thing); transition: fill var(--dur-micro) linear; }
+.ly-rec__edge { fill: var(--ly-edge); transition: fill var(--dur-micro) linear; }
+.ly-rec__groove { fill: none; stroke: color-mix(in oklab, var(--ink) 10%, transparent); stroke-width: 1; }
+.ly-rec__label { fill: var(--bg); transition: fill var(--dur-micro) linear; }
+.ly-rec__value { fill: var(--ink); font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.ly-rec[data-lit] .ly-rec__face { fill: var(--accent); }
+.ly-rec[data-lit] .ly-rec__edge { fill: color-mix(in oklab, var(--accent) 70%, var(--accent-ink)); }
+.ly-rec[data-lit] .ly-rec__groove { stroke: color-mix(in oklab, var(--accent-ink) 25%, transparent); }
+.ly-rec[data-lit] .ly-rec__label { fill: var(--accent-ink); }
+.ly-rec[data-lit] .ly-rec__value { fill: var(--accent); }
+.ly-rec[data-out] { opacity: 0.85; }
+/* A record with nowhere to go shakes its head. */
+.ly-rec[data-error] .ly-rec__body { animation: ly-refuse 520ms var(--ease-out) both; }
+@keyframes ly-refuse {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-9px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(3px); }
+}
+
+/* `top`, a pointer at the left of the pile. */
+.ly-ptr { transition: transform var(--glide, 300ms) var(--ease-out); }
+.ly-ptr__name { fill: var(--ink); font-size: 15px; font-weight: 500; }
+.ly-ptr__line { stroke: var(--muted); stroke-width: 1.5; }
+.ly-ptr__head { fill: var(--muted); }
+.ly-ptr[data-lit] .ly-ptr__name { fill: var(--ly-amber); }
+.ly-ptr[data-lit] .ly-ptr__line { stroke: var(--ly-amber); stroke-width: 2.5; }
+.ly-ptr[data-lit] .ly-ptr__head { fill: var(--ly-amber); }
+
+/* ---------- The queue ---------- */
+.ly-ground { fill: var(--surface-2); }
+.ly-booth { fill: var(--surface-2); }
+.ly-booth__awning { fill: color-mix(in oklab, var(--muted) 35%, var(--surface-2)); }
+.ly-booth__sign { fill: var(--muted); font-size: 11px; font-weight: 500; letter-spacing: 0.18em; }
+.ly-booth__window { fill: var(--bg); transition: fill var(--dur-short) linear; }
+.ly-booth__window[data-lit] { fill: var(--accent); }
+.ly-booth__ledge { fill: color-mix(in oklab, var(--muted) 35%, var(--surface-2)); }
+
+.ly-person { transition: transform var(--glide, 300ms) var(--ease-out), opacity var(--glide, 300ms) linear; }
+.ly-person__head, .ly-person__body { fill: var(--ly-thing); transition: fill var(--dur-micro) linear; }
+.ly-person__value { fill: var(--ink); font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.ly-person[data-flag="arriving"] { opacity: 0.7; }
+.ly-person[data-flag="turned"] { opacity: 0.45; }
+.ly-person[data-flag="leaving"] { opacity: 0; }
+.ly-ticket { fill: var(--accent); }
+
+.ly-slot { fill: none; stroke: var(--surface-2); stroke-width: 1.5; transition: fill var(--dur-short) linear, stroke var(--dur-short) linear; }
+.ly-slot[data-full] { fill: var(--ly-thing); stroke: none; }
+.ly-slot[data-lit] { fill: var(--accent); stroke: none; }
+.ly-slot__value { fill: var(--ink); font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums; pointer-events: none; }
+.ly-slot[data-lit] + .ly-slot__value { fill: var(--accent-ink); }
+
+/* head walks round the outside of the ring, tail round the inside, so the
+   two never cover each other when they meet. */
+.ly-mark { transition: transform var(--glide, 300ms) var(--ease-out); }
+.ly-mark__name { fill: var(--ink); font-size: 14px; font-weight: 500; transition: transform var(--glide, 300ms) var(--ease-out); }
+.ly-mark__head { fill: var(--muted); }
+.ly-mark[data-lit] .ly-mark__name { fill: var(--ly-amber); }
+.ly-mark[data-lit] .ly-mark__head { fill: var(--ly-amber); }
+
+/* ---------- The linked list ---------- */
+.ly-wire { fill: none; stroke: var(--muted); stroke-width: 1.5; transition: d var(--glide, 300ms) var(--ease-out), stroke var(--dur-short) linear, opacity var(--dur-short) linear; }
+.ly-wire[data-lit] { stroke: var(--ly-amber); stroke-width: 2.5; }
+.ly-wire[data-gone] { opacity: 0.35; }
+.ly-arrow { fill: var(--muted); }
+.ly-arrow--lit { fill: var(--ly-amber); }
+.ly-null__line { fill: none; stroke: var(--muted); stroke-width: 1.5; transition: d var(--glide, 300ms) var(--ease-out); }
+.ly-null__text { fill: var(--muted); font-size: 11px; }
+.ly-null[data-lit] .ly-null__line { stroke: var(--ly-amber); stroke-width: 2.5; }
+.ly-null[data-gone] { opacity: 0.35; }
+
+.ly-lamp { transition: transform var(--glide, 300ms) var(--ease-out), opacity var(--glide, 300ms) linear; }
+.ly-lamp__glow { opacity: 0; transition: opacity var(--dur-short) linear; }
+.ly-glow-stop { stop-color: var(--accent); }
+.ly-lamp__cap { fill: color-mix(in oklab, var(--muted) 45%, var(--surface-2)); }
+.ly-lamp__glass { fill: var(--ly-thing); stroke: color-mix(in oklab, var(--muted) 40%, transparent); stroke-width: 1; transition: fill var(--dur-micro) linear; }
+.ly-lamp__value { fill: var(--ink); font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.ly-lamp[data-seen] .ly-lamp__glass { fill: var(--ly-seen); }
+.ly-lamp[data-lit] .ly-lamp__glow { opacity: 1; }
+.ly-lamp[data-lit] .ly-lamp__glass { fill: var(--accent); stroke: none; }
+.ly-lamp[data-lit] .ly-lamp__value { fill: var(--accent-ink); }
+.ly-lamp[data-gone] { opacity: 0.35; }
+
+.ly-headbox rect { fill: var(--surface-2); stroke: var(--muted); stroke-width: 1; }
+.ly-headbox text { fill: var(--ink); font-size: 14px; font-weight: 500; }
+.ly-headbox[data-lit] rect { stroke: var(--ly-amber); stroke-width: 2; }
+
+.ly-tag__caret { fill: var(--ink); }
+.ly-tag__name { fill: var(--ink); font-size: 14px; font-weight: 500; }
+.ly-tag__nil { fill: var(--muted); font-size: 12px; }
+.ly-tag[data-null] .ly-tag__caret { fill: var(--muted); }
+
+/* ---------- Dawn ---------- */
+/* The roles above carry most of the morning; the dark insets (a record's
+   label, the booth window, the head box) turn to the paper. */
+:root[data-theme="dawn"] .ly-rec__groove { stroke: color-mix(in oklab, var(--ink) 14%, transparent); }
+:root[data-theme="dawn"] .ly-headbox rect { fill: var(--bg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ly-slide, .ly-rec, .ly-ptr, .ly-person, .ly-mark, .ly-mark__name, .ly-wire, .ly-null__line, .ly-lamp, .ly-dice { transition: none; }
+  .ly-rec[data-error] .ly-rec__body { animation: none; }
+}
