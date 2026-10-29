@@ -1,9 +1,12 @@
 // Your projects. Put the best one first. `uses` lists the skills from
 // skills.ts that this project is built with; `stack` is everything shown.
-// Each case shows how it works: `system` lists the parts a reading passes
-// through, `flow` the steps of its one clever job. `screen` is the sample
-// data its interface fragment shows, until there are screenshots.
+// Each case comes apart into its real layers: `anatomy` lists them from the
+// screen on top down to where the data starts, each drawn as `draw`, with
+// one optional branch off a layer. `screen` is the sample data its interface
+// fragment shows, until there are screenshots.
 export type Part = { name: string; detail: string; uses?: string[] }
+export type LayerDraw = 'screen' | 'postgres' | 'api' | 'esp32' | 'telegram' | 'socket' | 'mysql' | 'check' | 'gemini'
+export type Layer = Part & { draw: LayerDraw }
 
 // Agrix's dashboard: one reading against the app's default thresholds
 // (backend/src/config/env.js), and the soil moisture over the last day.
@@ -32,8 +35,7 @@ export type Project = {
   stack: { label: string; items: string[] }[]
   uses: string[]
   github: string
-  system?: { caption: string; parts: Part[]; branch: Part & { from: number } }
-  flow?: { caption: string; steps: Part[] }
+  anatomy: { caption: string; figure: string; layers: Layer[]; branch?: Layer & { from: string } }
   screen?: AgrixScreen | PlanifyScreen
   // Screenshots go here once you have them, e.g.
   // { src: '/work/agrix/dashboard.png', alt: 'The Agrix dashboard with one farm open' }
@@ -51,15 +53,16 @@ export const projects: Project[] = [
       { label: 'Data', items: ['PostgreSQL', 'Docker'] },
     ],
     uses: ['HTML', 'CSS', 'JavaScript', 'React', 'Node.js', 'Express', 'Docker', 'Git', 'GitHub'],
-    system: {
+    anatomy: {
       caption: 'How a reading travels',
-      parts: [
-        { name: 'ESP32', detail: 'posts with a device key' },
-        { name: 'Express API', detail: 'checks, stores, decides', uses: ['Node.js', 'Express', 'JavaScript'] },
-        { name: 'PostgreSQL', detail: 'on Supabase, via Prisma', uses: ['Docker'] },
-        { name: 'Dashboard', detail: 'health, history, advice', uses: ['React', 'JavaScript', 'HTML', 'CSS'] },
+      figure: 'Agrix, taken apart',
+      layers: [
+        { name: 'Dashboard', detail: 'health, history and advice', uses: ['React', 'JavaScript', 'HTML', 'CSS'], draw: 'screen' },
+        { name: 'PostgreSQL', detail: 'on Supabase, via Prisma', uses: ['Docker'], draw: 'postgres' },
+        { name: 'Express API', detail: 'checks, stores, decides', uses: ['Node.js', 'Express', 'JavaScript'], draw: 'api' },
+        { name: 'ESP32', detail: 'posts each reading with a device key', draw: 'esp32' },
       ],
-      branch: { from: 1, name: 'Telegram', detail: 'alerts on bad readings' },
+      branch: { name: 'Telegram', detail: 'alerts on bad readings', draw: 'telegram', from: 'Express API' },
     },
     // Sample: one dry evening on one field. 27% is under the 30% line, so
     // the app's own rule takes 20 off the health score and asks for water.
@@ -82,12 +85,15 @@ export const projects: Project[] = [
       { label: 'Data', items: ['MySQL', 'Gemini API'] },
     ],
     uses: ['HTML', 'CSS', 'JavaScript', 'React', 'Node.js', 'Express', 'MySQL', 'Git', 'GitHub'],
-    flow: {
+    anatomy: {
       caption: 'How a schedule gets made',
-      steps: [
-        { name: 'Gemini drafts it', detail: 'from your tasks and deadlines' },
-        { name: 'The API checks it', detail: 'and falls back to a local plan', uses: ['Node.js', 'Express', 'JavaScript'] },
-        { name: 'Every tab gets it', detail: 'saved in MySQL, pushed by Socket.IO', uses: ['MySQL', 'React'] },
+      figure: 'Planify, taken apart',
+      layers: [
+        { name: 'The week', detail: 'every block by day, live in React', uses: ['React', 'JavaScript', 'HTML', 'CSS'], draw: 'screen' },
+        { name: 'Socket.IO', detail: 'pushes the plan to every open tab', draw: 'socket' },
+        { name: 'MySQL', detail: 'keeps the plan, through Sequelize', uses: ['MySQL'], draw: 'mysql' },
+        { name: 'The API check', detail: 'rejects overlaps, or falls back to a local plan', uses: ['Node.js', 'Express', 'JavaScript'], draw: 'check' },
+        { name: 'Gemini', detail: 'drafts the week from your tasks and deadlines', draw: 'gemini' },
       ],
     },
     // Sample: a student's week of coursework, evenings after class. `due` is
