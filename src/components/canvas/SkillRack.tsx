@@ -175,11 +175,14 @@ function Key({ name, w, active, reduced, entered, delay, palette, onPress }: Key
 
 // Frames the rack as close as the canvas's shape allows. The scroll swings
 // the camera: from nearly overhead as the rack arrives to a low, slightly
-// turned look as it leaves. Reduced motion holds the middle view.
+// turned look as it leaves. Reduced motion holds the middle view. `rise`
+// (0 to 1, the Skills scene) starts the camera straight above, the rack a
+// flat plan, and tilts it toward the viewer; without the scene it is 1.
 const FOV = 16
+const TILT_FLAT = MathUtils.degToRad(89)
 const TILT_IN = MathUtils.degToRad(66)
 const TILT_OUT = MathUtils.degToRad(40)
-export type RackScroll = { value: number; invalidate?: () => void }
+export type RackScroll = { value: number; rise?: number; invalidate?: () => void }
 
 function Fit({ width, depth, scroll }: { width: number; depth: number; scroll: RefObject<RackScroll> }) {
   const camera = useThree((s) => s.camera) as PerspectiveCamera
@@ -195,14 +198,15 @@ function Fit({ width, depth, scroll }: { width: number; depth: number; scroll: R
 
   useFrame(() => {
     const p = scroll.current.value
-    const tilt = MathUtils.lerp(TILT_IN, TILT_OUT, p)
+    const rise = scroll.current.rise ?? 1
+    const tilt = MathUtils.lerp(TILT_FLAT, MathUtils.lerp(TILT_IN, TILT_OUT, p), rise)
     const aspect = size.width / size.height
     const v = Math.tan(MathUtils.degToRad(FOV) / 2)
     const h = v * aspect
     const across = (width / 2) / h
     const down = (depth / 2) * Math.sin(tilt) / v + (depth / 2) * Math.cos(tilt)
     const dist = Math.max(across, down) * 1.05 + (depth / 2) * Math.cos(tilt) * 0.6
-    const turn = (p - 0.5) * 0.22
+    const turn = (p - 0.5) * 0.22 * rise
     camera.fov = FOV
     camera.position.set(Math.sin(turn) * dist * Math.cos(tilt), dist * Math.sin(tilt), Math.cos(turn) * dist * Math.cos(tilt))
     camera.lookAt(0, 0, 0)

@@ -3,7 +3,7 @@
    in the left column while the list scrolls past it; the pressed row and the
    pressed key are the same state. The rack's amber is the only amber here. */
 
-.skillset { --pad: var(--gap-columns); padding-block: var(--section-gap) 0; background: var(--bg); color: var(--ink); }
+.skillset { --pad: var(--gap-columns); padding-block: var(--section-gap) 0; color: var(--ink); }
 .skillset__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); align-items: start; }
 
 /* The photograph: 4:5, unframed on the ground, held 12vh from the top. Never
@@ -27,7 +27,7 @@
 /* A row rests in the soft ink; the pressed one is the full ink on a step of
    surface, the description open beneath its name. The field reaches left
    into the gap so the names keep the heading's edge. */
-.skillset__item { margin-left: calc(-1 * var(--pad)); background: var(--bg); transition: background-color var(--dur-short) var(--ease-out); }
+.skillset__item { margin-left: calc(-1 * var(--pad)); background: transparent; transition: background-color var(--dur-short) var(--ease-out); }
 .skillset__item[data-on] { background: var(--surface); }
 .skillset__key {
   display: flex; align-items: center; justify-content: space-between; gap: var(--gap-columns);
@@ -53,6 +53,13 @@
 @media (prefers-reduced-motion: no-preference) {
   .skillset__used { animation: skillset-open var(--dur-long) var(--ease-out); }
 }
+
+/* The arrival (Skills.tsx): the whole grid is the stage, stuck 12vh from the
+   top for most of a screen of scroll (the hold after it) while the list writes
+   itself in; then it lets go and the page reads as above. */
+.skillset__hold { display: none; }
+.skillset.is-live .skillset__grid { position: sticky; top: 12vh; }
+.skillset.is-live .skillset__hold { display: block; height: 70svh; }
 
 /* Without script there is no rack: the list stands alone. */
 html:not(.js) .skillset__photo { display: none; }

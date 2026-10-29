@@ -1,2 +1,79 @@
 /* Dawn: the same room with the curtains open. Every light-mode rule lives
    here (and in the dawn block of tokens.css), imported last so it wins. */
+
+/* ---------- The sky behind the page ---------- */
+/* The night passing, seen by day: the morning window's blue at the hero, a
+   shade cooler through the middle, and clearer daylight toward the close.
+   The hours stay in one blue family because they are mixed in oklch, where
+   a turn toward rose would pass through violet; the sunrise itself is drawn
+   in the close's own sky. Every hour keeps the soft ink above 6:1. */
+:root[data-theme="dawn"] {
+  --sky-late: var(--bg);
+  --sky-small-hours: oklch(93.5% 0.013 236);
+  --sky-first-light: oklch(96.5% 0.008 222);
+}
+
+/* ---------- The drawn town, at first light ---------- */
+/* The same town and the same shader, painted with the dawn tokens: a pale
+   sky, the land in its blue morning haze, the last lamps, clouds where the
+   night had ribbons of light, and the sun where den's window was. */
+:root[data-theme="dawn"] .night {
+  --sky: var(--dawn-sky);
+  --land: var(--dawn-land);
+  --color-muted: var(--dawn-ribbon);
+  --color-ink-2: var(--dawn-window);
+  --color-accent: var(--dawn-sun);
+}
+/* The close warms toward sunrise as its lamps go out, mixed in oklab so
+   the blue meets the rose directly instead of turning through violet. */
+:root[data-theme="dawn"] .contact .night { --sky: color-mix(in oklab, var(--dawn-sky), var(--dawn-sun-sky) calc(var(--first-light, 0) * 100%)); }
+/* The lab's bench has no land colour of its own at dawn: it is the sky. */
+:root[data-theme="dawn"] :is(.nightbench__stage, .night.nightbench__night) { background: var(--sky, var(--dawn-sky)); }
+
+/* The hero's two buttons sit on the pale sky, so they take the ground's
+   tone to stand off it. */
+:root[data-theme="dawn"] .hero__controls .btn:not([data-playing="true"]) { background: var(--bg); }
+:root[data-theme="dawn"] .hero__controls .btn:not([data-playing="true"]):hover { background: var(--surface-2); }
+
+/* ---------- The contact card ---------- */
+/* At night the card is the one lit sheet on a dark town. At dawn it is
+   still a sheet of the room's own light on the sky, set in the ink; its
+   action keeps the sun's colour. */
+:root[data-theme="dawn"] .card { --ink: inherit; --muted: inherit; --surface-2: inherit; background: var(--bg); }
+:root[data-theme="dawn"] .card :focus-visible { outline-color: var(--ink); }
+:root[data-theme="dawn"] .field__input { background: var(--surface); }
+
+/* ---------- The bar on a phone ---------- */
+/* It sits over the hero's frame, which at dawn is a pale sky, so it keeps
+   the dawn roles instead of shell.css's night ones. */
+@media (max-width: 40rem) {
+  :root[data-theme="dawn"] body:has(.hero) .nav { color-scheme: light; --bg: inherit; --surface: inherit; --surface-2: inherit; --ink: inherit; }
+}
+
+/* ---------- The palette ---------- */
+/* The chosen row's name takes the deeper sunrise, which holds 5:1 on the
+   row's surface where the accent itself falls short. */
+:root[data-theme="dawn"] .palette__item[aria-selected="true"] > :first-child { color: var(--color-focus); }
+
+/* ---------- The cinema, by day ---------- */
+/* A daylight booth: the room a step of surface, the screen pale, and the
+   beam a wedge brighter than the room it crosses, as light should be.
+   (Selectors carry .cinema so they outrank now.css, which loads later.) */
+:root[data-theme="dawn"] .cinema .cinema__room { background: var(--surface); }
+:root[data-theme="dawn"] .cinema .cinema__screen { background: var(--bg); }
+:root[data-theme="dawn"] .cinema .cinema__beam { background: var(--accent-ink); opacity: 0.6; }
+@keyframes cinema-flicker-day {
+  0% { opacity: 0.6; } 9% { opacity: 0.52; } 11% { opacity: 0.63; } 38% { opacity: 0.57; }
+  41% { opacity: 0.48; } 43% { opacity: 0.6; } 72% { opacity: 0.55; } 74% { opacity: 0.62; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-theme="dawn"] .cinema .cinema__beam { animation-name: cinema-flicker-day; }
+}
+
+/* ---------- The record deck, by day ---------- */
+/* A light plinth, and the record still black: it is an object, not a block.
+   Its grooves and sheen turn light so they still catch on the dark disc. */
+:root[data-theme="dawn"] .deck .deck__vinyl { fill: var(--field-1); }
+:root[data-theme="dawn"] .deck .deck__groove { stroke: var(--field-1-ink); stroke-opacity: 0.08; }
+:root[data-theme="dawn"] .deck .deck__gap { stroke: color-mix(in oklch, var(--field-1), var(--field-1-ink) 10%); }
+:root[data-theme="dawn"] .deck .deck__sheen { fill: var(--field-1-ink); opacity: 0.07; }
