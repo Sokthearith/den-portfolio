@@ -108,7 +108,7 @@ export default function Footer() {
 
         <TownLights lights={lights} />
 
-        <div className="card" data-reveal>
+        <div className="card">
           <h2 className="card__title" id="contact-title">Write to me</h2>
           <p className="card__ask">{profile.closing}</p>
           <dl className="card__rows">
