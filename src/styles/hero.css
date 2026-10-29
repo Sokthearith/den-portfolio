@@ -7,7 +7,9 @@
 .night__canvas { position: absolute !important; inset: 0; }
 .js .night__canvas { opacity: 0; transition: opacity 1.4s var(--ease-out); }
 .js .night__canvas[data-ready] { opacity: 1; }
-.night__grain { position: absolute; inset: 0; background-image: var(--grain); background-size: 160px; mix-blend-mode: soft-light; opacity: 0.45; pointer-events: none; }
+/* A plain overlay, not a blend mode: blending over a moving canvas costs a
+   full repaint every frame. */
+.night__grain { position: absolute; inset: 0; background-image: var(--grain); background-size: 160px; opacity: 0.05; pointer-events: none; }
 
 /* ---------- Hero: the night in a frame, the name crossing out of it ---------- */
 /* Still, the night hangs in a frame on the left half. On a wide screen with

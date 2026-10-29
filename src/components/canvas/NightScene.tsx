@@ -253,7 +253,9 @@ export default function NightScene({ running, input, amber, onStill }: Props & {
     <Canvas
       className="night__canvas"
       aria-hidden="true"
-      dpr={[1, 1.25]}
+      // Soft light needs no extra pixels; one per CSS pixel keeps it cheap at
+      // full screen.
+      dpr={1}
       frameloop={running ? 'always' : 'demand'}
       gl={{ alpha: true, antialias: false, premultipliedAlpha: true, powerPreference: 'low-power' }}
       onCreated={({ gl }) => {
