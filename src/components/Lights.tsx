@@ -107,7 +107,7 @@ export function LeaveLight({ onLeave }: { onLeave: Leave }) {
             Website <input name="website" tabIndex={-1} autoComplete="off" />
           </label>
           <div className="leave__row">
-            <button className="btn btn--primary btn--small" type="submit" disabled={state === 'sending'}>Leave it on</button>
+            <button className="btn btn--small" type="submit" disabled={state === 'sending'}>Leave it on</button>
             <span className="leave__count" id="leave-count" data-low={left < 20 || undefined}>{left} left</span>
           </div>
         </form>

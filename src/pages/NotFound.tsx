@@ -5,8 +5,9 @@ import Hero from '../components/Hero'
 export default function NotFound() {
   return (
     <Hero
-      title="This page is dark."
-      lede="Nothing lives at this address. Follow the light home."
+      name="dark"
+      title="This page is dark"
+      sentence="Nothing lives at this address. Follow the light home."
       lightsOut={1}
       actions={<a className="btn btn--primary" href="/">Back home</a>}
     />

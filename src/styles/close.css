@@ -1,0 +1,90 @@
+/* ---------- The close: the town at night, one lit card on it ---------- */
+
+/* Sections own the gap above them; the close follows Now's. */
+.close { margin-top: 0; }
+
+.contact { --horizon: 26%; position: relative; isolation: isolate; min-height: 100svh; }
+/* The windows go out as it scrolls in; the card is the one lit thing left. */
+.card {
+  --ink: var(--field-1-ink); --muted: oklch(40% 0.02 258); --surface-2: oklch(88% 0.008 250);
+  position: absolute; top: calc(var(--margin) * 2); right: calc(var(--margin) * 2); z-index: 3;
+  display: flex; flex-direction: column; width: min(28rem, 100% - 2 * var(--margin));
+  padding: 32px 32px 0; background: var(--field-1); color: var(--ink);
+}
+.card__title { font-size: 1.75rem; font-weight: 300; line-height: 1.1; }
+.card__ask { margin-top: 12px; color: var(--ink); }
+.card__rows { display: grid; gap: 10px; margin: 24px 0 0; }
+.card__rows > div { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.card__rows dt { color: var(--muted); }
+.card__rows dd { margin: 0; min-width: 0; text-align: right; overflow-wrap: anywhere; }
+.card__rows a { display: inline-flex; align-items: center; min-height: 32px; color: var(--ink); }
+.card__action { align-self: stretch; min-height: 56px; margin: 28px -32px 0; }
+.card :focus-visible { outline-color: var(--field-1-ink); }
+
+/* The visitors' windows, laid over the drawn town where the shader lights
+   them: x across, the row 8px apart above the horizon, as in NightScene. */
+.town { position: absolute; inset: 0; z-index: 0; margin: 0; padding: 0; list-style: none; pointer-events: none; }
+.town:has(.town__note) { z-index: 4; }
+.town__light { position: absolute; bottom: calc(var(--horizon) + var(--row) * 8px + 4px); width: 0; height: 0; }
+.town__window { position: absolute; left: -12px; top: -12px; width: 24px; height: 24px; padding: 0; border: 0; background: none; cursor: pointer; pointer-events: auto; }
+.town__window::after { content: ""; position: absolute; inset: 6px; background: var(--accent); opacity: 0; transition: opacity var(--dur-short) var(--ease-out); }
+.town__light[data-open] .town__window::after { opacity: 0.5; }
+.town__note {
+  position: absolute; bottom: 20px; left: 0; translate: -50% 0;
+  display: grid; gap: 4px; width: max-content; max-width: min(18rem, 100vw - 2 * var(--margin));
+  margin: 0; padding: 14px 16px; background: var(--surface); pointer-events: none;
+  transition: opacity var(--dur-short) var(--ease-out), translate var(--dur-short) var(--ease-out);
+}
+.town__light[data-edge="start"] .town__note { translate: -16px 0; }
+.town__light[data-edge="end"] .town__note { translate: calc(-100% + 16px) 0; }
+@starting-style {
+  .town__note { opacity: 0; translate: -50% 6px; }
+  .town__light[data-edge="start"] .town__note { translate: -16px 6px; }
+  .town__light[data-edge="end"] .town__note { translate: calc(-100% + 16px) 6px; }
+}
+.town__message { font-size: var(--step-body); line-height: 1.4; color: var(--ink); overflow-wrap: anywhere; }
+.town__by { font-size: var(--step-small); color: var(--muted); }
+
+/* The guestbook folds under one line inside the card. */
+.leave { margin-top: 20px; padding-top: 4px; }
+.leave__summary { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; color: var(--ink); cursor: pointer; list-style: none; text-decoration: underline; text-decoration-color: transparent; transition: text-decoration-color var(--dur-short) var(--ease-out); }
+.leave__summary::-webkit-details-marker { display: none; }
+/* A small window as the marker; it lights amber when the form is open. */
+.leave__summary::before { content: ""; width: 10px; height: 10px; background: var(--muted); transition: background-color var(--dur-short) var(--ease-out); }
+.leave__summary:hover { text-decoration-color: currentColor; }
+.leave__fold[open] .leave__summary::before { background: var(--accent); }
+.leave__form { position: relative; display: grid; gap: 14px; margin-top: 8px; }
+@keyframes fold-in { from { opacity: 0; translate: 0 -6px; } }
+@media (prefers-reduced-motion: no-preference) { .leave__fold[open] .leave__form { animation: fold-in var(--dur-short) var(--ease-out); } }
+.leave__lede { font-size: var(--step-small); color: var(--ink); }
+.field { display: grid; gap: 4px; }
+.field__label { font-size: var(--step-small); color: var(--ink); }
+.field__hint { color: var(--muted); }
+.field__input { width: 100%; min-height: 44px; padding: 8px 12px; border: 1px solid var(--muted); border-radius: 0; background: var(--field-1); color: var(--ink); font: inherit; resize: vertical; }
+.field__input:focus-visible { outline: 2px solid var(--ink); outline-offset: 0; }
+.leave__trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.leave__row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.leave__count { font-size: var(--step-small); color: var(--muted); font-variant-numeric: tabular-nums; }
+.leave__count[data-low] { color: var(--ink); font-weight: 500; }
+.leave__status:empty { display: none; }
+.leave__status, .leave__said { margin-top: 8px; font-size: var(--step-small); color: var(--ink); }
+.leave__said { display: none; }
+.leave__said:target { display: block; }
+
+/* ---------- One quiet line ---------- */
+
+.close__line { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 24px; padding: 128px var(--margin) 30px; font-size: var(--step-small); }
+.close__line p { color: var(--muted); }
+.close__links { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; margin: 0; padding: 0; list-style: none; }
+.close__links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); text-decoration: none; }
+.close__links a:hover { text-decoration: underline; text-decoration-color: var(--accent); }
+.close__legal { justify-self: end; }
+
+@media (max-width: 40rem) {
+  .contact { min-height: 0; padding-top: 58svh; }
+  .contact .night, .town { inset: 0 0 auto; height: 70svh; }
+  .card { position: relative; inset: auto; width: auto; margin: 0 var(--margin); }
+  .close__line { grid-template-columns: 1fr; justify-items: start; gap: 8px; padding-top: 96px; }
+  .close__links { justify-content: flex-start; gap: 0 20px; }
+  .close__legal { justify-self: start; }
+}

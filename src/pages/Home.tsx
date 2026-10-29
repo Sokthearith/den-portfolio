@@ -14,14 +14,9 @@ export default function Home() {
   return (
     <>
       <Hero
-        title={profile.headline}
-        lede={profile.lede}
-        actions={
-          <>
-            <a className="btn btn--primary" href={`mailto:${profile.email}`}>Email me</a>
-            <a className="btn" href="/#work">See my work</a>
-          </>
-        }
+        name={profile.wordmark}
+        title={`${profile.wordmark}, ${profile.role.toLowerCase()}`}
+        sentence={profile.sentence}
       />
       <Work active={active} onPress={setActive} />
       <Skills active={active} onPress={setActive} />

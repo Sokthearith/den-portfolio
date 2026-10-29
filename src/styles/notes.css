@@ -1,0 +1,38 @@
+/* ---------- Notes: the list, and one note set for reading ---------- */
+
+.labhead { padding: calc(var(--section-gap) + 40px) var(--margin) 64px; }
+.labhead h1 { max-width: 16ch; font-size: var(--step-head); }
+.labhead .lead { margin-top: 20px; max-width: 46ch; font-size: var(--step-lead); }
+
+.notes { padding: 0 var(--margin) var(--section-gap); }
+.notes__empty { font-size: var(--step-lead); }
+.notes__list { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.notes__item { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); align-items: baseline; padding: 32px; background: var(--surface); }
+.notes__link { grid-column: 1 / 9; display: flex; flex-direction: column; gap: 8px; color: var(--ink); text-decoration: none; }
+.notes__title { font-size: var(--step-head); font-weight: 300; line-height: 1.05; letter-spacing: var(--tracking-display); text-decoration: underline; text-decoration-color: transparent; text-decoration-thickness: 2px; text-underline-offset: 0.12em; transition: text-decoration-color var(--dur-short) var(--ease-out); }
+.notes__link:hover .notes__title { text-decoration-color: var(--accent); }
+.notes__summary { max-width: 52ch; font-size: var(--step-body); color: var(--ink); }
+.notes__meta { grid-column: 10 / 13; display: flex; flex-direction: column; gap: 4px; font-size: var(--step-small); color: var(--muted); }
+.notes__draft, .note__draft { color: var(--accent); }
+@media (max-width: 60rem) { .notes__link, .notes__meta { grid-column: 1 / -1; } .notes__meta { flex-direction: row; flex-wrap: wrap; gap: 16px; margin-top: 12px; } }
+
+.note { padding: calc(var(--section-gap) + 40px) var(--margin) var(--section-gap); }
+.note__inner { max-width: 68ch; margin-inline: auto; }
+.note__back { display: inline-flex; align-items: center; min-height: 44px; font-size: var(--step-small); color: var(--ink); }
+.note__draft { margin-top: 20px; padding: 12px 16px; background: var(--surface); font-size: var(--step-small); }
+.note__title { margin-top: 32px; max-width: 18ch; font-size: var(--step-head); }
+.note__meta { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px; font-size: var(--step-small); color: var(--muted); }
+.note__summary { margin-top: 32px; font-size: var(--step-lead); }
+
+.prose { margin-top: 56px; font-size: 1.125rem; line-height: 1.75; color: var(--ink); }
+.prose > * + * { margin-top: 16px; }
+.prose p { max-width: 68ch; color: inherit; }
+.prose h2 { margin-top: 56px; margin-bottom: 12px; font-size: var(--step-lead); line-height: 1.2; }
+.prose h3 { margin-top: 40px; font-size: var(--step-body); font-weight: 500; }
+.prose a { color: var(--ink); text-decoration-color: var(--accent); }
+.prose blockquote { margin: 40px 0; padding: 20px 24px; background: var(--surface); font-size: var(--step-lead); line-height: 1.45; color: var(--ink); }
+.prose ul, .prose ol { padding-left: 24px; }
+.prose li + li { margin-top: 4px; }
+.prose code { padding: 0.1em 0.35em; background: var(--surface); font-size: 0.9em; }
+.prose strong { font-weight: 500; }
+.prose > :first-child { margin-top: 0; }

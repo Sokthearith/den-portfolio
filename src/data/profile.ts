@@ -5,7 +5,9 @@ export const profile = {
   role: 'Full-stack developer',
   headline: 'Music, movies, code, then sleep.',
   lede: 'Full-stack developer and software engineering student at CADT.',
-  closing: 'A farm, a class or a team that needs an app? Write to me.',
+  // The first screen's one sentence, beside the night.
+  sentence: 'Full-stack developer and student at CADT. Music, movies, code, then sleep.',
+  closing: 'A farm, a class or a team that needs an app?',
   email: 'khengsokthearith@gmail.com',
   links: {
     github: 'https://github.com/Sokthearith',
@@ -13,6 +15,8 @@ export const profile = {
   },
 }
 
+// The About paragraph is built from these facts only; change a fact here and
+// the paragraph follows.
 export const about = {
   statement: 'Two years of code, four to five projects, and a degree to finish by 2028.',
   facts: [

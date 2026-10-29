@@ -1,0 +1,117 @@
+/* The shell of the dark room: the page itself, buttons, the bar of words at
+   the top, the Ctrl+K palette, the night's mixer, and the way things arrive. */
+
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+
+body { background: var(--bg); color: var(--ink); font: 400 var(--step-body)/1.55 var(--font); transition: background-color var(--dur-long) var(--ease-out), color var(--dur-long) var(--ease-out); }
+p { color: var(--ink); }
+h1, h2, h3 { color: var(--ink); font-weight: var(--display-weight); letter-spacing: var(--tracking-display); line-height: 1.02; }
+a { text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
+:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+
+.skip { position: absolute; left: var(--margin); top: -6rem; z-index: var(--z-toast); padding: 12px 16px; background: var(--ink); color: var(--bg); }
+.skip:focus-visible { top: var(--margin); }
+
+/* One button: square, flat, one fill. The amber one is the action. */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 48px; padding: 0 22px;
+  border: 0; border-radius: var(--radius);
+  background: var(--surface-2); color: var(--ink);
+  font: 500 var(--step-body)/1 var(--font);
+  white-space: nowrap; text-decoration: none; cursor: pointer;
+  transition: background-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out), transform var(--dur-micro) var(--ease-out);
+}
+.btn:hover { background: color-mix(in oklch, var(--surface-2), var(--ink) 12%); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: 0.55; cursor: not-allowed; transform: none; }
+.btn--primary { background: var(--accent); color: var(--accent-ink); }
+.btn--primary:hover { background: var(--color-focus); }
+.btn--small { min-height: 44px; padding: 0 16px; font-size: var(--step-small); }
+@media (prefers-reduced-motion: reduce) { .btn:active { transform: none; } }
+
+/* ---------- The bar: words in the top right ---------- */
+
+.nav {
+  position: absolute; inset: 0 0 auto; z-index: var(--z-sticky-nav);
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  padding: var(--margin);
+}
+.nav[data-home] { justify-content: flex-end; padding-top: calc(var(--margin) + 4px); }
+.nav__mark { display: inline-flex; align-items: center; min-height: 44px; font: 400 1.5rem/1 var(--font); letter-spacing: var(--tracking-display); color: var(--ink); text-decoration: none; }
+.nav__bar { position: relative; display: flex; align-items: center; gap: 8px; }
+.nav__links { display: flex; gap: 22px; margin: 0 12px 0 0; padding: 0; list-style: none; }
+.nav__links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); font-size: 0.9375rem; text-decoration: none; white-space: nowrap; }
+.nav__links a:hover, .nav__links a[aria-current] { text-decoration: underline; text-decoration-color: var(--accent); }
+.nav__menu { display: none; min-height: 44px; padding: 0 12px; border: 0; background: none; color: var(--ink); font: 500 var(--step-body)/1 var(--font); cursor: pointer; }
+.nav__icon { display: inline-grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: var(--radius); background: none; color: var(--ink); cursor: pointer; transition: background-color var(--dur-short) var(--ease-out); }
+.nav__icon:hover { background: var(--surface-2); }
+.nav__icon:active { transform: translateY(1px); }
+.nav__icon[aria-pressed="true"] { color: var(--accent); }
+
+@media (max-width: 52rem) {
+  .nav__jump { display: none; }
+  .js .nav__menu { display: inline-flex; align-items: center; }
+  .js .nav__links { display: none; }
+  .js .nav__links[data-open="true"] {
+    display: flex; flex-direction: column; gap: 0;
+    position: absolute; top: calc(100% + 8px); right: 0; min-width: 14rem; margin: 0;
+    padding: 8px 20px; background: var(--surface);
+  }
+  .js .nav__links[data-open="true"] a { min-height: 48px; font-size: var(--step-body); }
+}
+/* On a phone the home bar sits over the night, so its words take the night's ink. */
+@media (max-width: 40rem) { .nav[data-home] { justify-content: space-between; } .nav[data-home] .nav__bar { width: 100%; } .nav[data-home] .nav__menu { margin-right: auto; } }
+
+/* ---------- The palette ---------- */
+
+.palette { width: min(36rem, 100% - 2 * var(--margin)); max-height: min(32rem, 100dvh - 80px); margin: 14dvh auto auto; padding: 0; border: 0; background: none; color: var(--ink); overflow: visible; }
+.palette::backdrop { background: color-mix(in oklch, var(--bg) 78%, transparent); }
+.palette__panel { display: flex; flex-direction: column; max-height: inherit; overflow: hidden; background: var(--surface); }
+.palette__input { min-height: 60px; padding: 0 24px; border: 0; background: var(--surface-2); color: var(--ink); font-size: var(--step-lead); font-weight: 300; outline: 2px solid transparent; outline-offset: -2px; }
+.palette__input::placeholder { color: var(--muted); }
+.palette__input:focus-visible { outline-color: var(--color-focus); }
+.palette__list { flex: 1; margin: 0; padding: 8px; overflow-y: auto; list-style: none; }
+.palette__item { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 48px; padding: 0 16px; color: var(--ink); cursor: pointer; }
+.palette__item[aria-selected="true"] { background: var(--surface-2); }
+.palette__item[aria-selected="true"] > :first-child { color: var(--accent); }
+.palette__kind { font-size: var(--step-small); color: var(--muted); }
+.palette__empty { padding: 16px; color: var(--muted); }
+.palette__foot { padding: 14px 24px; background: var(--bg); font-size: var(--step-small); color: var(--muted); }
+@keyframes palette-in { from { opacity: 0; transform: translateY(-8px); } }
+@media (prefers-reduced-motion: no-preference) { .palette[open] .palette__panel { animation: palette-in var(--dur-short) var(--ease-out); } }
+
+/* ---------- Listen: the night's sound and its mixer ---------- */
+
+.listen { position: relative; }
+.listen__button[data-playing="true"] { background: var(--ink); color: var(--bg); }
+.listen__panel {
+  position: absolute; left: 0; bottom: calc(100% + 8px); z-index: var(--z-dropdown);
+  display: flex; flex-direction: column; align-items: stretch; gap: 16px;
+  padding: 20px; background: var(--surface);
+}
+.listen__faders { display: flex; gap: 20px; padding: 16px 20px; background: var(--bg); }
+.fader { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
+.fader__value { font: 300 var(--step-lead)/1 var(--font); font-variant-numeric: tabular-nums; color: var(--ink); }
+.fader__name { font-size: var(--step-small); color: var(--muted); }
+/* A real range input, stood on end. */
+.fader__input { writing-mode: vertical-lr; direction: rtl; appearance: none; -webkit-appearance: none; width: 32px; height: 132px; margin: 0; background: none; cursor: pointer; }
+.fader__input::-webkit-slider-runnable-track { inline-size: 100%; block-size: 4px; background: var(--surface-2); }
+.fader__input::-moz-range-track { width: 4px; background: var(--surface-2); }
+.fader__input::-moz-range-progress { width: 4px; background: var(--accent); }
+.fader__input::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 28px; height: 14px; margin-left: -12px; border: 0; background: var(--ink); }
+.fader__input::-moz-range-thumb { width: 28px; height: 14px; border: 0; border-radius: 0; background: var(--ink); }
+
+/* ---------- Arrivals ---------- */
+/* Everything is visible by default. Only with script and motion allowed does
+   [data-reveal] start lowered and clear, and useReveal adds .is-in as it
+   comes into view; --d staggers the parts of a section. */
+
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal] { opacity: 0; transform: translateY(24px); transition: opacity 0.7s var(--ease-out), transform 0.9s var(--ease-out); transition-delay: calc(var(--d, 0) * 1ms); }
+  .js [data-reveal].is-in { opacity: 1; transform: none; }
+  /* Heads wipe up out of their own line. */
+  .js [data-reveal="head"] { opacity: 1; transform: none; clip-path: inset(0 0 100% 0); translate: 0 0.35em; transition: clip-path 1s var(--ease-out), translate 1s var(--ease-out); }
+  .js [data-reveal="head"].is-in { clip-path: inset(-0.1em -0.1em -0.25em -0.1em); translate: 0 0; }
+  .js [data-reveal="fade"] { transform: none; }
+}

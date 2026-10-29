@@ -14,7 +14,7 @@ export default function App({ path, seed = { films: [] } }: { path: string; seed
   return (
     <NowProvider seed={seed}>
       <a className="skip" href="#main">Skip to content</a>
-      <Nav />
+      <Nav home={findRoute(path).path === '/'} />
       <main id="main">
         <Page />
       </main>

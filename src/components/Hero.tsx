@@ -1,4 +1,4 @@
-import { Fragment, lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState, type MouseEvent, type PointerEvent, type ReactNode } from 'react'
 import { useReducedMotion } from '../lib/hooks'
 import { createNightInput, lightWindow } from '../lib/night'
 import { useSound } from '../lib/sound'
@@ -7,14 +7,20 @@ import Listen from './Listen'
 const NightScene = lazy(() => import('./canvas/NightScene'))
 
 type Props = {
+  // The word set at full size along the bottom, and what the heading says to
+  // a screen reader ("den" reads as "den, full-stack developer").
+  name: string
   title: string
-  lede: string
-  actions: ReactNode
+  sentence: string
+  actions?: ReactNode
   // 0 is the town awake; 1 is asleep with only den's window on.
   lightsOut?: number
 }
 
-export default function Hero({ title, lede, actions, lightsOut = 0 }: Props) {
+// The dark room's first screen: the night in a tall frame on the left, one
+// sentence on the right, and the name crossing from the night into the room
+// along the bottom. A click on the night turns on a window.
+export default function Hero({ name, title, sentence, actions, lightsOut = 0 }: Props) {
   const ref = useRef<HTMLElement>(null)
   const input = useRef({ ...createNightInput(), lightsOut })
   const [mounted, setMounted] = useState(false)
@@ -40,8 +46,8 @@ export default function Hero({ title, lede, actions, lightsOut = 0 }: Props) {
     return () => io.disconnect()
   }, [])
 
-  // Leaving the hero: the words lift away and the ribbons dim, scrubbed to the
-  // scroll, at most once a frame. Reduced motion keeps the hero as it is.
+  // Leaving the first screen: the name settles a few percent smaller and the
+  // ribbons dim, scrubbed to the scroll. Reduced motion keeps it as it is.
   useEffect(() => {
     const el = ref.current
     if (!el || reduced) return
@@ -77,51 +83,32 @@ export default function Hero({ title, lede, actions, lightsOut = 0 }: Props) {
     input.current.inside = true
   }
 
-  // A click or tap on the sky turns on a window below it; links and buttons
-  // keep their own jobs.
+  // A click or tap on the sky turns on a window below it; the controls keep
+  // their own jobs.
   const light = (e: MouseEvent<HTMLElement>) => {
     if ((e.target as Element).closest('a, button, input, label, .listen')) return
     const r = e.currentTarget.getBoundingClientRect()
     lightWindow(input.current, (e.clientX - r.left) / r.width, !running)
   }
 
-  const words = title.split(' ')
-
   return (
-    <section
-      className="hero"
-      id="top"
-      ref={ref}
-      aria-labelledby="hero-title"
-      onPointerMove={track}
-      onPointerLeave={() => { input.current.inside = false }}
-      onPointerUp={(e) => { if (e.pointerType !== 'mouse') input.current.inside = false }}
-      onPointerCancel={() => { input.current.inside = false }}
-      onClick={light}
-    >
-      <div className="night" aria-hidden="true">
-        {mounted && (
-          <Suspense fallback={null}>
-            <NightScene running={running} input={input} onStill={() => setStill(true)} />
-          </Suspense>
-        )}
-        <div className="night__grain" />
-      </div>
-
-      <div className="hero__inner container">
-        <h1 id="hero-title" className="hero__title">
-          {words.map((w, i) => (
-            <Fragment key={i}>
-              <span className="word"><span className="word__in" style={{ '--i': i } as CSSProperties}>{w}</span></span>
-              {i < words.length - 1 && ' '}
-            </Fragment>
-          ))}
-        </h1>
-        <p className="lead hero__lede">{lede}</p>
-        <div className="hero__actions">{actions}</div>
-      </div>
-
-      <div className="hero__foot container">
+    <section className="hero" id="top" ref={ref} aria-labelledby="hero-title">
+      <div
+        className="hero__frame"
+        onPointerMove={track}
+        onPointerLeave={() => { input.current.inside = false }}
+        onPointerUp={(e) => { if (e.pointerType !== 'mouse') input.current.inside = false }}
+        onPointerCancel={() => { input.current.inside = false }}
+        onClick={light}
+      >
+        <div className="night" aria-hidden="true">
+          {mounted && (
+            <Suspense fallback={null}>
+              <NightScene running={running} input={input} onStill={() => setStill(true)} />
+            </Suspense>
+          )}
+          <div className="night__grain" />
+        </div>
         <div className="hero__controls">
           {mounted && <Listen />}
           {!still && (
@@ -136,6 +123,16 @@ export default function Hero({ title, lede, actions, lightsOut = 0 }: Props) {
           </p>
         )}
       </div>
+
+      <div className="hero__words">
+        <p className="hero__sentence">{sentence}</p>
+        {actions && <div className="hero__actions">{actions}</div>}
+      </div>
+
+      <h1 id="hero-title" className="hero__name">
+        <span className="visually-hidden">{title}</span>
+        <span className="hero__name-in" aria-hidden="true">{name}</span>
+      </h1>
     </section>
   )
 }

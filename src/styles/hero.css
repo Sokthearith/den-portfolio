@@ -1,0 +1,59 @@
+/* ---------- The night: a drawn town, wherever it is hung ---------- */
+/* A flat sky over a flat strip of land, and the WebGL town on top. The hero
+   frames it, the contact close spreads it full width, the lab benches it. */
+
+.night { --sky: oklch(15% 0.03 252); --land: oklch(9.5% 0.016 258); position: absolute; inset: 0; z-index: -1; overflow: hidden; background: var(--sky); }
+.night::before { content: ""; position: absolute; inset: auto 0 0; height: var(--horizon, 20%); background: var(--land); }
+.night__canvas { position: absolute !important; inset: 0; }
+.js .night__canvas { opacity: 0; transition: opacity 1.4s var(--ease-out); }
+.js .night__canvas[data-ready] { opacity: 1; }
+.night__grain { position: absolute; inset: 0; background-image: var(--grain); background-size: 160px; mix-blend-mode: soft-light; opacity: 0.45; pointer-events: none; }
+
+/* ---------- Hero: the night in a frame, the name crossing out of it ---------- */
+
+.hero { position: relative; isolation: isolate; height: 100svh; min-height: 40rem; overflow: clip; }
+
+.hero__frame {
+  --horizon: 20%;
+  position: absolute; top: var(--margin); bottom: var(--margin); left: var(--margin);
+  width: calc(47% - var(--margin));
+  isolation: isolate; overflow: hidden; cursor: default;
+}
+.hero__controls { position: absolute; left: 20px; bottom: 20px; z-index: 2; display: flex; align-items: center; gap: 8px; }
+.hero__hint { position: absolute; left: 20px; top: 20px; z-index: 2; font-size: var(--step-small); color: var(--ink); }
+.hint--coarse { display: none; }
+@media (hover: none) { .hint--fine { display: none; } .hint--coarse { display: inline; } }
+html:not(.js) .hero__hint, html:not(.js) .hero__pause { display: none; }
+@media (prefers-reduced-motion: reduce) { .hero__hint, .hero__pause { display: none; } }
+
+/* The one sentence, at 44% of the height, on the right half's own axis. */
+.hero__words { position: absolute; left: 47%; right: var(--margin); top: 44%; translate: 0 -50%; display: grid; justify-items: center; }
+.hero__sentence { width: min(100%, 26ch); font-size: var(--step-lead); line-height: 1.35; }
+.hero__actions { width: min(100%, 26ch); margin-top: 32px; }
+
+/* The name: a monument that starts over the night's lower right corner and
+   runs out into the room, its baseline 40px above the bottom edge. */
+.hero__name { position: absolute; left: calc(37% - 0.04em); bottom: 40px; z-index: 1; max-width: none; margin: 0; font-size: clamp(8rem, 26vw, 26rem); font-weight: 300; line-height: 0.74; letter-spacing: -0.045em; white-space: nowrap; pointer-events: none; }
+.hero__name-in { display: block; transform-origin: 0 100%; }
+@media (prefers-reduced-motion: no-preference) {
+  .hero__name-in { transform: scale(calc(1 - var(--exit, 0) * 0.07)); }
+  .js .hero__name-in { animation: name-rise 1.1s var(--ease-out) both 120ms; }
+  .js .hero__sentence { animation: settle 0.8s var(--ease-out) both 420ms; }
+  .js .hero__controls, .js .hero__hint, .js .hero__actions { animation: settle 0.8s var(--ease-out) both 700ms; }
+}
+@keyframes name-rise { from { opacity: 0; translate: 0 0.12em; } }
+@keyframes settle { from { opacity: 0; translate: 0 16px; } }
+
+/* On a phone the night takes the top of the screen, the name runs under it
+   overlapping its edge, and the sentence follows. */
+@media (max-width: 40rem) {
+  .hero { display: flex; flex-direction: column; height: auto; min-height: 0; padding-bottom: 48px; }
+  .hero__name { order: 1; }
+  .hero__words { order: 2; }
+  .hero__frame { position: relative; inset: auto; width: auto; height: 58svh; margin: 12px; }
+  .hero__hint { display: none; }
+  .hero__controls { left: 12px; bottom: 12px; }
+  .hero__name { position: relative; left: auto; bottom: auto; margin: -0.2em 0 0 calc(var(--margin) - 0.04em); font-size: 34vw; }
+  .hero__words { position: static; translate: none; justify-items: start; margin: 20px var(--margin) 0; }
+  .hero__sentence { width: auto; font-size: 1.0625rem; }
+}

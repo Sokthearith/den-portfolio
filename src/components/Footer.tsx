@@ -9,7 +9,7 @@ const NightScene = lazy(() => import('./canvas/NightScene'))
 
 const year = new Date().getFullYear()
 
-// The page ends where the headline does: then sleep. As the footer scrolls in,
+// The page ends where the headline does: then sleep. As the contact night scrolls in,
 // the town's windows go dark one by one until only den's amber one is on,
 // and the lights visitors left on.
 export default function Footer() {
@@ -89,34 +89,44 @@ export default function Footer() {
     }
   }, [reduced, running])
 
+  // The close: the town at night as the last picture, one lit card on it with
+  // the ways to reach den and the guestbook, then a single quiet line.
   return (
-    <footer className="footer" ref={ref} aria-labelledby="footer-title">
-      <div className="night" aria-hidden="true">
-        {near && (
-          <Suspense fallback={null}>
-            <NightScene running={running} input={input} onStill={() => setStill(true)} />
-          </Suspense>
-        )}
-        <div className="night__grain" />
-      </div>
-
-      <div className="container footer__inner">
-        <p className="footer__statement" id="footer-title" data-reveal="head">{profile.closing}</p>
-        <a className="footer__email" href={`mailto:${profile.email}`}>{profile.email}</a>
-        {configured && <LeaveLight onLeave={onLeave} />}
-      </div>
-
-      <TownLights lights={lights} />
-
-      <div className="container">
-        <div className="footer__base">
-          <ul className="footer__links">
-            <li><a href={profile.links.github} target="_blank" rel="noreferrer">GitHub</a></li>
-            <li><a href={profile.links.linkedin} target="_blank" rel="noreferrer">LinkedIn</a></li>
-            <li><a href="#top">Back to the top</a></li>
-          </ul>
-          <p className="footer__legal">{profile.name}, {year}</p>
+    <footer className="close">
+      <section className="contact" id="contact" ref={ref} aria-labelledby="contact-title">
+        <div className="night" aria-hidden="true">
+          {near && (
+            <Suspense fallback={null}>
+              <NightScene running={running} input={input} onStill={() => setStill(true)} />
+            </Suspense>
+          )}
+          <div className="night__grain" />
         </div>
+
+        <TownLights lights={lights} />
+
+        <div className="card" data-reveal>
+          <h2 className="card__title" id="contact-title">Write to me</h2>
+          <p className="card__ask">{profile.closing}</p>
+          <dl className="card__rows">
+            <div><dt>Email</dt><dd><a href={`mailto:${profile.email}`}>{profile.email}</a></dd></div>
+            <div><dt>GitHub</dt><dd><a href={profile.links.github} target="_blank" rel="noreferrer">Sokthearith</a></dd></div>
+            <div><dt>LinkedIn</dt><dd><a href={profile.links.linkedin} target="_blank" rel="noreferrer">{profile.name}</a></dd></div>
+          </dl>
+          {configured && <LeaveLight onLeave={onLeave} />}
+          <a className="btn btn--primary card__action" href={`mailto:${profile.email}`}>Email me</a>
+        </div>
+      </section>
+
+      <div className="close__line">
+        <p>{profile.wordmark}, {profile.role.toLowerCase()}</p>
+        <ul className="close__links">
+          <li><a href={profile.links.github} target="_blank" rel="noreferrer">GitHub</a></li>
+          <li><a href={profile.links.linkedin} target="_blank" rel="noreferrer">LinkedIn</a></li>
+          <li><a href="/lab">Lab</a></li>
+          <li><a href="#top">Back to the top</a></li>
+        </ul>
+        <p className="close__legal">{profile.name}, {year}</p>
       </div>
     </footer>
   )
