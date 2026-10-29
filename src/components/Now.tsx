@@ -5,9 +5,9 @@ import Projector from './Projector'
 import Turntable from './Turntable'
 import '../styles/now.css'
 
-// Right now, as one evening: the films from Letterboxd run through a
-// projector, the record from Spotify turns on the deck, and under them what
-// den is learning. Each part shows only what is real; the films are in the
+// Right now, as one evening: den's own short and then the films from
+// Letterboxd run through a projector, the record from Spotify turns on the
+// deck, and under them what den is learning. Each part shows only what is real; the films are in the
 // page before any script runs, and the deck appears once Spotify answers.
 export default function Now() {
   const ref = useRef<HTMLElement>(null)
@@ -31,7 +31,7 @@ export default function Now() {
         <p data-reveal>What I’m watching, playing and learning, as it happens.</p>
       </div>
 
-      {films.length > 0 && <Projector films={films.slice(0, 6)} />}
+      <Projector films={films.slice(0, 6)} />
       {radio && <Turntable listening={radio} />}
 
       <div className="nowroom__learn">

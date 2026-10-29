@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import type { Film } from '../lib/now'
@@ -43,28 +43,54 @@ function Machine() {
   )
 }
 
-// The films as a cinema: the projector throws den's latest posters onto the
-// screen one at a time as the page scrolls, and under the screen sits a torn
-// stub for each, the one showing lit. Without script, under reduced motion and
-// in the prerendered page it rests: the latest film on the screen and every
-// stub in a row beneath it.
+// den's own short runs before the feature. It is 9:16 on a 2:3 screen, so it
+// fits the screen's height and the sides fall in the screen's own colour:
+// the whole laptop and every label stay in frame.
+const SHORT = { src: '/media/den-film.mp4', poster: '/media/den-film.jpg', length: '0:20', label: 'A short by den: a laptop taken apart, layer by layer' }
+
+const still = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+// The films as a cinema: the projector runs den's short first, then throws
+// den's latest posters onto the screen one at a time as the page scrolls.
+// Under the screen sits a torn stub for each reel, the one showing lit.
+// Without script, under reduced motion and in the prerendered page it rests:
+// the short's first frame on the screen and every stub in a row beneath it.
 export default function Projector({ films }: { films: Film[] }) {
   const ref = useRef<HTMLDivElement>(null)
+  const video = useRef<HTMLVideoElement>(null)
+  const [playing, setPlaying] = useState(false)
   const reel = films.map((f) => f.url).join(' ')
 
   useEffect(() => {
     const root = ref.current
-    const n = films.length
-    if (!root || n < 2) return
+    if (!root) return
+    const n = films.length + 1
     gsap.registerPlugin(ScrollTrigger)
     const q = gsap.utils.selector(root)
     const stubs = q('.cinema__stub') as HTMLElement[]
-    const light = (i: number) => stubs.forEach((s, k) => s.toggleAttribute('data-current', k === i))
-    const mm = gsap.matchMedia()
 
+    // The short plays only while its reel is on the screen and the screen is
+    // in view, and never by itself under reduced motion.
+    let showing = 0
+    let seen = false
+    const sync = () => {
+      const v = video.current
+      if (!v) return
+      const on = seen && showing === 0
+      if (on && !still()) v.play().catch(() => {})
+      else if (!on) v.pause()
+    }
+    const light = (i: number) => {
+      stubs.forEach((s, k) => s.toggleAttribute('data-current', k === i))
+      if (i !== showing) { showing = i; sync() }
+    }
+    const io = new IntersectionObserver(([e]) => { seen = e.isIntersecting; sync() })
+    io.observe(q('.cinema__screen')[0])
+
+    const mm = gsap.matchMedia()
     mm.add({ motion: '(prefers-reduced-motion: no-preference)', phone: '(max-width: 47.99rem)' }, (c) => {
-      if (!c.conditions?.motion) return
-      // About one screen for every two or three films.
+      if (!c.conditions?.motion || n < 2) return
+      // About one screen for every two or three reels.
       root.classList.add('is-live')
       root.style.setProperty('--hold', String(Math.max(1, n / (c.conditions.phone ? 3 : 2.4))))
 
@@ -87,7 +113,7 @@ export default function Projector({ films }: { films: Film[] }) {
         },
       })
       tl.to(q('.cinema__reel'), { rotation: 360 * n, transformOrigin: '50% 50%', duration: 1 }, 0)
-      // Between films the frame slips in the gate: the poster runs up out of
+      // Between reels the frame slips in the gate: the picture runs up out of
       // the screen as the next runs in, and the light dips while it moves.
       const slip = 0.28 / n
       for (let k = 1; k < n; k++) {
@@ -101,9 +127,16 @@ export default function Projector({ films }: { films: Film[] }) {
       return () => { root.classList.remove('is-live'); root.style.removeProperty('--hold'); light(0) }
     })
     document.fonts?.ready.then(() => ScrollTrigger.refresh())
-    return () => mm.revert()
+    return () => { mm.revert(); io.disconnect() }
     // The reel is rebuilt only when the films themselves change.
   }, [reel])
+
+  const toggle = () => {
+    const v = video.current
+    if (!v) return
+    if (v.paused) v.play().catch(() => {})
+    else v.pause()
+  }
 
   return (
     <div className="cinema scene" data-scene="projector" ref={ref}>
@@ -113,6 +146,14 @@ export default function Projector({ films }: { films: Film[] }) {
             <Machine />
             <div className="cinema__light" aria-hidden="true"><div className="cinema__beam" /></div>
             <div className="cinema__screen">
+              <div className="cinema__poster cinema__poster--short">
+                <video
+                  ref={video} src={SHORT.src} poster={SHORT.poster} width={720} height={1280}
+                  muted playsInline loop preload="metadata" aria-label={SHORT.label}
+                  onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)}
+                />
+                <button className="cinema__play" type="button" onClick={toggle}>{playing ? 'Pause the film' : 'Play the film'}</button>
+              </div>
               {films.map((f) => f.poster
                 ? <img className="cinema__poster" key={f.url} src={f.poster} alt={`Poster for ${f.title}`} width={600} height={900} decoding="async" />
                 : <p className="cinema__poster cinema__poster--bare" key={f.url}>{f.title}</p>)}
@@ -126,8 +167,14 @@ export default function Projector({ films }: { films: Film[] }) {
         </div>
         <div className="cinema__strip">
           <ol className="cinema__stubs">
-            {films.map((f, i) => (
-              <li className="cinema__stub" key={f.url} data-current={i === 0 || undefined}>
+            <li className="cinema__stub cinema__stub--short" data-current>
+              <a href={SHORT.src} target="_blank" rel="noreferrer">
+                <span className="cinema__title">A short by den</span>
+                <span className="cinema__about"><span>{SHORT.length}</span></span>
+              </a>
+            </li>
+            {films.map((f) => (
+              <li className="cinema__stub" key={f.url}>
                 <a href={f.url} target="_blank" rel="noreferrer">
                   <span className="cinema__title">{f.title}</span>
                   <span className="cinema__about">
