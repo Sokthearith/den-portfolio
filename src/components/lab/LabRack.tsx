@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from 'react'
 import { projectsUsing } from '../../data/projects'
 import { defaultSkill, skillGroups } from '../../data/skills'
 import { useMediaQuery, useReducedMotion } from '../../lib/hooks'
@@ -26,21 +26,21 @@ export default function LabRack() {
   }, [])
 
   return (
-    <div className="labrack">
-      <div className="labrack__stage" ref={ref} aria-hidden="true">
+    <div className="loose" data-reveal style={{ '--d': 150 } as CSSProperties}>
+      <div className="loose__stage" ref={ref} aria-hidden="true">
         {near && wide && (
           <Suspense fallback={null}>
             <LooseRack active={active} reduced={reduced} theme={theme} onPress={setActive} />
           </Suspense>
         )}
       </div>
-      <p className="labrack__readout" aria-live="polite">
+      <p className="loose__readout" aria-live="polite">
         <strong>{active}</strong>{' '}
         {used.length ? `is in ${used.map((p) => p.name).join(' and ')}.` : 'is not in a listed project yet.'}
       </p>
-      <ul className="keys__list labrack__keys" aria-label="Skills">
+      <ul className="loose__keys" aria-label="Skills">
         {skillGroups.flatMap((g) => g.skills).map((s) => (
-          <li key={s}><button className="key" type="button" aria-pressed={s === active} onClick={() => setActive(s)}>{s}</button></li>
+          <li key={s}><button className="loose__key" type="button" aria-pressed={s === active} onClick={() => setActive(s)}>{s}</button></li>
         ))}
       </ul>
     </div>

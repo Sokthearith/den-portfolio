@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState, type MouseEvent, type PointerEvent } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent } from 'react'
 import { useReducedMotion } from '../../lib/hooks'
 import { createNightInput, lightWindow } from '../../lib/night'
 
@@ -45,16 +45,16 @@ export default function LabNight() {
   }
 
   return (
-    <div className="labnight">
+    <div className="nightbench" data-reveal style={{ '--d': 150 } as CSSProperties}>
       <div
-        className="labnight__stage"
+        className="nightbench__stage"
         ref={stage}
         onPointerMove={track}
         onPointerLeave={() => { input.current.inside = false }}
         onPointerUp={(e) => { if (e.pointerType !== 'mouse') input.current.inside = false }}
         onClick={light}
       >
-        <div className="night" aria-hidden="true">
+        <div className="night nightbench__night" aria-hidden="true">
           {near && (
             <Suspense fallback={null}>
               <NightScene running={running} input={input} onStill={() => setStill(true)} />
@@ -63,18 +63,18 @@ export default function LabNight() {
           <div className="night__grain" />
         </div>
       </div>
-      <div className="labnight__dials">
-        <label className="dial">
-          <span className="dial__name">The hour</span>
+      <div className="nightbench__dials">
+        <label className="nightbench__dial">
+          <span className="nightbench__name">The hour</span>
           <input type="range" min={0} max={100} value={Math.round(hour * 100)} onChange={(e) => setHour(Number(e.target.value) / 100)} aria-valuetext={hour < 0.1 ? 'early, the town awake' : hour > 0.9 ? 'late, only one light on' : 'getting late'} />
-          <span className="dial__value">{hour < 0.1 ? 'Awake' : hour > 0.9 ? 'Asleep' : 'Late'}</span>
+          <span className="nightbench__value">{hour < 0.1 ? 'Awake' : hour > 0.9 ? 'Asleep' : 'Late'}</span>
         </label>
-        <label className="dial">
-          <span className="dial__name">Rain</span>
+        <label className="nightbench__dial">
+          <span className="nightbench__name">Rain</span>
           <input type="range" min={0} max={100} value={Math.round(rain * 100)} onChange={(e) => setRain(Number(e.target.value) / 100)} aria-valuetext={`${Math.round(rain * 100)} percent`} />
-          <span className="dial__value">{Math.round(rain * 100)}</span>
+          <span className="nightbench__value">{Math.round(rain * 100)}</span>
         </label>
-        <button className="btn btn--small" type="button" onClick={() => lightWindow(input.current, 0.08 + Math.random() * 0.84, !running)}>Turn on a light</button>
+        <button className="btn nightbench__switch" type="button" onClick={() => lightWindow(input.current, 0.08 + Math.random() * 0.84, !running)}>Turn on a light</button>
       </div>
     </div>
   )

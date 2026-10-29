@@ -1,0 +1,73 @@
+/* ---------- Skills: the rack as the one lit object, the stack as an active list ---------- */
+/* Direction sheet §7.2, "Sticky photograph, active list". The rack holds still
+   in the left column while the list scrolls past it; the pressed row and the
+   pressed key are the same state. The rack's amber is the only amber here. */
+
+.skillset { --pad: var(--gap-columns); padding-block: calc(var(--section-gap) / 2) var(--section-gap); background: var(--bg); color: var(--ink); }
+.skillset__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); align-items: start; }
+
+/* The photograph: 4:5, unframed on the ground, held 12vh from the top. Never
+   taller than the screen leaves room for. */
+.skillset__photo {
+  position: sticky; top: 12vh;
+  grid-column: 1 / 6;
+  width: min(100%, 76svh * 0.8); aspect-ratio: 4 / 5;
+}
+.skillset__canvas { position: absolute !important; inset: 0; }
+
+.skillset__side { grid-column: 7 / 13; min-width: 0; }
+.skillset__side h2 { max-width: 14ch; font-size: var(--step-head); font-weight: 300; line-height: 1; letter-spacing: -0.035em; color: var(--ink); }
+.skillset__lead { margin-top: var(--gap-columns); max-width: 40ch; font-size: var(--step-lead); line-height: 1.4; color: var(--ink); }
+
+.skillset__groups { margin-top: 48px; }
+.skillset__group + .skillset__group { margin-top: 40px; }
+.skillset__label { max-width: none; margin-bottom: 8px; font-size: var(--step-body); font-weight: 500; line-height: 1.4; letter-spacing: 0; color: var(--muted); }
+.skillset__list { margin: 0; padding: 0; list-style: none; }
+
+/* A row rests in the soft ink; the pressed one is the full ink on a step of
+   surface, the description open beneath its name. The field reaches left
+   into the gap so the names keep the heading's edge. */
+.skillset__item { margin-left: calc(-1 * var(--pad)); background: var(--bg); transition: background-color var(--dur-short) var(--ease-out); }
+.skillset__item[data-on] { background: var(--surface); }
+.skillset__key {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--gap-columns);
+  width: 100%; min-height: 58px; padding: 0 var(--pad);
+  border: 0; border-radius: var(--radius); background: none;
+  color: var(--muted); font-family: var(--font); text-align: left; cursor: pointer;
+  transition: color var(--dur-short) var(--ease-out);
+}
+.skillset__key:hover, .skillset__key[aria-pressed="true"] { color: var(--ink); }
+.skillset__key:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+.skillset__name { font-size: var(--step-lead); font-weight: 400; line-height: 1.2; letter-spacing: -0.01em; }
+.skillset__count { flex: none; font-size: var(--step-body); color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.skillset__used {
+  max-width: 34ch; padding: 0 var(--pad) 20px;
+  font-size: var(--step-body); line-height: 1.55; color: var(--ink);
+}
+.skillset__used a { color: var(--ink); text-decoration-thickness: 1px; text-underline-offset: 0.18em; text-decoration-color: var(--muted); transition: text-decoration-color var(--dur-short) var(--ease-out); }
+.skillset__used a:hover { text-decoration-color: var(--ink); text-decoration-thickness: 2px; }
+.skillset__used a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+@keyframes skillset-open { from { opacity: 0; translate: 0 -6px; } }
+@media (prefers-reduced-motion: no-preference) {
+  .skillset__used { animation: skillset-open var(--dur-long) var(--ease-out); }
+}
+
+/* Without script there is no rack: the list stands alone. */
+html:not(.js) .skillset__photo { display: none; }
+html:not(.js) .skillset__side { grid-column: 1 / -1; max-width: 48rem; }
+
+@media (max-width: 60rem) {
+  .skillset__photo { grid-column: 1 / 7; }
+  .skillset__side { grid-column: 7 / 13; }
+}
+/* Phones: no rack, the list takes the width. */
+@media (max-width: 40rem) {
+  .skillset__photo { display: none; }
+  .skillset__side { grid-column: 1 / -1; }
+  /* The pressed row's field runs edge to edge; the names keep the margin. */
+  .skillset { --pad: var(--margin); }
+  .skillset__item { margin-inline: calc(-1 * var(--margin)); }
+  .skillset__key { min-height: 56px; }
+}
