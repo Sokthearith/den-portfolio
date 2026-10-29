@@ -23,7 +23,7 @@
 .cinema__room {
   --lx: 31%; --ly: 52%; --pw: 28%;          /* the lens tip, and the projector's width */
   --sx: 64%; --st: 3.5%; --sh: 93%;         /* the screen's left edge, top and height */
-  position: relative; width: min(100%, 1100px); aspect-ratio: 1.9;
+  position: relative; width: min(100%, 1100px, 80svh * 1.9); aspect-ratio: 1.9;
 }
 
 .cinema__projector { position: absolute; right: calc(100% - var(--lx)); top: var(--ly); width: var(--pw); height: auto; translate: 0 -65%; overflow: visible; }
@@ -165,10 +165,12 @@ html.js .cinema.is-live > .cinema__stage { position: sticky; top: 0; height: 100
 @media (max-width: 60rem) {
   .nowroom__head h2, .nowroom__head p, .deck__plate, .deck__text, .nowroom__learn h3, .nowroom__learn > div { grid-column: 1 / -1; }
   .nowroom__head p, .nowroom__learn > div { margin-top: 1rem; }
+  /* Square and full width, it would outgrow a phone on its side. */
+  .deck__plate { width: min(100%, 80svh); }
 }
 
 @media (max-width: 47.99rem) {
-  .cinema__room { --lx: 30%; --ly: 50%; --pw: 30%; --sx: 42%; --st: 8%; --sh: 84%; aspect-ratio: 1; }
+  .cinema__room { --lx: 30%; --ly: 50%; --pw: 30%; --sx: 42%; --st: 8%; --sh: 84%; width: min(100%, 80svh); aspect-ratio: 1; }
   .cinema.is-live .cinema__room { width: min(100cqw, 100cqh); }
   .cinema__stub { flex: 0 0 13rem; }
   .sleeve img, .sleeve__blank { width: 5.5rem; height: 5.5rem; }

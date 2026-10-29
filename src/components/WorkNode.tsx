@@ -51,6 +51,13 @@ export function FieldNodeView({ node }: { node: FieldNode }) {
             <source src={node.mp4} type="video/mp4" />
           </video>
         </div>
+        {/* On a phone there is no room beside the render for leaders, so
+            each part carries its number and the list below says what it is. */}
+        <div className="node__marks" aria-hidden="true">
+          {node.parts.map((p, i) => (
+            <span className="node__mark" key={p.name} style={{ '--x': p.at[0], '--y': p.at[1] } as CSSProperties}>{i + 1}</span>
+          ))}
+        </div>
         <ol className="node__parts">
           {node.parts.map((p) => (
             <li className="node__part" key={p.name} style={{ '--x': p.at[0], '--y': p.at[1] } as CSSProperties}>

@@ -88,8 +88,9 @@ export default function Projector({ films }: { films: Film[] }) {
     io.observe(q('.cinema__screen')[0])
 
     const mm = gsap.matchMedia()
-    mm.add({ motion: '(prefers-reduced-motion: no-preference)', phone: '(max-width: 47.99rem)' }, (c) => {
-      if (!c.conditions?.motion || n < 2) return
+    mm.add({ motion: '(prefers-reduced-motion: no-preference)', phone: '(max-width: 47.99rem)', tall: '(min-height: 32rem)' }, (c) => {
+      // A phone on its side has no room under the stubs for a held screen.
+      if (!c.conditions?.motion || !c.conditions.tall || n < 2) return
       // About one screen for every two or three reels.
       root.classList.add('is-live')
       root.style.setProperty('--hold', String(Math.max(1, n / (c.conditions.phone ? 3 : 2.4))))
