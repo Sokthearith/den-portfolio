@@ -7,6 +7,10 @@
 export type Part = { name: string; detail: string; uses?: string[] }
 export type LayerDraw = 'screen' | 'postgres' | 'api' | 'esp32' | 'telegram' | 'socket' | 'mysql' | 'check' | 'gemini'
 export type Layer = Part & { draw: LayerDraw }
+// den's render of the real hardware, with the point (x, y as fractions of the
+// frame) each label points at in its exploded frame.
+export type NodePart = Part & { at: [x: number, y: number] }
+export type FieldNode = { caption: string; alt: string; webm: string; mp4: string; poster: string; parts: NodePart[] }
 
 // Agrix's dashboard: one reading against the app's default thresholds
 // (backend/src/config/env.js), and the soil moisture over the last day.
@@ -35,7 +39,7 @@ export type Project = {
   stack: { label: string; items: string[] }[]
   uses: string[]
   github: string
-  anatomy: { caption: string; figure: string; layers: Layer[]; branch?: Layer & { from: string } }
+  anatomy: { caption: string; figure: string; layers: Layer[]; branch?: Layer & { from: string }; node?: FieldNode }
   screen?: AgrixScreen | PlanifyScreen
   // Screenshots go here once you have them, e.g.
   // { src: '/work/agrix/dashboard.png', alt: 'The Agrix dashboard with one farm open' }
@@ -60,9 +64,23 @@ export const projects: Project[] = [
         { name: 'Dashboard', detail: 'health, history and advice', uses: ['React', 'JavaScript', 'HTML', 'CSS'], draw: 'screen' },
         { name: 'PostgreSQL', detail: 'on Supabase, via Prisma', uses: ['Docker'], draw: 'postgres' },
         { name: 'Express API', detail: 'checks, stores, decides', uses: ['Node.js', 'Express', 'JavaScript'], draw: 'api' },
-        { name: 'ESP32', detail: 'posts each reading with a device key', draw: 'esp32' },
       ],
       branch: { name: 'Telegram', detail: 'alerts on bad readings', draw: 'telegram', from: 'Express API' },
+      // Where a reading starts: den's own render of the field node.
+      node: {
+        caption: 'Where a reading starts: the field node',
+        alt: 'The Agrix field node, taken apart: lid, ESP32 board, probes, wiring and power.',
+        webm: '/media/agrix-node.webm',
+        mp4: '/media/agrix-node.mp4',
+        poster: '/media/agrix-node.webp',
+        parts: [
+          { name: 'Lid', detail: 'with its cable gland', at: [0.6, 0.17] },
+          { name: 'ESP32', detail: 'posts each reading with a device key', at: [0.53, 0.31] },
+          { name: 'Probes', detail: 'soil moisture and temperature', at: [0.6, 0.44] },
+          { name: 'Wiring and power', detail: 'the power module, over the base', at: [0.5, 0.58] },
+          { name: 'Base', detail: 'the enclosure it all sits in', at: [0.66, 0.8] },
+        ],
+      },
     },
     // Sample: one dry evening on one field. 27% is under the 30% line, so
     // the app's own rule takes 20 off the health score and asks for water.

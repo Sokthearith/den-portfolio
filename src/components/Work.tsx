@@ -2,6 +2,7 @@ import type { CSSProperties, ReactNode } from 'react'
 import { projects, type Layer, type Project } from '../data/projects'
 import { skillGroups } from '../data/skills'
 import { LayerDrawing } from './WorkLayers'
+import { FieldNodeView } from './WorkNode'
 import { AgrixScreenView, PlanifyScreenView } from './WorkScreens'
 import '../styles/work.css'
 
@@ -68,7 +69,7 @@ function Screen({ project }: { project: Project }) {
 function ScreenCard({ project, active, onPress }: { project: Project } & Press) {
   const lit = project.uses.includes(active)
   return (
-    <article className="pile__card pile__card--screen" id={project.id} data-lit={lit} aria-labelledby={`${project.id}-name`}>
+    <article className="pile__card pile__card--screen" id={project.id} data-lit={lit} aria-labelledby={`${project.id}-name`} data-reveal>
       <div className="pile__inner">
         <header className="pile__head">
           <div className="pile__title">
@@ -96,14 +97,15 @@ function ScreenCard({ project, active, onPress }: { project: Project } & Press) 
 }
 
 // The second card: the same app drawn taken apart, its layers spread with a
-// label on each, as in a technical drawing. Its screen layer is a picture of
-// the first card's screen, so it is inert.
+// label on each, as in a technical drawing, and beneath them, where the app
+// has real hardware, den's render of it. Its screen layer is a picture of the
+// first card's screen, so it is inert.
 function ApartCard({ project, active }: { project: Project; active: string }) {
   const { anatomy } = project
   const n = anatomy.layers.length
   const branchAt = anatomy.branch ? anatomy.layers.findIndex((l) => l.name === anatomy.branch!.from) : -1
   return (
-    <section className="pile__card pile__card--apart" aria-labelledby={`${project.id}-apart`}>
+    <section className="pile__card pile__card--apart" aria-labelledby={`${project.id}-apart`} data-reveal>
       <div className="pile__inner">
         <div className="xp" data-n={n} style={{ '--n': n } as CSSProperties}>
           <h4 className="xp__fig" id={`${project.id}-apart`}>{anatomy.figure}</h4>
@@ -131,6 +133,7 @@ function ApartCard({ project, active }: { project: Project; active: string }) {
             </div>
           )}
         </div>
+        {anatomy.node && <FieldNodeView node={anatomy.node} />}
       </div>
     </section>
   )
