@@ -1,4 +1,4 @@
-import { useEffect, useRef, type CSSProperties } from 'react'
+import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { projects, type Layer, type Project } from '../data/projects'
@@ -45,7 +45,7 @@ function Callout({ layer }: { layer: Layer }) {
 
 // One layer: a slab seen from above at an angle, its face drawn, its edge lit
 // amber when it runs on the pressed key.
-function Slab({ layer, project, children }: { layer: Layer; project: Project; children?: React.ReactNode }) {
+function Slab({ layer, project, children }: { layer: Layer; project: Project; children?: ReactNode }) {
   const screen = project.screen
   return (
     <div className="xp__seat">
@@ -59,36 +59,72 @@ function Slab({ layer, project, children }: { layer: Layer; project: Project; ch
   )
 }
 
-// The app taken apart: its screen on top and the layers a reading or a plan
-// passes through beneath, spread as the plate holds and closed again before
-// it leaves. Without motion (and before any script) it rests spread open.
-function Case({ project, active, onPress }: { project: Project } & Press) {
+function Screen({ project }: { project: Project }) {
+  const { screen } = project
+  if (screen?.kind === 'agrix') return <AgrixScreenView screen={screen} />
+  if (screen?.kind === 'planify') return <PlanifyScreenView screen={screen} />
+  return null
+}
+
+// The first card: the app itself, live, under its name and what it is built with.
+function ScreenCard({ project, active, onPress, index }: { project: Project; index: number } & Press) {
   const lit = project.uses.includes(active)
-  const { anatomy, screen } = project
+  return (
+    <article className="pile__card pile__card--screen" id={project.id} data-lit={lit} aria-labelledby={`${project.id}-name`} style={{ '--c': index } as CSSProperties}>
+      <div className="pile__inner">
+        <header className="pile__head">
+          <div className="pile__title">
+            <h3 className="case__name" id={`${project.id}-name`}>{project.name}</h3>
+            <p className="case__line">{project.line}</p>
+            <a className="case__code" href={project.github} target="_blank" rel="noreferrer">Code on GitHub</a>
+          </div>
+          <dl className="case__stack">
+            {project.stack.map((row) => (
+              <div className="case__stack-row" key={row.label}>
+                <dt>{row.label}</dt>
+                <dd>
+                  <ul className="case__items">
+                    {row.items.map((item) => <StackItem item={item} active={active} onPress={onPress} key={item} />)}
+                  </ul>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </header>
+        <div className="pile__screen"><Screen project={project} /></div>
+        <div className="pile__shade" aria-hidden="true" />
+      </div>
+    </article>
+  )
+}
+
+// The second card: the same app drawn taken apart, its layers spread with a
+// label on each, as in a technical drawing. Its screen layer is a picture of
+// the first card's screen, so it is inert.
+function ApartCard({ project, active, index }: { project: Project; active: string; index: number }) {
+  const { anatomy } = project
   const n = anatomy.layers.length
   const branchAt = anatomy.branch ? anatomy.layers.findIndex((l) => l.name === anatomy.branch!.from) : -1
   return (
-    <>
-      <article className="case scene" data-scene="exploded" id={project.id} data-lit={lit} aria-labelledby={`${project.id}-name`} style={{ '--hold': 2 } as CSSProperties}>
+    <section className="pile__card pile__card--apart" aria-labelledby={`${project.id}-apart`} style={{ '--c': index } as CSSProperties}>
+      <div className="pile__inner">
         <div className="xp" data-n={n} style={{ '--n': n } as CSSProperties}>
-          <p className="xp__fig">{anatomy.figure}</p>
+          <h4 className="xp__fig" id={`${project.id}-apart`}>{anatomy.figure}</h4>
           <p className="xp__caption">{anatomy.caption}</p>
-
           <ol className="xp__layers">
             {anatomy.layers.map((layer, i) => (
               <li className="xp__layer" key={layer.name} style={{ '--i': i } as CSSProperties} data-side={i <= branchAt || i % 2 ? 'left' : 'right'} data-lit={Boolean(layer.uses?.includes(active))}>
-                <Slab layer={layer} project={project}>
-                  {layer.draw !== 'screen' ? undefined : screen?.kind === 'agrix' ? <AgrixScreenView screen={screen} /> : screen?.kind === 'planify' ? <PlanifyScreenView screen={screen} /> : undefined}
-                </Slab>
+                {layer.draw === 'screen'
+                  ? <div className="xp__picture" inert aria-hidden="true"><Slab layer={layer} project={project}><Screen project={project} /></Slab></div>
+                  : <Slab layer={layer} project={project} />}
                 <Callout layer={layer} />
               </li>
             ))}
           </ol>
-
           {anatomy.branch && (
             <div className="xp__branch" style={{ '--i': branchAt } as CSSProperties} data-lit={Boolean(anatomy.branch.uses?.includes(active))}>
-              <svg className="xp__wire" viewBox="0 0 100 2" preserveAspectRatio="none" aria-hidden="true">
-                <line x1="0" y1="1" x2="100" y2="1" vectorEffect="non-scaling-stroke" />
+              <svg className="xp__wire" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                <line x1="0" y1="100" x2="100" y2="0" vectorEffect="non-scaling-stroke" />
               </svg>
               <Slab layer={anatomy.branch} project={project} />
               <div className="xp__label xp__label--branch">
@@ -97,89 +133,36 @@ function Case({ project, active, onPress }: { project: Project } & Press) {
               </div>
             </div>
           )}
-
-          <div className="case__row">
-            <h3 className="case__name" id={`${project.id}-name`}>{project.name}</h3>
-            <p className="case__line">{project.line}</p>
-            <a className="case__code" href={project.github} target="_blank" rel="noreferrer">Code on GitHub</a>
-          </div>
         </div>
-      </article>
-
-      <div className="case__more">
-        <dl className="case__stack" data-reveal style={delay(120)}>
-          {project.stack.map((row) => (
-            <div className="case__stack-row" key={row.label}>
-              <dt>{row.label}</dt>
-              <dd>
-                <ul className="case__items">
-                  {row.items.map((item) => <StackItem item={item} active={active} onPress={onPress} key={item} />)}
-                </ul>
-              </dd>
-            </div>
-          ))}
-        </dl>
+        <div className="pile__shade" aria-hidden="true" />
       </div>
-    </>
+    </section>
   )
 }
 
-// The scene: on a wide screen with motion allowed, each plate holds for two
-// screens while it tilts from its flat screen into the drawing, comes apart,
-// shows its labels, closes and lies flat again. Everywhere else it rests open.
-// GSAP moves each slab's own transform (the drawing's angle is rotate 30,
-// skew -30, squash 0.864), so a frame only recomposites the slabs and never
-// restyles the screens inside them.
-const LIVE = '(min-width: 68.76rem) and (prefers-reduced-motion: no-preference)'
-const REST = '(max-width: 68.75rem), (prefers-reduced-motion: reduce)'
+// The deck: on a wide screen each card holds near the top while the next
+// slides up over it, and the one beneath steps back a little and darkens, so
+// the cards pile up with their top edges showing. Only transform and opacity
+// move. Reduced motion keeps the pile without the step back; narrow screens
+// simply list the cards.
+const PILE = '(min-width: 68.76rem) and (prefers-reduced-motion: no-preference)'
 
-function useExplodedScenes(root: React.RefObject<HTMLElement | null>) {
+function useDeck(root: React.RefObject<HTMLElement | null>) {
   useEffect(() => {
     const el = root.current
     if (!el) return
     gsap.registerPlugin(ScrollTrigger)
     const ctx = gsap.context(() => {
-      const mm = gsap.matchMedia()
-      mm.add({ live: LIVE, rest: REST }, (c) => {
-        const cases = gsap.utils.toArray<HTMLElement>('.case.scene', el)
-        if (!c.conditions?.live) {
-          cases.forEach((s) => s.classList.add('is-rest'))
-          return () => cases.forEach((s) => s.classList.remove('is-rest'))
-        }
-        cases.forEach((section) => {
-          const stage = section.querySelector<HTMLElement>('.xp')
-          if (!stage) return
-          section.classList.add('is-live')
-          const slabs = gsap.utils.toArray<HTMLElement>('.xp__layer > .xp__seat > .xp__slab', stage)
-          const sides = stage.querySelectorAll('.xp__layer .xp__side')
-          const labels = gsap.utils.toArray<HTMLElement>('.xp__callout, .xp__branch', stage)
-          const n = slabs.length
-          // Each label's place in the stack, so it can ride in with its layer.
-          const rank = labels.map((l) => parseFloat(getComputedStyle(l.closest('.xp__layer, .xp__branch')!).getPropertyValue('--i')) - (n - 1) / 2)
-          // Read the stage's own numbers each refresh, so a resize re-fits it.
-          const num = (name: string) => parseFloat(getComputedStyle(stage).getPropertyValue(name))
-          const gap = () => Math.min(150, (window.innerHeight - 220 - 950 * num('--s')) / (n - 1))
-          const flat = { rotation: 0, skewX: 0, scaleX: () => num('--sf'), scaleY: () => num('--sf'), y: 0 }
-          // Closed, the drawing comes in close (--sc); as it opens it steps
-          // back to the drawing's own scale (--s) so every layer fits.
-          const close = { rotation: 30, skewX: -30, scaleX: () => num('--sc'), scaleY: () => num('--sc') * 0.864 }
-          const drawn = { scaleX: () => num('--s'), scaleY: () => num('--s') * 0.864 }
-          // The slabs' starting state lives in the timeline (fromTo), so a
-          // refresh, which reverts and replays it, lands back on it; the labels
-          // and edges start hidden in CSS while the scene is live.
-          gsap.timeline({ defaults: { ease: 'power2.inOut' }, scrollTrigger: { trigger: section, start: 'top top', end: 'bottom bottom', scrub: 0.5, invalidateOnRefresh: true } })
-            .fromTo(slabs, { xPercent: -50, yPercent: -50, skewType: 'simple', force3D: true, ...flat }, { ...close, duration: 0.12 }, 0.05)
-            .to(sides, { autoAlpha: 1, duration: 0.03, ease: 'none' }, 0.15)
-            .to(slabs, { ...drawn, y: (i: number) => (i - (n - 1) / 2) * gap(), duration: 0.18 }, 0.17)
-            .fromTo(labels, { y: (i: number) => -rank[i] * gap() * 0.5 }, { autoAlpha: 1, y: 0, duration: 0.12, stagger: 0.015, ease: 'power2.out' }, 0.22)
-            .to(labels, { autoAlpha: 0, duration: 0.04, ease: 'none' }, 0.7)
-            .to(slabs, { ...close, y: 0, duration: 0.13 }, 0.71)
-            .to(sides, { autoAlpha: 0, duration: 0.02, ease: 'none' }, 0.84)
-            .to(slabs, { ...flat, duration: 0.1 }, 0.84)
-            .to({}, { duration: 0.08 }, 0.92)
+      gsap.matchMedia().add(PILE, () => {
+        const cards = gsap.utils.toArray<HTMLElement>('.pile__card', el)
+        cards.slice(0, -1).forEach((card, i) => {
+          const next = cards[i + 1]
+          // The card stays opaque; a shade inside it darkens, so nothing
+          // beneath ever shows through.
+          gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: next, start: 'top bottom', end: () => `top ${parseFloat(getComputedStyle(next).top)}px`, scrub: true, invalidateOnRefresh: true } })
+            .to(card.querySelector('.pile__inner'), { scale: 0.94, force3D: true }, 0)
+            .to(card.querySelector('.pile__shade'), { opacity: 0.6 }, 0)
         })
-        ScrollTrigger.refresh()
-        return () => cases.forEach((s) => s.classList.remove('is-live'))
       })
     }, el)
     return () => ctx.revert()
@@ -188,14 +171,19 @@ function useExplodedScenes(root: React.RefObject<HTMLElement | null>) {
 
 export default function Work({ active, onPress }: Press) {
   const ref = useRef<HTMLElement>(null)
-  useExplodedScenes(ref)
+  useDeck(ref)
   return (
     <section className="cases" id="work" aria-labelledby="work-title" ref={ref}>
       <div className="cases__intro">
         <h2 id="work-title" data-reveal="head">Two full-stack apps.</h2>
         <p data-reveal style={delay(150)}>A farm dashboard and a study planner, each with its own API.</p>
       </div>
-      {projects.map((p) => <Case project={p} active={active} onPress={onPress} key={p.id} />)}
+      <div className="pile">
+        {projects.flatMap((p, i) => [
+          <ScreenCard project={p} active={active} onPress={onPress} index={i * 2} key={`${p.id}-screen`} />,
+          <ApartCard project={p} active={active} index={i * 2 + 1} key={`${p.id}-apart`} />,
+        ])}
+      </div>
     </section>
   )
 }

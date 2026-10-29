@@ -1,10 +1,8 @@
-/* ---------- Work, in the dark room: each app taken apart ---------- */
-/* An exploded view (den's reference clip, art round). Each app is its real
-   layers stacked: its screen on top, then what a reading or a plan passes
-   through. The plate holds while the stack tilts from the flat screen into an
-   axonometric drawing, comes apart with a label on every layer, closes and
-   lies flat again. At rest (no script, reduced motion, the prerender) it is
-   the drawing spread open. */
+/* ---------- Work, in the dark room: a deck of cards ---------- */
+/* Each app is two cards: the app itself, live, and the same app drawn taken
+   apart into its real layers (den's reference clip, held still). On a wide
+   screen each card holds near the top while the next slides up over it, and
+   the one beneath steps back and dims, so the pile shows its top edges. */
 
 .cases { padding-top: var(--section-gap); }
 .cases__intro {
@@ -14,71 +12,98 @@
 .cases__intro h2 { grid-column: 1 / 8; font: var(--display-weight) var(--step-head)/1 var(--font); letter-spacing: var(--tracking-display); color: var(--ink); }
 .cases__intro p { grid-column: 9 / 13; max-width: 34ch; font-size: var(--step-body); line-height: 1.55; color: var(--ink); }
 
-.case { position: relative; }
-.case.is-live { height: calc((var(--hold) + 1) * 100svh); }
+/* The deck. Cards are panels on the sky; the section itself stays clear. */
+.pile { --top: 88px; --step: 14px; display: grid; gap: var(--space-2xl); padding-inline: var(--margin); }
+.pile__inner { position: relative; container-type: inline-size; background: var(--surface); }
+.pile__shade { position: absolute; inset: 0; z-index: 50; background: var(--bg); opacity: 0; pointer-events: none; }
 
-/* The stage. Every layer is the same 1200 x 700 face; --tilt turns it from
-   flat (0) to the drawing (1), --explode spreads the layers (0 to 1). The
-   side corners of a face sit --reach either side of its centre, the right
-   one --rise below it and the left one --rise above. */
-.xp {
-  --W: 1200px; --H: 700px; --s: 0.34; --sf: 0.78; --sc: 0.6;
-  --tilt: 1; --explode: 1;
-  --k: calc(var(--sf) + (var(--s) - var(--sf)) * var(--tilt));
-  --gap: min(150px, calc((100svh - 220px - (var(--W) + var(--H)) * 0.5 * var(--s)) / (var(--n) - 1)));
-  --reach: calc((var(--W) + var(--H)) * 0.433 * var(--s));
-  --rise: calc((var(--W) - var(--H)) * 0.25 * var(--s));
-  --callw: min(22rem, calc(50vw - var(--reach) - 56px - var(--margin) - 8px));
-  position: relative; height: 100svh; min-height: 680px; overflow: clip;
+@media (min-width: 68.76rem) {
+  .pile { gap: 0; }
+  .pile__card {
+    position: sticky; top: calc(var(--top) + var(--c) * var(--step));
+    height: calc(100svh - var(--top) - 4 * var(--step) - var(--margin));
+    margin-bottom: 24svh;
+  }
+  .pile__card:last-child { margin-bottom: 0; }
+  .pile__inner { height: 100%; overflow: hidden; transform-origin: 50% 0; }
 }
-.case.is-live .xp { position: sticky; top: 0; }
 
-/* The figure's frame, as in a drawing: what it is, top left; what it shows,
-   top right; the name and the code along the foot. */
-.xp__fig, .xp__caption { position: absolute; top: 96px; z-index: 40; font-size: var(--step-body); color: var(--ink); }
-.xp__fig { left: var(--margin); }
-.xp__caption { right: var(--margin); color: var(--muted); }
-
-.case__row {
-  position: absolute; left: 0; right: 0; bottom: var(--margin); z-index: 40;
-  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); align-items: center;
-  padding-inline: var(--margin);
+/* The app's card: its name, what it is and what it is built with on top,
+   the live screen beneath, cropped by the card. */
+.pile__card--screen .pile__inner { display: grid; grid-template-rows: auto minmax(0, 1fr); }
+.pile__head {
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); row-gap: var(--space-md);
+  padding: var(--space-xl) var(--space-xl) var(--space-lg);
 }
-.case__name { grid-column: 1 / 4; display: flex; align-items: center; gap: 14px; font: var(--display-weight) var(--step-lead)/1.1 var(--font); letter-spacing: -0.01em; color: var(--ink); }
+.pile__title { grid-column: 1 / 6; display: grid; align-content: start; gap: var(--space-xs); }
+.case__stack { grid-column: 7 / 13; display: grid; gap: var(--space-2xs); margin: 0; }
+.pile__screen { min-height: 0; padding-inline: var(--space-xl); }
+.pile__screen > [data-ui] { border-radius: 0; }
+
+.case__name { display: flex; align-items: center; gap: 14px; font: var(--display-weight) var(--step-head)/1 var(--font); letter-spacing: var(--tracking-display); color: var(--ink); }
 /* The project's window: dark until a key it is built with is pressed. */
-.case__name::before { content: ""; flex: none; width: 10px; height: 10px; background: var(--surface-2); transition: background-color var(--dur-short) var(--ease-out); }
-.case[data-lit="true"] .case__name::before { background: var(--accent); }
-.case__line { grid-column: 4 / 10; font-size: var(--step-body); line-height: 1.4; color: var(--ink); }
-.case__code { grid-column: 10 / 13; justify-self: end; display: inline-flex; align-items: center; min-height: 44px; font-size: var(--step-body); font-weight: 500; color: var(--ink); text-decoration: underline; text-decoration-color: var(--muted); text-underline-offset: 0.25em; transition: text-decoration-color var(--dur-short) var(--ease-out); }
+.case__name::before { content: ""; flex: none; width: 12px; height: 12px; background: var(--surface-2); transition: background-color var(--dur-short) var(--ease-out); }
+.pile__card[data-lit="true"] .case__name::before { background: var(--accent); }
+.case__line { max-width: 40ch; font-size: var(--step-body); line-height: 1.45; color: var(--ink); }
+.case__code { justify-self: start; display: inline-flex; align-items: center; min-height: 44px; font-size: var(--step-body); font-weight: 500; color: var(--ink); text-decoration: underline; text-decoration-color: var(--muted); text-underline-offset: 0.25em; transition: text-decoration-color var(--dur-short) var(--ease-out); }
 .case__code:hover { text-decoration-color: var(--ink); }
 .case__code:focus-visible, .case__key:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
 
-/* A layer: anchored at the stage's centre, moved up or down by its place in
-   the stack, the top one painted over the rest. */
+.case__stack-row { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); column-gap: var(--space-md); align-items: baseline; }
+.case__stack-row dt { font-size: var(--step-body); color: var(--muted); }
+.case__stack-row dd { margin: 0; }
+.case__items { display: flex; flex-wrap: wrap; gap: 0 var(--space-lg); margin: 0; padding: 0; list-style: none; }
+.case__item { display: inline-flex; align-items: center; min-height: 44px; font-size: var(--step-body); color: var(--muted); }
+/* A key on the rack: its own small window, lit while it is pressed. */
+.case__key { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0; border: 0; background: none; font: inherit; font-size: var(--step-body); color: var(--ink); cursor: pointer; }
+.case__key::before { content: ""; width: 10px; height: 10px; background: var(--surface-2); transition: background-color var(--dur-short) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
+.case__key:hover::before { background: var(--muted); }
+.case__key:active::before { transform: scale(0.8); }
+.case__key[aria-pressed="true"]::before { background: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .case__key::before { transition: none; } .case__key:active::before { transform: none; } }
+
+/* ---------- The drawing: the app taken apart ---------- */
+/* Every layer is the same 1200 x 700 face, drawn at the axonometric angle
+   (rotate 30, skew -30, squash 0.864) and spread down the card. The side
+   corners of a face sit --reach either side of its centre, the right one
+   --rise below it and the left one --rise above. */
+.xp {
+  --W: 1200px; --H: 700px; --s: 0.3;
+  --stageh: calc(100svh - 88px - 56px - var(--margin));
+  --gap: min(150px, calc((var(--stageh) - 150px - (var(--W) + var(--H)) * 0.5 * var(--s)) / (var(--n) - 1)));
+  --reach: calc((var(--W) + var(--H)) * 0.433 * var(--s));
+  --rise: calc((var(--W) - var(--H)) * 0.25 * var(--s));
+  --callw: min(21rem, calc(50cqw - var(--reach) - 56px - 32px));
+  position: relative; height: 100%; min-height: 600px;
+}
+.xp[data-n="5"] { --s: 0.25; }
+.xp[data-n="4"] { --s: 0.28; }
+@media (max-width: 89.99rem) {
+  .xp[data-n="5"] { --s: 0.21; }
+  .xp[data-n="4"] { --s: 0.24; }
+}
+
+.xp__fig, .xp__caption { position: absolute; top: var(--space-xl); z-index: 40; margin: 0; font: 400 var(--step-body)/1.3 var(--font); color: var(--ink); }
+.xp__fig { left: var(--space-xl); font-weight: 500; }
+.xp__caption { right: var(--space-xl); color: var(--muted); }
+
 .xp__layers { margin: 0; padding: 0; list-style: none; }
 .xp__layer, .xp__branch {
-  --o: calc(var(--i) - (var(--n) - 1) / 2);
-  --y: calc(var(--o) * var(--gap) * var(--explode));
-  position: absolute; left: 50%; top: calc(50% - 24px); width: 0; height: 0;
+  --y: calc((var(--i) - (var(--n) - 1) / 2) * var(--gap));
+  position: absolute; left: 50%; top: calc(50% + 16px); width: 0; height: 0;
   z-index: calc(20 - var(--i));
 }
 .xp__seat { position: absolute; left: 0; top: 0; }
 .xp__slab {
   position: absolute; left: 0; top: 0; width: var(--W); height: var(--H);
-  transform: translate(-50%, -50%) translateY(var(--y)) scale(var(--k)) rotate(calc(30deg * var(--tilt))) skewX(calc(-30deg * var(--tilt))) scaleY(calc(1 - 0.136 * var(--tilt)));
+  transform: translate(-50%, -50%) translateY(var(--y)) scale(var(--s)) rotate(30deg) skewX(-30deg) scaleY(0.864);
 }
-/* While the scene plays, GSAP drives each slab's transform itself, and the
-   edges and labels wait hidden until the drawing needs them. */
-.case.is-live .xp__slab { will-change: transform; }
-/* The edge is sized for the closed stack, where it is first seen. */
-.case.is-live .xp__side { transform: translate(calc(14px / var(--sc)), calc(14px / var(--sc))); }
-.case.is-live :is(.xp__layer .xp__side, .xp__callout, .xp__branch) { opacity: 0; visibility: hidden; }
-/* Its edge: the face again, 14px lower on screen, seen only once tilted. */
-.xp__side { position: absolute; inset: 0; background: var(--surface); opacity: var(--tilt); transform: translate(calc(14px / var(--s)), calc(14px / var(--s))); }
+/* Its edge: the face again, 14px lower on screen. */
+.xp__side { position: absolute; inset: 0; background: var(--bg); transform: translate(calc(14px / var(--s)), calc(14px / var(--s))); }
 .xp__layer[data-lit="true"] .xp__side, .xp__branch[data-lit="true"] .xp__side { background: var(--accent); }
 .xp__face { position: absolute; inset: 0; overflow: hidden; background: var(--surface-2); }
 .xp__face > svg { display: block; width: 100%; height: 100%; }
-.xp__face[data-draw="screen"] { background: var(--surface); }
+.xp__face[data-draw="screen"] { background: var(--bg); }
 .xp__face[data-draw="screen"] > [data-ui] { min-height: 100%; }
 
 /* The drawings' ink: three tones of the room and one stroke. */
@@ -100,7 +125,7 @@
 .xp__layer[data-side="left"] .xp__callout { right: var(--reach); top: calc(var(--y) - var(--rise)); flex-direction: row-reverse; }
 .xp__lead { flex: none; width: 56px; height: 2px; overflow: visible; }
 .xp__lead line, .xp__wire line { stroke: var(--muted); stroke-width: 1; }
-.xp__label { width: var(--callw); padding: 12px 16px; background: var(--surface); }
+.xp__label { width: var(--callw); padding: 10px 14px; background: var(--surface-2); }
 .xp__title { font-size: var(--step-body); font-weight: 500; line-height: 1.3; color: var(--ink); }
 .xp__fact { font-size: var(--step-body); line-height: 1.35; color: var(--ink); }
 
@@ -118,47 +143,20 @@
 .xp__wire { position: absolute; left: var(--reach); top: calc(var(--y) - var(--brise)); width: 80px; height: calc(var(--rise) + var(--brise)); overflow: visible; }
 .xp__label--branch { position: absolute; left: calc(var(--reach) + 80px); top: calc(var(--y) - var(--bhalf) - 16px); transform: translateY(-100%); width: min(19rem, var(--callw)); }
 
-/* What it is built with: three short rows under the plate. */
-.case__more { padding: calc(var(--section-gap) / 2) var(--margin) 0; }
-.case__stack { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--gap-columns); margin: 0; }
-.case__stack-row dt { font-size: var(--step-body); color: var(--muted); }
-.case__stack-row dd { margin: 4px 0 0; }
-.case__items { display: flex; flex-wrap: wrap; gap: 0 var(--space-lg); margin: 0; padding: 0; list-style: none; }
-.case__item { display: inline-flex; align-items: center; min-height: 44px; font-size: var(--step-body); color: var(--muted); }
-/* A key on the rack: its own small window, lit while it is pressed. */
-.case__key { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0; border: 0; background: none; font: inherit; font-size: var(--step-body); color: var(--ink); cursor: pointer; }
-.case__key::before { content: ""; width: 10px; height: 10px; background: var(--surface-2); transition: background-color var(--dur-short) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
-.case__key:hover::before { background: var(--muted); }
-.case__key:active::before { transform: scale(0.8); }
-.case__key[aria-pressed="true"]::before { background: var(--accent); }
-@media (prefers-reduced-motion: reduce) { .case__key::before { transition: none; } .case__key:active::before { transform: none; } }
-
-/* Smaller slabs when there are more of them, so each face keeps about half
-   of itself in view once the stack is spread. */
-.xp[data-n="5"] { --s: 0.26; }
-.xp[data-n="4"] { --s: 0.3; }
-@media (max-width: 89.99rem) {
-  .xp { --sf: 0.66; --sc: 0.5; }
-  .xp[data-n="5"] { --s: 0.22; }
-  .xp[data-n="4"] { --s: 0.26; }
-}
-
-/* Narrower than the drawing needs: the stack rests spread down the page in
-   one column, the screen flat and whole on top, each layer below it as a
-   small slab with its label beside it. */
+/* Narrower than the drawing needs: the cards follow one another, the app's
+   card stacks its head over its screen, and the drawing lists each layer as
+   a small slab with its label beside it. */
 @media (max-width: 68.75rem) {
   .cases__intro h2, .cases__intro p { grid-column: 1 / -1; }
   .cases__intro p { margin-top: var(--space-md); }
+  .pile__head { padding: var(--space-lg); }
+  .pile__title, .case__stack { grid-column: 1 / -1; }
+  .pile__screen { padding: 0 var(--space-lg) var(--space-lg); }
   .xp, .xp[data-n] { --s: 0.16; }
-  .xp { --tilt: 1; --explode: 0; display: grid; gap: var(--space-lg); height: auto; min-height: 0; overflow: visible; padding-inline: var(--margin); }
-  .xp__fig, .xp__caption, .case__row { position: static; }
-  .case__row { order: -1; grid-template-columns: minmax(0, 1fr) auto; row-gap: var(--space-2xs); padding: 0; }
-  .case__name { grid-column: 1 / -1; }
-  .case__line { grid-column: 1; }
-  .case__code { grid-column: 2; align-self: end; }
-  .xp__caption { color: var(--ink); }
+  .xp { display: grid; gap: var(--space-lg); height: auto; min-height: 0; padding: var(--space-lg); }
+  .xp__fig, .xp__caption { position: static; }
   .xp__layers { display: grid; gap: var(--space-lg); }
-  .xp__layer, .xp__branch { position: relative; left: auto; top: auto; width: auto; height: auto; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: 20px; align-items: center; }
+  .xp__layer, .xp__branch { --y: 0px; position: relative; left: auto; top: auto; width: auto; height: auto; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: 20px; align-items: center; }
   .xp__seat { position: relative; left: auto; height: calc((var(--W) + var(--H)) * 0.5 * var(--s) + 24px); }
   .xp__seat > .xp__slab { left: 50%; top: 50%; }
   .xp__branch .xp__seat { left: auto; height: calc((var(--bw) + var(--bh)) * 0.5 * var(--s) + 24px); }
@@ -166,16 +164,10 @@
   .xp__layer[data-side] .xp__callout { flex-direction: row; }
   .xp__lead, .xp__wire { display: none; }
   .xp__label { width: auto; padding: 0; background: none; }
-  /* The screen on top lies flat at full width, and keeps its own layout. */
-  .xp__layer:first-child { grid-template-columns: minmax(0, 1fr); row-gap: var(--space-sm); }
-  .xp__layer:first-child .xp__seat { height: auto; }
-  .xp__layer:first-child .xp__slab { position: relative; left: auto; top: auto; width: 100%; height: auto; transform: none; }
-  .xp__layer:first-child .xp__side { display: none; }
-  .xp__layer:first-child .xp__face { position: relative; }
 }
 @media (max-width: 40rem) {
   .xp, .xp[data-n] { --s: 0.085; }
-  .case__stack { grid-template-columns: minmax(0, 1fr); row-gap: var(--space-md); }
+  .case__stack-row { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* ---------- The screens: pieces of the apps' own interfaces ---------- */
@@ -293,3 +285,4 @@
 /* In dawn the light comes from above as well: the slabs' edges sit a step
    darker than their faces, not lighter. */
 :root[data-theme="dawn"] .xp__side { background: color-mix(in oklch, var(--surface-2) 72%, var(--muted)); }
+:root[data-theme="dawn"] .xp__layer[data-lit="true"] .xp__side, :root[data-theme="dawn"] .xp__branch[data-lit="true"] .xp__side { background: var(--accent); }
