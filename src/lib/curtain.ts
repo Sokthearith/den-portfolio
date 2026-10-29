@@ -32,12 +32,24 @@ export function useCurtain(path: string) {
           if (!above || above.matches('.hero')) return
           if (above.offsetHeight < window.innerHeight || below.offsetHeight < window.innerHeight) return
           const h = () => window.innerHeight
+          const lift = gsap.fromTo(below,
+            { y: () => -h(), clipPath: () => `inset(${h()}px 0px 0px 0px)` },
+            { y: 0, clipPath: 'inset(0px 0px 0px 0px)', ease: 'none', force3D: true, paused: true })
+          // The curtain only lifts. Scrolling back up it holds where it is,
+          // and at any hold the section below shows from the upper one's
+          // bottom edge, so both simply scroll; going down again it waits
+          // for the scroll to catch up before it moves. Once the seam is
+          // back below the screen it is let down again, out of sight.
           // Measured on the section above, which never moves, so the trigger's
           // own numbers are never thrown off by the transform it drives.
-          gsap.fromTo(below,
-            { y: () => -h(), clipPath: () => `inset(${h()}px 0px 0px 0px)` },
-            { y: 0, clipPath: 'inset(0px 0px 0px 0px)', ease: 'none', force3D: true,
-              scrollTrigger: { trigger: above, start: 'bottom bottom', end: 'bottom top', scrub: true, invalidateOnRefresh: true } })
+          let t = 0
+          const to = (p: number) => { t = p; lift.progress(p) }
+          ScrollTrigger.create({
+            trigger: above, start: 'bottom bottom', end: 'bottom top',
+            onUpdate: (self) => { if (self.direction > 0 && self.progress > t) to(self.progress) },
+            onLeaveBack: () => to(0),
+            onRefresh: (self) => { lift.invalidate(); to(self.progress && Math.max(t, self.progress)) },
+          })
         })
       })
       ScrollTrigger.refresh()

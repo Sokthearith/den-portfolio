@@ -194,8 +194,11 @@ function useCardScenes(root: React.RefObject<HTMLElement | null>) {
           scenes.forEach((s) => s.classList.add('is-rest'))
           return () => scenes.forEach((s) => s.classList.remove('is-rest'))
         }
-        scenes.forEach((scene) => {
+        scenes.forEach((scene, i) => {
           scene.classList.add('is-live')
+          // The last card is carried off with the section by the curtain, so
+          // it never lifts away by itself (and never drops back in on the way up).
+          const last = i === scenes.length - 1
           const front = scene.querySelector<HTMLElement>('.flip__face--front')!
           const back = scene.querySelector<HTMLElement>('.flip__face--back')!
           const video = back.querySelector('video')
@@ -215,7 +218,7 @@ function useCardScenes(root: React.RefObject<HTMLElement | null>) {
           face('front', false)
           // This card's own parts only: a bare selector would reach every card.
           const q = gsap.utils.selector(scene)
-          gsap.timeline({
+          const tl = gsap.timeline({
             scrollTrigger: {
               trigger: scene, start: 'top top', end: 'bottom bottom', scrub: 0.4, invalidateOnRefresh: true,
               onUpdate: (st) => face(st.progress > TURNED ? 'back' : 'front', st.isActive),
@@ -224,6 +227,8 @@ function useCardScenes(root: React.RefObject<HTMLElement | null>) {
           })
             .fromTo(q('.flip__tilt'), { yPercent: 32, rotateX: 18, scale: 0.94, force3D: true }, { yPercent: 0, rotateX: 0, scale: 1, duration: 0.12, ease: 'power2.out' }, 0)
             .fromTo(q('.flip__card'), { rotateY: 0 }, { rotateY: 180, duration: 0.18, ease: 'power2.inOut' }, 0.38)
+          if (last) tl.to({}, { duration: 0.12 }, 0.88) // keeps the scene's length, so the turn lands where it did
+          else tl
             .to(q('.flip__tilt'), { yPercent: -28, rotateX: -12, scale: 0.92, duration: 0.12, ease: 'power2.in' }, 0.88)
             .fromTo(q('.flip__shade'), { opacity: 0 }, { opacity: 0.65, duration: 0.12, ease: 'none' }, 0.88)
         })
