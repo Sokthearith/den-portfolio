@@ -24,8 +24,9 @@
   --color-ink-2: var(--dawn-window);
   --color-accent: var(--dawn-sun);
 }
-/* The close warms toward sunrise as its lamps go out. */
-:root[data-theme="dawn"] .contact .night { --sky: color-mix(in oklch, var(--dawn-sky), var(--dawn-sun-sky) calc(var(--first-light, 0) * 100%)); }
+/* The close warms toward sunrise as its lamps go out, mixed in oklab so
+   the blue meets the rose directly instead of turning through violet. */
+:root[data-theme="dawn"] .contact .night { --sky: color-mix(in oklab, var(--dawn-sky), var(--dawn-sun-sky) calc(var(--first-light, 0) * 100%)); }
 /* The lab's bench has no land colour of its own at dawn: it is the sky. */
 :root[data-theme="dawn"] :is(.nightbench__stage, .night.nightbench__night) { background: var(--sky, var(--dawn-sky)); }
 
@@ -53,3 +54,26 @@
 /* The chosen row's name takes the deeper sunrise, which holds 5:1 on the
    row's surface where the accent itself falls short. */
 :root[data-theme="dawn"] .palette__item[aria-selected="true"] > :first-child { color: var(--color-focus); }
+
+/* ---------- The cinema, by day ---------- */
+/* A daylight booth: the room a step of surface, the screen pale, and the
+   beam a wedge brighter than the room it crosses, as light should be.
+   (Selectors carry .cinema so they outrank now.css, which loads later.) */
+:root[data-theme="dawn"] .cinema .cinema__room { background: var(--surface); }
+:root[data-theme="dawn"] .cinema .cinema__screen { background: var(--bg); }
+:root[data-theme="dawn"] .cinema .cinema__beam { background: var(--accent-ink); opacity: 0.6; }
+@keyframes cinema-flicker-day {
+  0% { opacity: 0.6; } 9% { opacity: 0.52; } 11% { opacity: 0.63; } 38% { opacity: 0.57; }
+  41% { opacity: 0.48; } 43% { opacity: 0.6; } 72% { opacity: 0.55; } 74% { opacity: 0.62; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-theme="dawn"] .cinema .cinema__beam { animation-name: cinema-flicker-day; }
+}
+
+/* ---------- The record deck, by day ---------- */
+/* A light plinth, and the record still black: it is an object, not a block.
+   Its grooves and sheen turn light so they still catch on the dark disc. */
+:root[data-theme="dawn"] .deck .deck__vinyl { fill: var(--field-1); }
+:root[data-theme="dawn"] .deck .deck__groove { stroke: var(--field-1-ink); stroke-opacity: 0.08; }
+:root[data-theme="dawn"] .deck .deck__gap { stroke: color-mix(in oklch, var(--field-1), var(--field-1-ink) 10%); }
+:root[data-theme="dawn"] .deck .deck__sheen { fill: var(--field-1-ink); opacity: 0.07; }
