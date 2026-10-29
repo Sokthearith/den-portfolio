@@ -61,6 +61,45 @@
 .case__key[aria-pressed="true"]::before { background: var(--accent); }
 @media (prefers-reduced-motion: reduce) { .case__key::before { transition: none; } .case__key:active::before { transform: none; } }
 
+/* ---------- A project as a card that turns over ---------- */
+/* At rest the card's two faces are two cards, front then back. Live, each
+   project is a short scene on a held stage with perspective: the card is
+   dealt in tilted from below, turns over on its upright axis to show its
+   back, then tips back and lifts away before the next is dealt. Only the
+   card's transforms move; it darkens under a shade inside each face. */
+.flip__stage, .flip__tilt, .flip__card { display: grid; gap: var(--space-xl); }
+.flip__shade { position: absolute; inset: 0; z-index: 60; background: var(--bg); opacity: 0; pointer-events: none; }
+.flip__hardware-title, .route { display: none; }
+
+.flip.is-live { height: calc((var(--hold) + 1) * 100svh); }
+.flip.is-live .flip__stage {
+  position: sticky; top: 0; display: block; height: 100svh; box-sizing: border-box;
+  padding: var(--top) var(--margin) var(--margin); perspective: 1600px; perspective-origin: 50% 40%;
+}
+.flip.is-live .flip__tilt { display: block; height: 100%; transform-style: preserve-3d; transform-origin: 50% 100%; will-change: transform; }
+.flip.is-live .flip__card { display: block; position: relative; height: 100%; transform-style: preserve-3d; will-change: transform; }
+.flip.is-live .flip__face { position: absolute; inset: 0; height: auto; max-height: none; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.flip.is-live .flip__face--back { transform: rotateY(180deg); }
+.flip.is-live .flip__face .pile__inner { height: 100%; overflow: hidden; }
+
+/* Agrix's back, face up: den's render and the route a reading takes. The
+   full drawing stays on the resting cards, where there is room for both. */
+.flip.is-live .pile__inner:has(.flip__hardware) .xp { display: none; }
+.flip.is-live .flip__hardware {
+  display: grid; grid-template-columns: minmax(0, 1fr) 15rem; grid-template-rows: auto minmax(0, 1fr); gap: var(--space-lg) var(--space-xl);
+  height: 100%; box-sizing: border-box; padding: var(--space-xl);
+}
+.flip.is-live .flip__hardware-title { display: block; grid-column: 1 / -1; font: 500 var(--step-body)/1.3 var(--font); color: var(--ink); }
+.flip.is-live .flip__hardware .node { --v: min(560px, calc(100svh - var(--top) - var(--margin) - 200px), 44cqw); grid-column: 1; padding: 0; }
+.flip.is-live .flip__hardware .node__caption { color: var(--muted); font-weight: 400; }
+.flip.is-live .route { display: grid; grid-column: 2; align-content: center; gap: var(--space-md); }
+.route__title { font-size: var(--step-body); color: var(--muted); }
+.route__steps { display: grid; gap: var(--space-sm); margin: 0; padding: 0; list-style: none; }
+.route__step { display: inline-flex; align-items: center; gap: 10px; font-size: var(--step-body); color: var(--ink); }
+.route__step::before { content: ""; flex: none; width: 10px; height: 10px; background: var(--surface-2); }
+.route__step[data-lit="true"]::before { background: var(--accent); }
+.route__step--branch { color: var(--muted); }
+
 /* ---------- The drawing: the app taken apart ---------- */
 /* Every layer is the same 1200 x 700 face, drawn at the axonometric angle
    (rotate 30, skew -30, squash 0.864) and spread down the card. The side

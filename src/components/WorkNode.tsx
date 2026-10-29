@@ -27,7 +27,8 @@ export function FieldNodeView({ node }: { node: FieldNode }) {
     v.addEventListener('pause', onPause)
     let io: IntersectionObserver | undefined
     if (!reduced) {
-      io = new IntersectionObserver(([e]) => { if (e.isIntersecting) v.play().catch(() => {}); else v.pause() }, { threshold: 0.25 })
+      // On a card turned away from the viewer (an inert face) it waits.
+      io = new IntersectionObserver(([e]) => { if (e.isIntersecting && !v.closest('[inert]')) v.play().catch(() => {}); else v.pause() }, { threshold: 0.25 })
       io.observe(v)
     }
     return () => {
