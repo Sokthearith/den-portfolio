@@ -115,9 +115,3 @@ a { text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
   .js [data-reveal="head"].is-in { clip-path: inset(-0.1em -0.1em -0.25em -0.1em); translate: 0 0; }
   .js [data-reveal="fade"] { transform: none; }
 }
-
-/* Dawn, on a phone: the nav row sits over the hero's night frame, so there
-   it keeps the night's ink (and its open menu the night's ground). */
-@media (max-width: 40rem) {
-  :root[data-theme="dawn"] body:has(.hero) .nav { color-scheme: dark; --bg: oklch(12.5% 0.022 258); --surface: oklch(16.5% 0.022 258); --surface-2: oklch(20.5% 0.022 258); --ink: oklch(94% 0.006 250); }
-}

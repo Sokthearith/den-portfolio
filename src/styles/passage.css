@@ -24,7 +24,4 @@ main, .close { background: none; }
 /* Weighted scrolling owns the smoothness when it runs. */
 html.is-smooth { scroll-behavior: auto; }
 
-/* Dawn has its own colourway (dawn.css and the dawn token block may set its
-   sky); until then the sky is dawn's ground at every hour, so dawn's ink
-   reads everywhere. */
-:root[data-theme="dawn"] { --sky-late: var(--bg); --sky-small-hours: var(--bg); --sky-first-light: var(--bg); }
+/* Dawn's hours are set in dawn.css. */

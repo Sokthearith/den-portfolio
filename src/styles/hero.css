@@ -32,6 +32,8 @@
 .hint--coarse { display: none; }
 @media (hover: none) { .hint--fine { display: none; } .hint--coarse { display: inline; } }
 html:not(.js) .hero__hint, html:not(.js) .hero__pause { display: none; }
+/* The mixer opens upward over the hint; the hint steps aside while it is open. */
+.hero__frame:has(.listen__panel) .hero__hint { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .hero__hint, .hero__pause { display: none; } }
 
 /* The one sentence, at 44% of the height, on the right half's own axis. */
