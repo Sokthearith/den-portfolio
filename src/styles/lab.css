@@ -15,7 +15,7 @@
 @media (max-width: 40rem) { .labtop h1 { font-size: 21vw; } }
 
 /* Each bench owns only the gap above it, like every section of the site. */
-.bench { padding-top: var(--section-gap); background: var(--bg); color: var(--ink); }
+.bench { padding-top: var(--section-gap); color: var(--ink); }
 .labtop + .bench { padding-top: calc(var(--section-gap) / 2); }
 .bench__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); row-gap: 40px; align-items: start; }
 .bench__head { grid-column: 1 / 5; min-width: 0; }
@@ -79,7 +79,7 @@
 .loose__keys { display: flex; flex-wrap: wrap; gap: 4px; margin: 24px 0 0; padding: 0; list-style: none; }
 .loose__key {
   min-height: 48px; padding: 0 16px;
-  border: 0; border-radius: var(--radius); background: var(--bg);
+  border: 0; border-radius: var(--radius); background: transparent;
   color: var(--muted); font: 400 var(--step-body)/1 var(--font); white-space: nowrap; cursor: pointer;
   transition: background-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out);
 }

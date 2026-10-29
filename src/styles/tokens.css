@@ -57,26 +57,39 @@
   --radius-card: var(--radius); --radius-part: var(--radius); --radius-pill: var(--radius); --rule-hair: 0;
 }
 
-/* Dawn: the room with the curtains open, for visitors who ask for light.
-   The night itself (hero, footer, the lab's stage) stays dark. */
+/* Dawn: the same room with the curtains open at first light. A designed
+   colourway, not the night turned over: the ground is the pale blue of a
+   morning window, the night itself becomes the ink, and the one lit thing is
+   the sun coming up, a vermilion where the night had den's amber window. */
 :root[data-theme="dawn"] {
   color-scheme: light;
-  --bg: oklch(97% 0.004 250);
-  --surface: oklch(93.5% 0.006 250);
-  --surface-2: oklch(90% 0.008 250);
-  --ink: oklch(18% 0.02 258);
-  --muted: oklch(42% 0.02 258);
-  --accent: oklch(52% 0.13 55);
-  --accent-ink: oklch(98% 0.004 85);
-  --field-1: oklch(18% 0.02 258);
-  --field-1-ink: oklch(97% 0.004 250);
-  --color-focus: oklch(50% 0.14 55);
-  --metal-hi: oklch(97% 0.006 85); --metal-lo: oklch(85% 0.01 85);
+  --bg: oklch(95.5% 0.01 230);
+  --surface: oklch(92% 0.012 230);
+  --surface-2: oklch(88.5% 0.014 230);
+  --ink: oklch(22% 0.035 255);
+  --muted: oklch(42% 0.03 248);
+  --accent: oklch(53% 0.19 36);
+  --accent-ink: oklch(99.5% 0 0);
+  --field-1: oklch(22% 0.035 255);
+  --field-1-ink: oklch(95.5% 0.01 230);
+  --color-focus: oklch(47% 0.18 34);
+  /* The rack in brushed aluminium, cool like the room. */
+  --metal-hi: oklch(96% 0.008 230); --metal-lo: oklch(80% 0.014 232);
+
+  /* The drawn town at first light: a pale sky, the town still in its blue
+     morning haze, the last lamps on, clouds catching the sun, and the sun
+     itself where den's window was. NightScene paints with these. */
+  --dawn-sky: oklch(86% 0.032 230);
+  --dawn-sun-sky: oklch(88% 0.035 35);
+  --dawn-land: oklch(70% 0.028 238);
+  --dawn-ribbon: oklch(98.5% 0.01 70);
+  --dawn-window: oklch(98% 0.03 85);
+  --dawn-sun: var(--accent);
 }
-/* The night stays night: the drawn sky, the lab's stage, the contact (whose
-   card is the lit thing on it), and the wordmark where it sits on the hero's
-   frame (every page with a hero but home, which shows no wordmark). */
-:root[data-theme="dawn"] :is(.night, .nightbench__stage, .contact, body:has(.hero) .nav__mark) {
+
+/* What stays night at dawn: things made of the dark itself, which read wrong
+   in a pale colourway (the record's plinth, the cinema's room). */
+:root[data-theme="dawn"] :is(.deck__plate, .cinema__room) {
   color-scheme: dark;
   --bg: oklch(12.5% 0.022 258);
   --surface: oklch(16.5% 0.022 258);
@@ -88,7 +101,6 @@
   --field-1: oklch(94% 0.006 250);
   --field-1-ink: oklch(12.5% 0.022 258);
   --color-focus: oklch(84% 0.13 68);
-  /* Aliases resolve where they are declared, so the night re-declares the
-     ones its WebGL reads. */
+  /* Aliases resolve where they are declared, so the scope re-declares them. */
   --color-paper: var(--bg); --color-ink: var(--ink); --color-ink-2: var(--ink); --color-muted: var(--muted); --color-accent: var(--accent);
 }

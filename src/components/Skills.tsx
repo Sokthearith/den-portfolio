@@ -7,7 +7,7 @@ import '../styles/skills.css'
 
 const SkillRack = lazy(() => import('./canvas/SkillRack'))
 
-type RackScroll = { value: number; invalidate?: () => void }
+type RackScroll = { value: number; rise?: number; invalidate?: () => void }
 
 type Props = { active: string; onPress: (name: string) => void }
 
@@ -46,6 +46,10 @@ function Used({ skill }: { skill: string }) {
 export default function Skills({ active, onPress }: Props) {
   const section = useRef<HTMLElement>(null)
   const photo = useRef<HTMLDivElement>(null)
+  const grid = useRef<HTMLDivElement>(null)
+  const hold = useRef<HTMLDivElement>(null)
+  // Skips the scene to its end, so a keyboard never lands on a row not yet written.
+  const finish = useRef<(() => void) | null>(null)
   const [near, setNear] = useState(false)
   const [entered, setEntered] = useState(false)
   const scroll = useRef<RackScroll>({ value: 0.5 })
@@ -100,6 +104,57 @@ export default function Skills({ active, onPress }: Props) {
     }
   }, [reduced, near])
 
+  // The arrival, on a wide screen with motion. While the section comes in,
+  // the rack rises out of the dark and tilts from a flat plan toward the
+  // viewer; then the whole stage holds for a screen while the list writes
+  // itself in, group by group, and lets go into the still layout, which is
+  // all that phones, reduced motion and no script ever see.
+  useEffect(() => {
+    const el = section.current
+    if (!el) return
+    let alive = true
+    let revert = () => {}
+    Promise.all([import('gsap'), import('gsap/ScrollTrigger')]).then(([{ gsap }, { ScrollTrigger }]) => {
+      if (!alive) return
+      gsap.registerPlugin(ScrollTrigger)
+      const mm = gsap.matchMedia()
+      mm.add('(min-width: 40.01rem) and (prefers-reduced-motion: no-preference)', () => {
+        el.classList.add('is-live')
+        const q = gsap.utils.selector(el)
+        // Coming in: from the grid's first edge on screen until it sticks.
+        gsap.timeline({ scrollTrigger: { trigger: grid.current, start: 'top bottom', end: 'top 12%', scrub: 0.6 } })
+          .fromTo(scroll.current, { rise: 0 }, { rise: 1, ease: 'power2.inOut', onUpdate: () => scroll.current.invalidate?.() }, 0)
+          .from(q('.skillset__photo'), { yPercent: 18, opacity: 0, ease: 'power2.out' }, 0)
+        // Held: the stage is stuck for the hold's height while the two groups
+        // on its first screen write themselves in; the rest write in as they
+        // come up after it lets go. ScrollTrigger measures the unstuck page,
+        // where those groups sit a hold higher than they really arrive.
+        const held = () => hold.current?.offsetHeight ?? innerHeight * 0.7
+        const write = gsap.timeline({
+          scrollTrigger: { trigger: grid.current, start: 'top 12%', end: () => `+=${held()}`, scrub: 0.6 },
+        })
+        const rows = (g: Element) => g.querySelectorAll('.skillset__label, .skillset__item')
+        const ink = { opacity: 0, x: -16, clipPath: 'inset(0% 100% 0% 0%)', ease: 'power2.out', duration: 0.6, stagger: 0.12 }
+        q('.skillset__group').forEach((g, i) => {
+          if (i < 2) write.from(rows(g), ink, i)
+          else gsap.from(rows(g), { ...ink, scrollTrigger: { trigger: g, start: () => `top+=${held()} bottom`, end: () => `top+=${held()} 60%`, scrub: 0.6 } })
+        })
+        finish.current = () => {
+          const st = write.scrollTrigger
+          if (st && st.progress < 1) st.scroll(st.end)
+        }
+        ScrollTrigger.refresh()
+        return () => { el.classList.remove('is-live'); finish.current = null }
+      })
+      mm.add('(max-width: 40rem), (prefers-reduced-motion: reduce)', () => {
+        el.classList.add('is-rest')
+        return () => el.classList.remove('is-rest')
+      })
+      revert = () => mm.revert()
+    })
+    return () => { alive = false; revert() }
+  }, [])
+
   // Up and down walk the rows, Home and End jump to either end; every row
   // also stays in the tab order.
   const walk = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -113,8 +168,8 @@ export default function Skills({ active, onPress }: Props) {
   }
 
   return (
-    <section className="skillset" id="skills" aria-labelledby="skills-title" ref={section}>
-      <div className="container skillset__grid">
+    <section className="skillset scene" data-scene="rack-rises" id="skills" aria-labelledby="skills-title" ref={section}>
+      <div className="container skillset__grid" ref={grid}>
         <div className="skillset__photo" ref={photo} aria-hidden="true">
           {near && wide && (
             <Suspense fallback={null}>
@@ -127,7 +182,7 @@ export default function Skills({ active, onPress }: Props) {
           <h2 id="skills-title" data-reveal="head">The stack, one key each.</h2>
           <p className="skillset__lead" data-reveal style={{ '--d': 150 } as CSSProperties}>Press one to see which project uses it.</p>
 
-          <div className="skillset__groups" onKeyDown={walk}>
+          <div className="skillset__groups" onKeyDown={walk} onFocus={() => finish.current?.()}>
             {skillGroups.map((g, gi) => (
               <div className="skillset__group" data-reveal style={{ '--d': 200 + gi * 90 } as CSSProperties} key={g.name}>
                 <h3 className="skillset__label" id={`skills-${g.name}`}>{g.name}</h3>
@@ -159,6 +214,7 @@ export default function Skills({ active, onPress }: Props) {
           </div>
         </div>
       </div>
+      <div className="skillset__hold" ref={hold} aria-hidden="true" />
     </section>
   )
 }
