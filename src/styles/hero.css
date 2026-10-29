@@ -20,7 +20,8 @@
   isolation: isolate; overflow: hidden; cursor: default;
 }
 .hero__controls { position: absolute; left: 20px; bottom: 20px; z-index: 2; display: flex; align-items: center; gap: 8px; }
-.hero__hint { position: absolute; left: 20px; top: 20px; z-index: 2; font-size: var(--step-small); color: var(--ink); }
+/* Just above the controls, clear of the bar and of the name. */
+.hero__hint { position: absolute; left: 20px; bottom: 80px; z-index: 2; font-size: var(--step-small); color: var(--ink); }
 .hint--coarse { display: none; }
 @media (hover: none) { .hint--fine { display: none; } .hint--coarse { display: inline; } }
 html:not(.js) .hero__hint, html:not(.js) .hero__pause { display: none; }
@@ -29,7 +30,8 @@ html:not(.js) .hero__hint, html:not(.js) .hero__pause { display: none; }
 /* The one sentence, at 44% of the height, on the right half's own axis. */
 .hero__words { position: absolute; left: 47%; right: var(--margin); top: 44%; translate: 0 -50%; display: grid; justify-items: center; }
 .hero__sentence { width: min(100%, 26ch); font-size: var(--step-lead); line-height: 1.35; }
-.hero__actions { width: min(100%, 26ch); margin-top: 32px; }
+/* Measured in the sentence's own size, so the button lines up under it. */
+.hero__actions { width: min(100%, 26ch); margin-top: 32px; font-size: var(--step-lead); }
 
 /* The name: a monument that starts over the night's lower right corner and
    runs out into the room, its baseline 40px above the bottom edge. */
