@@ -1,19 +1,10 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import type { Listening } from '../lib/now'
+import { ago } from '../lib/time'
 
 const clock = (ms: number) => {
   const s = Math.max(0, Math.round(ms / 1000))
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
-}
-
-export function ago(iso: string) {
-  const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000)
-  if (mins < 2) return 'just now'
-  if (mins < 60) return `${mins} min ago`
-  const h = Math.round(mins / 60)
-  if (h < 24) return `${h} h ago`
-  const d = Math.round(h / 24)
-  return `${d} day${d === 1 ? '' : 's'} ago`
 }
 
 // The cover's average colour, so the display glows the colour of the record.

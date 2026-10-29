@@ -1,14 +1,17 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { profile } from '../data/profile'
 import { useReducedMotion } from '../lib/hooks'
-import { createNightInput } from '../lib/night'
+import { useLights } from '../lib/lights'
+import { createNightInput, MAX_LIT, nightClock } from '../lib/night'
+import { LeaveLight, TownLights } from './Lights'
 
 const NightScene = lazy(() => import('./canvas/NightScene'))
 
 const year = new Date().getFullYear()
 
 // The page ends where the headline does: then sleep. As the footer scrolls in,
-// the town's windows go dark one by one until only den's amber one is on.
+// the town's windows go dark one by one until only den's amber one is on,
+// and the lights visitors left on.
 export default function Footer() {
   const ref = useRef<HTMLElement>(null)
   const input = useRef(createNightInput())
@@ -17,6 +20,31 @@ export default function Footer() {
   const [still, setStill] = useState(false)
   const reduced = useReducedMotion()
   const running = seen && !reduced && !still
+  const { configured, lights, leave } = useLights(near)
+
+  // Each visitor light keeps the moment it came on, so it never re-flares; a
+  // light just left flares as it lands, when the night is moving to show it.
+  const litAt = useRef(new Map<string, number>())
+  const fresh = useRef<string | null>(null)
+  useEffect(() => {
+    const lit = input.current.lit
+    lit.fill(-1)
+    lights.slice(0, MAX_LIT).forEach((l, i) => {
+      let at = litAt.current.get(l.id)
+      if (at === undefined) {
+        at = l.id === fresh.current && running ? nightClock() : nightClock() - 10
+        litAt.current.set(l.id, at)
+      }
+      lit.set([l.x, l.row, at], i * 3)
+    })
+    input.current.invalidate?.()
+  }, [lights, running])
+
+  const onLeave = useCallback<typeof leave>(async (...args) => {
+    const out = await leave(...args)
+    if (out.light) fresh.current = out.light.id
+    return out
+  }, [leave])
 
   useEffect(() => {
     const el = ref.current
@@ -75,7 +103,10 @@ export default function Footer() {
       <div className="container footer__inner">
         <p className="footer__statement" id="footer-title" data-reveal="head">{profile.closing}</p>
         <a className="footer__email" href={`mailto:${profile.email}`}>{profile.email}</a>
+        {configured && <LeaveLight onLeave={onLeave} />}
       </div>
+
+      <TownLights lights={lights} />
 
       <div className="container">
         <div className="footer__base">
