@@ -5,7 +5,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 
 export type Film = { title: string; year: string; rating: number | null; watched: string; poster: string | null; url: string; rewatch: boolean }
 export type Track = { title: string; artist: string; album: string; art: string | null; url: string; durationMs: number }
-export type Played = { title: string; artist: string; url: string; playedAt: string }
+export type Played = { title: string; artist: string; album: string; art: string | null; url: string; playedAt: string }
 export type Listening = {
   configured: boolean
   playing?: boolean

@@ -19,19 +19,22 @@ type SpotifyTrack = {
 }
 
 export type Track = { title: string; artist: string; album: string; art: string | null; url: string; durationMs: number }
-export type Played = { title: string; artist: string; url: string; playedAt: string }
+export type Played = { title: string; artist: string; album: string; art: string | null; url: string; playedAt: string }
 
-const shape = (t: SpotifyTrack): Track => {
+// The smallest cover at least 300px wide, or the largest there is.
+const cover = (t: SpotifyTrack) => {
   const images = [...t.album.images].sort((a, b) => a.width - b.width)
-  return {
-    title: t.name,
-    artist: t.artists.map((a) => a.name).join(', '),
-    album: t.album.name,
-    art: (images.find((i) => i.width >= 300) ?? images[images.length - 1])?.url ?? null,
-    url: t.external_urls.spotify,
-    durationMs: t.duration_ms,
-  }
+  return (images.find((i) => i.width >= 300) ?? images[images.length - 1])?.url ?? null
 }
+
+const shape = (t: SpotifyTrack): Track => ({
+  title: t.name,
+  artist: t.artists.map((a) => a.name).join(', '),
+  album: t.album.name,
+  art: cover(t),
+  url: t.external_urls.spotify,
+  durationMs: t.duration_ms,
+})
 
 async function accessToken(id: string, secret: string, refresh: string) {
   const res = await fetch('https://accounts.spotify.com/api/token', {
@@ -58,7 +61,7 @@ export async function GET() {
       fetch('https://api.spotify.com/v1/me/player/recently-played?limit=8', { headers: auth }),
     ])
     const history = recent.ok ? ((await recent.json()) as { items: { track: SpotifyTrack; played_at: string }[] }).items : []
-    const played: Played[] = history.map((h) => ({ title: h.track.name, artist: h.track.artists.map((a) => a.name).join(', '), url: h.track.external_urls.spotify, playedAt: h.played_at }))
+    const played: Played[] = history.map((h) => ({ title: h.track.name, artist: h.track.artists.map((a) => a.name).join(', '), album: h.track.album.name, art: cover(h.track), url: h.track.external_urls.spotify, playedAt: h.played_at }))
 
     if (now.status === 200) {
       const body = (await now.json()) as { is_playing: boolean; progress_ms: number | null; item: SpotifyTrack | null; currently_playing_type: string }
