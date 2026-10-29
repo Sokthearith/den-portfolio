@@ -1,8 +1,7 @@
-/* ---------- Work, in the dark room: a deck of cards ---------- */
+/* ---------- Work, in the dark room: two cards for each app ---------- */
 /* Each app is two cards: the app itself, live, and the same app drawn taken
-   apart into its real layers (den's reference clip, held still). On a wide
-   screen each card holds near the top while the next slides up over it, and
-   the one beneath steps back and dims, so the pile shows its top edges. */
+   apart into its real layers (den's reference clip, held still). The page's
+   one transition, the curtain (lib/curtain.ts), is between sections. */
 
 .cases { padding-top: var(--section-gap); }
 .cases__intro {
@@ -12,20 +11,16 @@
 .cases__intro h2 { grid-column: 1 / 8; font: var(--display-weight) var(--step-head)/1 var(--font); letter-spacing: var(--tracking-display); color: var(--ink); }
 .cases__intro p { grid-column: 9 / 13; max-width: 34ch; font-size: var(--step-body); line-height: 1.55; color: var(--ink); }
 
-/* The deck. Cards are panels on the sky; the section itself stays clear. */
-.pile { --top: 88px; --step: 14px; display: grid; gap: var(--space-2xl); padding-inline: var(--margin); }
+/* The cards are panels on the sky; the section itself stays clear. */
+.pile { --top: 88px; display: grid; gap: var(--space-2xl); padding-inline: var(--margin); }
 .pile__inner { position: relative; container-type: inline-size; background: var(--surface); }
-.pile__shade { position: absolute; inset: 0; z-index: 50; background: var(--bg); opacity: 0; pointer-events: none; }
 
+/* On a wide screen each card is about a screen tall, the drawing's card
+   exactly fitting its stage. */
 @media (min-width: 68.76rem) {
-  .pile { gap: 0; }
-  .pile__card {
-    position: sticky; top: calc(var(--top) + var(--c) * var(--step));
-    height: calc(100svh - var(--top) - 4 * var(--step) - var(--margin));
-    margin-bottom: 24svh;
-  }
-  .pile__card:last-child { margin-bottom: 0; }
-  .pile__inner { height: 100%; overflow: hidden; transform-origin: 50% 0; }
+  .pile { gap: var(--space-xl); }
+  .pile__card { height: calc(100svh - var(--top) - var(--margin)); max-height: 980px; }
+  .pile__inner { height: 100%; overflow: hidden; }
 }
 
 /* The app's card: its name, what it is and what it is built with on top,
@@ -69,7 +64,7 @@
    --rise below it and the left one --rise above. */
 .xp {
   --W: 1200px; --H: 700px; --s: 0.3;
-  --stageh: calc(100svh - 88px - 56px - var(--margin));
+  --stageh: min(980px, calc(100svh - 88px - var(--margin)));
   --gap: min(150px, calc((var(--stageh) - 150px - (var(--W) + var(--H)) * 0.5 * var(--s)) / (var(--n) - 1)));
   --reach: calc((var(--W) + var(--H)) * 0.433 * var(--s));
   --rise: calc((var(--W) - var(--H)) * 0.25 * var(--s));

@@ -1,6 +1,4 @@
-import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import type { CSSProperties, ReactNode } from 'react'
 import { projects, type Layer, type Project } from '../data/projects'
 import { skillGroups } from '../data/skills'
 import { LayerDrawing } from './WorkLayers'
@@ -67,10 +65,10 @@ function Screen({ project }: { project: Project }) {
 }
 
 // The first card: the app itself, live, under its name and what it is built with.
-function ScreenCard({ project, active, onPress, index }: { project: Project; index: number } & Press) {
+function ScreenCard({ project, active, onPress }: { project: Project } & Press) {
   const lit = project.uses.includes(active)
   return (
-    <article className="pile__card pile__card--screen" id={project.id} data-lit={lit} aria-labelledby={`${project.id}-name`} style={{ '--c': index } as CSSProperties}>
+    <article className="pile__card pile__card--screen" id={project.id} data-lit={lit} aria-labelledby={`${project.id}-name`}>
       <div className="pile__inner">
         <header className="pile__head">
           <div className="pile__title">
@@ -92,7 +90,6 @@ function ScreenCard({ project, active, onPress, index }: { project: Project; ind
           </dl>
         </header>
         <div className="pile__screen"><Screen project={project} /></div>
-        <div className="pile__shade" aria-hidden="true" />
       </div>
     </article>
   )
@@ -101,12 +98,12 @@ function ScreenCard({ project, active, onPress, index }: { project: Project; ind
 // The second card: the same app drawn taken apart, its layers spread with a
 // label on each, as in a technical drawing. Its screen layer is a picture of
 // the first card's screen, so it is inert.
-function ApartCard({ project, active, index }: { project: Project; active: string; index: number }) {
+function ApartCard({ project, active }: { project: Project; active: string }) {
   const { anatomy } = project
   const n = anatomy.layers.length
   const branchAt = anatomy.branch ? anatomy.layers.findIndex((l) => l.name === anatomy.branch!.from) : -1
   return (
-    <section className="pile__card pile__card--apart" aria-labelledby={`${project.id}-apart`} style={{ '--c': index } as CSSProperties}>
+    <section className="pile__card pile__card--apart" aria-labelledby={`${project.id}-apart`}>
       <div className="pile__inner">
         <div className="xp" data-n={n} style={{ '--n': n } as CSSProperties}>
           <h4 className="xp__fig" id={`${project.id}-apart`}>{anatomy.figure}</h4>
@@ -134,54 +131,22 @@ function ApartCard({ project, active, index }: { project: Project; active: strin
             </div>
           )}
         </div>
-        <div className="pile__shade" aria-hidden="true" />
       </div>
     </section>
   )
 }
 
-// The deck: on a wide screen each card holds near the top while the next
-// slides up over it, and the one beneath steps back a little and darkens, so
-// the cards pile up with their top edges showing. Only transform and opacity
-// move. Reduced motion keeps the pile without the step back; narrow screens
-// simply list the cards.
-const PILE = '(min-width: 68.76rem) and (prefers-reduced-motion: no-preference)'
-
-function useDeck(root: React.RefObject<HTMLElement | null>) {
-  useEffect(() => {
-    const el = root.current
-    if (!el) return
-    gsap.registerPlugin(ScrollTrigger)
-    const ctx = gsap.context(() => {
-      gsap.matchMedia().add(PILE, () => {
-        const cards = gsap.utils.toArray<HTMLElement>('.pile__card', el)
-        cards.slice(0, -1).forEach((card, i) => {
-          const next = cards[i + 1]
-          // The card stays opaque; a shade inside it darkens, so nothing
-          // beneath ever shows through.
-          gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: next, start: 'top bottom', end: () => `top ${parseFloat(getComputedStyle(next).top)}px`, scrub: true, invalidateOnRefresh: true } })
-            .to(card.querySelector('.pile__inner'), { scale: 0.94, force3D: true }, 0)
-            .to(card.querySelector('.pile__shade'), { opacity: 0.6 }, 0)
-        })
-      })
-    }, el)
-    return () => ctx.revert()
-  }, [root])
-}
-
 export default function Work({ active, onPress }: Press) {
-  const ref = useRef<HTMLElement>(null)
-  useDeck(ref)
   return (
-    <section className="cases" id="work" aria-labelledby="work-title" ref={ref}>
+    <section className="cases" id="work" aria-labelledby="work-title">
       <div className="cases__intro">
         <h2 id="work-title" data-reveal="head">Two full-stack apps.</h2>
         <p data-reveal style={delay(150)}>A farm dashboard and a study planner, each with its own API.</p>
       </div>
       <div className="pile">
-        {projects.flatMap((p, i) => [
-          <ScreenCard project={p} active={active} onPress={onPress} index={i * 2} key={`${p.id}-screen`} />,
-          <ApartCard project={p} active={active} index={i * 2 + 1} key={`${p.id}-apart`} />,
+        {projects.flatMap((p) => [
+          <ScreenCard project={p} active={active} onPress={onPress} key={`${p.id}-screen`} />,
+          <ApartCard project={p} active={active} key={`${p.id}-apart`} />,
         ])}
       </div>
     </section>
