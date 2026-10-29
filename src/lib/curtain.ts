@@ -9,9 +9,14 @@ import { useEffect } from 'react'
 // top reaches the top of the screen, which is where the curtain ends), never
 // on the hero's exit (the hero opens into the sky by itself), and not at all
 // under reduced motion, where every section simply scrolls.
+//
+// It needs the section above to fill the screen while it lifts, so it runs
+// only on the home page, and only where both sections are at least a screen
+// tall; short sections in a row (the lab's benches) would each be lifting and
+// uncovered at once, and jump. Those pages keep their own arrivals.
 export function useCurtain(path: string) {
   useEffect(() => {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (path !== '/' || matchMedia('(prefers-reduced-motion: reduce)').matches) return
     let alive = true
     let undo = () => {}
     Promise.all([import('gsap'), import('gsap/ScrollTrigger')]).then(([{ gsap }, { ScrollTrigger }]) => {
@@ -25,6 +30,7 @@ export function useCurtain(path: string) {
         parts.forEach((below, i) => {
           const above = parts[i - 1]
           if (!above || above.matches('.hero')) return
+          if (above.offsetHeight < window.innerHeight || below.offsetHeight < window.innerHeight) return
           const h = () => window.innerHeight
           // Measured on the section above, which never moves, so the trigger's
           // own numbers are never thrown off by the transform it drives.
