@@ -84,6 +84,8 @@
   .contact { min-height: 0; padding-top: 58svh; }
   .contact .night, .town { inset: 0 0 auto; height: 70svh; }
   .card { position: relative; inset: auto; width: auto; margin: 0 var(--margin); }
+  .card__rows > div { flex-direction: column; gap: 0; }
+  .card__rows dd { text-align: left; }
   .close__line { grid-template-columns: 1fr; justify-items: start; gap: 8px; padding-top: 96px; }
   .close__links { justify-content: flex-start; gap: 0 20px; }
   .close__legal { justify-self: start; }
