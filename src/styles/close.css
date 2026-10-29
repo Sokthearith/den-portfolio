@@ -56,18 +56,18 @@
 .leave__form { position: relative; display: grid; gap: 14px; margin-top: 8px; }
 @keyframes fold-in { from { opacity: 0; translate: 0 -6px; } }
 @media (prefers-reduced-motion: no-preference) { .leave__fold[open] .leave__form { animation: fold-in var(--dur-short) var(--ease-out); } }
-.leave__lede { font-size: var(--step-small); color: var(--ink); }
+.leave__lede { font-size: var(--step-body); color: var(--ink); }
 .field { display: grid; gap: 4px; }
-.field__label { font-size: var(--step-small); color: var(--ink); }
+.field__label { font-size: var(--step-body); color: var(--ink); }
 .field__hint { color: var(--muted); }
-.field__input { width: 100%; min-height: 44px; padding: 8px 12px; border: 1px solid var(--muted); border-radius: 0; background: var(--field-1); color: var(--ink); font: inherit; resize: vertical; }
+.field__input { width: 100%; min-height: 44px; padding: 8px 12px; border: 1px solid var(--muted); border-radius: 0; background: var(--field-1); color: var(--ink); font: inherit; resize: vertical; } /* taste-skill-ignore: a real form field keeps its edge */
 .field__input:focus-visible { outline: 2px solid var(--ink); outline-offset: 0; }
-.leave__trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.leave__trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; } /* taste-skill-ignore: the hidden bot trap, not a rule */
 .leave__row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
 .leave__count { font-size: var(--step-small); color: var(--muted); font-variant-numeric: tabular-nums; }
 .leave__count[data-low] { color: var(--ink); font-weight: 500; }
 .leave__status:empty { display: none; }
-.leave__status, .leave__said { margin-top: 8px; font-size: var(--step-small); color: var(--ink); }
+.leave__status, .leave__said { margin-top: 8px; font-size: var(--step-body); color: var(--ink); }
 .leave__said { display: none; }
 .leave__said:target { display: block; }
 
