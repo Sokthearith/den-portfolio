@@ -152,25 +152,30 @@ function useExplodedScenes(root: React.RefObject<HTMLElement | null>) {
           section.classList.add('is-live')
           const slabs = gsap.utils.toArray<HTMLElement>('.xp__layer > .xp__seat > .xp__slab', stage)
           const sides = stage.querySelectorAll('.xp__layer .xp__side')
-          const labels = stage.querySelectorAll('.xp__callout, .xp__branch')
+          const labels = gsap.utils.toArray<HTMLElement>('.xp__callout, .xp__branch', stage)
           const n = slabs.length
+          // Each label's place in the stack, so it can ride in with its layer.
+          const rank = labels.map((l) => parseFloat(getComputedStyle(l.closest('.xp__layer, .xp__branch')!).getPropertyValue('--i')) - (n - 1) / 2)
           // Read the stage's own numbers each refresh, so a resize re-fits it.
           const num = (name: string) => parseFloat(getComputedStyle(stage).getPropertyValue(name))
           const gap = () => Math.min(150, (window.innerHeight - 220 - 950 * num('--s')) / (n - 1))
           const flat = { rotation: 0, skewX: 0, scaleX: () => num('--sf'), scaleY: () => num('--sf'), y: 0 }
-          const drawn = { rotation: 30, skewX: -30, scaleX: () => num('--s'), scaleY: () => num('--s') * 0.864 }
+          // Closed, the drawing comes in close (--sc); as it opens it steps
+          // back to the drawing's own scale (--s) so every layer fits.
+          const close = { rotation: 30, skewX: -30, scaleX: () => num('--sc'), scaleY: () => num('--sc') * 0.864 }
+          const drawn = { scaleX: () => num('--s'), scaleY: () => num('--s') * 0.864 }
           // The slabs' starting state lives in the timeline (fromTo), so a
           // refresh, which reverts and replays it, lands back on it; the labels
           // and edges start hidden in CSS while the scene is live.
           gsap.timeline({ defaults: { ease: 'power2.inOut' }, scrollTrigger: { trigger: section, start: 'top top', end: 'bottom bottom', scrub: 0.5, invalidateOnRefresh: true } })
-            .fromTo(slabs, { xPercent: -50, yPercent: -50, skewType: 'simple', force3D: true, ...flat }, { ...drawn, duration: 0.15 }, 0.08)
-            .to(sides, { autoAlpha: 1, duration: 0.1, ease: 'none' }, 0.13)
-            .to(slabs, { y: (i: number) => (i - (n - 1) / 2) * gap(), duration: 0.2 }, 0.24)
-            .fromTo(labels, { x: -12 }, { autoAlpha: 1, x: 0, duration: 0.07, stagger: 0.025, ease: 'power1.out' }, 0.36)
-            .to(labels, { autoAlpha: 0, duration: 0.04, ease: 'none' }, 0.6)
-            .to(slabs, { y: 0, duration: 0.16 }, 0.62)
-            .to(sides, { autoAlpha: 0, duration: 0.08, ease: 'none' }, 0.8)
-            .to(slabs, { ...flat, duration: 0.12 }, 0.8)
+            .fromTo(slabs, { xPercent: -50, yPercent: -50, skewType: 'simple', force3D: true, ...flat }, { ...close, duration: 0.12 }, 0.05)
+            .to(sides, { autoAlpha: 1, duration: 0.03, ease: 'none' }, 0.15)
+            .to(slabs, { ...drawn, y: (i: number) => (i - (n - 1) / 2) * gap(), duration: 0.18 }, 0.17)
+            .fromTo(labels, { y: (i: number) => -rank[i] * gap() * 0.5 }, { autoAlpha: 1, y: 0, duration: 0.12, stagger: 0.015, ease: 'power2.out' }, 0.22)
+            .to(labels, { autoAlpha: 0, duration: 0.04, ease: 'none' }, 0.7)
+            .to(slabs, { ...close, y: 0, duration: 0.13 }, 0.71)
+            .to(sides, { autoAlpha: 0, duration: 0.02, ease: 'none' }, 0.84)
+            .to(slabs, { ...flat, duration: 0.1 }, 0.84)
             .to({}, { duration: 0.08 }, 0.92)
         })
         ScrollTrigger.refresh()
