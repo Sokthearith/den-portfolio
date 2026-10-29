@@ -4,6 +4,7 @@ import { ShaderMaterial, Vector2, Vector3 } from 'three'
 import { tokenRGB } from '../../lib/tokens'
 import { MAX_LIT, nightClock, type NightInput } from '../../lib/night'
 import { useTheme } from '../../lib/theme'
+import { isSoftware } from '../../lib/gpu'
 
 // The night drawn as light: slow ribbons over a low horizon and a far row of
 // lit windows, one of them amber. One full-screen shader, transparent, over
@@ -12,13 +13,6 @@ import { useTheme } from '../../lib/theme'
 export const HORIZON = 0.18
 const START_TIME = 40 // a settled frame for the still and reduced-motion views
 
-// Without a GPU the browser draws WebGL on the CPU; there the night stays still.
-const SOFTWARE = /swiftshader|llvmpipe|softpipe|software|basic render/i
-function isSoftware(gl: WebGLRenderingContext | WebGL2RenderingContext) {
-  const info = gl.getExtension('WEBGL_debug_renderer_info')
-  const name = info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)
-  return SOFTWARE.test(String(name))
-}
 
 const vertex = /* glsl */ `
   void main() { gl_Position = vec4(position.xy, 0.0, 1.0); }

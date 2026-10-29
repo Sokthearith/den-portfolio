@@ -4,6 +4,7 @@ import { Environment, Lightformer, OrbitControls, RoundedBox, Text } from '@reac
 import { Color, MathUtils, SRGBColorSpace, type Group, type PerspectiveCamera } from 'three'
 import { skillGroups } from '../../data/skills'
 import { tokenRGB } from '../../lib/tokens'
+import { isSoftware } from '../../lib/gpu'
 
 // The stack as a rack of machined keys, one light from above. A pressed key
 // sits low with its index line lit in the accent; the list beside the canvas
@@ -188,17 +189,20 @@ function Fit({ width, depth, scroll }: { width: number; depth: number; scroll: R
   const camera = useThree((s) => s.camera) as PerspectiveCamera
   const size = useThree((s) => s.size)
   const invalidate = useThree((s) => s.invalidate)
+  const gl = useThree((s) => s.gl)
+  // Without a GPU the rack holds its resting view and the scroll never redraws it.
+  const still = useMemo(() => isSoftware(gl.getContext()), [gl])
 
   useEffect(() => {
     const sc = scroll.current
-    sc.invalidate = invalidate
+    if (!still) sc.invalidate = invalidate
     invalidate()
     return () => { sc.invalidate = undefined }
-  }, [scroll, invalidate, size])
+  }, [scroll, invalidate, size, still])
 
   useFrame(() => {
-    const p = scroll.current.value
-    const rise = scroll.current.rise ?? 1
+    const p = still ? 0.5 : scroll.current.value
+    const rise = still ? 1 : scroll.current.rise ?? 1
     const tilt = MathUtils.lerp(TILT_FLAT, MathUtils.lerp(TILT_IN, TILT_OUT, p), rise)
     const aspect = size.width / size.height
     const v = Math.tan(MathUtils.degToRad(FOV) / 2)
