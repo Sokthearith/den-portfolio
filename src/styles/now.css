@@ -3,7 +3,7 @@
    records hang in the dark round the heading, each drifting at its own rate
    as the band passes. Beneath it, in two columns, what they are. */
 
-.nowroom { padding-block: 0 var(--section-gap); padding-inline: var(--margin); }
+.nowroom { padding-block: var(--section-gap) 0; padding-inline: var(--margin); }
 
 .nowroom__band { display: flex; justify-content: center; }
 .nowroom__stage { position: relative; width: min(100%, clamp(680px, 60vw, 880px)); aspect-ratio: 100 / 105; }

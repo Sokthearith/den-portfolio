@@ -1,7 +1,7 @@
 /* ---------- The close: the town at night, one lit card on it ---------- */
 
-/* Sections own the gap above them; the close follows Now's. */
-.close { margin-top: 0; }
+/* Sections own the gap above them. */
+.close { margin-top: var(--section-gap); }
 
 .contact { --horizon: 26%; position: relative; isolation: isolate; min-height: 100svh; }
 /* The windows go out as it scrolls in; the card is the one lit thing left. */
