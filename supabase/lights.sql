@@ -23,3 +23,7 @@ create index if not exists lights_approved_created on public.lights (approved, c
 create index if not exists lights_ip_created on public.lights (ip_hash, created_at desc);
 
 alter table public.lights enable row level security;
+
+-- Newer projects don't hand new tables to the API roles on their own. The site
+-- only reads and adds; approving and deleting happen in the dashboard.
+grant select, insert on table public.lights to service_role;
