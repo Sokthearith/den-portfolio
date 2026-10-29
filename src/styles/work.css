@@ -195,3 +195,6 @@
   [data-ui] .pf__meta { grid-column: 1 / -1; }
   [data-ui] .pf__priority { grid-column: 2; grid-row: 2; }
 }
+
+/* Sections own the gap above them, so the last case leaves Skills its own. */
+.case:last-of-type .case__more { padding-bottom: 0; }

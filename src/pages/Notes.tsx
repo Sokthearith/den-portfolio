@@ -12,7 +12,6 @@ export default function Notes() {
       </section>
       <section className="notes">
         <div className="container">
-          <div className="horizon" aria-hidden="true" />
           {notes.length === 0 ? (
             <p className="notes__empty">The first notes are still being written.</p>
           ) : (
