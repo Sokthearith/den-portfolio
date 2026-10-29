@@ -13,7 +13,8 @@ const FEED = `https://letterboxd.com/${USER}/rss/`
 export type Film = { title: string; year: string; rating: number | null; watched: string; poster: string | null; url: string; rewatch: boolean }
 
 const tag = (item: string, name: string) => item.match(new RegExp(`<${name}>([\\s\\S]*?)</${name}>`))?.[1]?.trim() ?? ''
-const decode = (s: string) => s.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;|&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+// &amp; goes last, so "&amp;lt;" ends as the text "&lt;", not "<".
+const decode = (s: string) => s.replace(/&quot;/g, '"').replace(/&#039;|&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
 
 export function parseFilms(xml: string, limit = 4): Film[] {
   return [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)]

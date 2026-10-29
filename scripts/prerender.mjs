@@ -18,13 +18,16 @@ const seedTag = `<script id="now-seed" type="application/json">${JSON.stringify(
 
 const attr = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
 
+// Replacements go in as functions, so a `$$` or `$'` in a note or a film title
+// stays text instead of being read as a replace pattern.
 for (const route of routes) {
   const html = shell
-    .replace(/<title>.*?<\/title>/, `<title>${attr(route.title)}</title>`)
-    .replace(/(<meta name="description" content=")[^"]*(")/, `$1${attr(route.description)}$2`)
-    .replace(/(<meta property="og:title" content=")[^"]*(")/, `$1${attr(route.title)}$2`)
-    .replace(/(<meta property="og:url" content="https:\/\/[^/"]+)\/[^"]*(")/, `$1${route.path === '/' ? '/' : route.path}$2`)
-    .replace('<div id="root"></div>', `<div id="root" data-route="${route.path}">${render(route.path, seed)}</div>${seedTag}`)
+    .replace(/<title>.*?<\/title>/, () => `<title>${attr(route.title)}</title>`)
+    .replace(/(<meta name="description" content=")[^"]*(")/, (_, a, b) => `${a}${attr(route.description)}${b}`)
+    .replace(/(<meta property="og:title" content=")[^"]*(")/, (_, a, b) => `${a}${attr(route.title)}${b}`)
+    .replace(/(<meta property="og:description" content=")[^"]*(")/, (_, a, b) => `${a}${attr(route.description)}${b}`)
+    .replace(/(<meta property="og:url" content="https:\/\/[^/"]+)\/[^"]*(")/, (_, a, b) => `${a}${route.path}${b}`)
+    .replace('<div id="root"></div>', () => `<div id="root" data-route="${route.path}">${render(route.path, seed)}</div>${seedTag}`)
   const out = resolve(dist, route.file)
   await mkdir(dirname(out), { recursive: true })
   await writeFile(out, html)
