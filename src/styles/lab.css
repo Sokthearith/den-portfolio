@@ -87,3 +87,47 @@
 .loose__key[aria-pressed="true"] { background: var(--surface); color: var(--ink); }
 .loose__key:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
 @media (max-width: 40rem) { .loose__stage { display: none; } .loose__key { padding: 0 12px; } }
+
+/* Night sums: the sum on the dark, a sleeping town beneath it, and every
+   right answer one of its windows in the amber. The clock is a thin line
+   that burns down from the right. */
+.sums { min-width: 0; }
+.sums__top { display: flex; justify-content: space-between; align-items: baseline; font-size: var(--step-body); font-variant-numeric: tabular-nums; }
+.sums__clock { font-weight: 500; color: var(--ink); }
+.sums__best { color: var(--muted); }
+.sums__bonus { margin-left: 10px; color: var(--accent); animation: sums-bonus 1.2s var(--ease-out) forwards; }
+@keyframes sums-bonus { 0% { opacity: 0; } 15% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
+:root[data-theme="dawn"] .sums__bonus { color: var(--color-focus); }
+/* By day the town stands a step darker than the paper, its windows still dark until lit. */
+:root[data-theme="dawn"] .sums__block { fill: var(--surface-2); }
+:root[data-theme="dawn"] .sums__win:not([data-lit]) { fill: var(--surface); }
+.sums__time { height: 2px; margin-top: 12px; background: var(--surface-2); }
+.sums__time::before { content: ""; display: block; height: 100%; width: calc(var(--left, 1) * 100%); background: var(--ink); }
+.sums[data-phase="on"] .sums__time::before { background: color-mix(in oklch, var(--ink), var(--accent) calc((1 - var(--left, 1)) * 100%)); }
+
+.sums__board { display: grid; align-items: center; min-height: 11rem; padding-block: 32px; }
+.sums__ask { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 20px; }
+.sums__sum { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 300; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: var(--ink); white-space: nowrap; }
+.sums__answer {
+  width: 4.2ch; min-height: 44px; padding: 0 0 4px; border: 0; border-bottom: 2px solid var(--muted); border-radius: 0; background: none;
+  color: var(--ink); font: 300 clamp(2.5rem, 6vw, 4.5rem)/1 var(--font); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; caret-color: var(--accent);
+}
+.sums__answer:focus { outline: none; border-bottom-color: var(--accent); }
+.sums__level { flex-basis: 100%; font-size: var(--step-body); color: var(--muted); }
+.sums__rest { display: grid; justify-items: start; gap: 20px; }
+.sums__rest p { max-width: 34ch; font-size: var(--step-lead); line-height: 1.4; color: var(--ink); }
+.sums__rest strong { font-weight: 500; }
+
+.sums__town { display: block; width: 100%; height: auto; }
+.sums__block { fill: var(--surface); }
+.sums__ground { fill: var(--surface-2); }
+.sums__win { fill: var(--surface-2); transition: fill var(--dur-long) var(--ease-out); }
+.sums__win[data-lit] { fill: var(--accent); }
+
+/* The pad stands in for the phone's keyboard, so the town stays in view. */
+.sums__pad { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 20px; }
+.sums__key { min-height: 52px; border: 0; border-radius: var(--radius); background: var(--surface); color: var(--ink); font: 400 var(--step-lead)/1 var(--font); font-variant-numeric: tabular-nums; cursor: pointer; touch-action: manipulation; }
+.sums__key:active { background: var(--surface-2); }
+.sums__key[data-key="go"] { background: var(--accent); color: var(--accent-ink); }
+.sums__key:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+@media (prefers-reduced-motion: reduce) { .sums__win { transition: none; } .sums__bonus { animation: none; } }

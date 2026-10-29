@@ -57,6 +57,7 @@ export default function Palette() {
       },
       { id: 'email', label: 'Write me an email', kind: 'Action', keywords: 'contact hire mail', run: () => { location.href = `mailto:${profile.email}` } },
       { id: 'github', label: 'Open GitHub', kind: 'Link', keywords: 'code repositories', run: () => { window.open(profile.links.github, '_blank', 'noopener') } },
+      { id: 'sums', label: 'Play Night sums', kind: 'Action', keywords: 'game maths math lab', run: () => { location.href = '/lab#sums' } },
       { id: 'linkedin', label: 'Open LinkedIn', kind: 'Link', keywords: 'profile cv', run: () => { window.open(profile.links.linkedin, '_blank', 'noopener') } },
       { id: 'theme', label: theme === 'dawn' ? 'Back to night' : 'Switch to dawn', kind: 'Action', keywords: 'theme light dark mode', run: toggleTheme },
       { id: 'sound', label: sound.playing ? 'Stop the night sounds' : 'Play the night sounds', kind: 'Action', keywords: 'rain wind audio listen music', run: () => { toggleSound() } },
