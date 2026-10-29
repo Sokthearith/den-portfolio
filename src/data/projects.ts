@@ -1,8 +1,29 @@
 // Your projects. Put the best one first. `uses` lists the skills from
 // skills.ts that this project is built with; `stack` is everything shown.
-// Each case shows how it works: `system` draws the parts and what flows
-// between them, `flow` numbers the steps of its one clever job.
+// Each case shows how it works: `system` lists the parts a reading passes
+// through, `flow` the steps of its one clever job. `screen` is the sample
+// data its interface fragment shows, until there are screenshots.
 export type Part = { name: string; detail: string; uses?: string[] }
+
+// Agrix's dashboard: one reading against the app's default thresholds
+// (backend/src/config/env.js), and the soil moisture over the last day.
+export type AgrixScreen = {
+  kind: 'agrix'
+  farm: string
+  reading: { moisture: number; temperature: number; ph: number }
+  thresholds: { moisture: number; ph: number; temperature: number }
+  moistureDay: number[]
+}
+
+// Planify's week: the tasks its local planner places, with the planning
+// preferences it honours.
+export type PlanTask = { name: string; subject: string; priority: 'high' | 'medium' | 'low'; due: number; hours: number; group?: boolean }
+export type PlanifyScreen = {
+  kind: 'planify'
+  window: [start: string, end: string]
+  sessionMinutes: number
+  tasks: PlanTask[]
+}
 
 export type Project = {
   id: string
@@ -13,6 +34,7 @@ export type Project = {
   github: string
   system?: { caption: string; parts: Part[]; branch: Part & { from: number } }
   flow?: { caption: string; steps: Part[] }
+  screen?: AgrixScreen | PlanifyScreen
   // Screenshots go here once you have them, e.g.
   // { src: '/work/agrix/dashboard.png', alt: 'The Agrix dashboard with one farm open' }
   images?: { src: string; alt: string }[]
@@ -39,6 +61,15 @@ export const projects: Project[] = [
       ],
       branch: { from: 1, name: 'Telegram', detail: 'alerts on bad readings' },
     },
+    // Sample: one dry evening on one field. 27% is under the 30% line, so
+    // the app's own rule takes 20 off the health score and asks for water.
+    screen: {
+      kind: 'agrix',
+      farm: 'Field B',
+      reading: { moisture: 27, temperature: 29.4, ph: 6.2 },
+      thresholds: { moisture: 30, ph: 5.5, temperature: 35 },
+      moistureDay: [41, 41, 40, 40, 39, 39, 38, 38, 37, 36, 35, 34, 33, 33, 32, 32, 31, 31, 30, 30, 29, 28, 28, 27],
+    },
     github: 'https://github.com/Sokthearith/Agrix01',
   },
   {
@@ -57,6 +88,21 @@ export const projects: Project[] = [
         { name: 'Gemini drafts it', detail: 'from your tasks and deadlines' },
         { name: 'The API checks it', detail: 'and falls back to a local plan', uses: ['Node.js', 'Express', 'JavaScript'] },
         { name: 'Every tab gets it', detail: 'saved in MySQL, pushed by Socket.IO', uses: ['MySQL', 'React'] },
+      ],
+    },
+    // Sample: a student's week of coursework, evenings after class. `due` is
+    // the weekday it is due, Monday = 0.
+    screen: {
+      kind: 'planify',
+      window: ['17:00', '21:00'],
+      sessionMinutes: 60,
+      tasks: [
+        { name: 'Linked list lab', subject: 'Data structures', priority: 'high', due: 2, hours: 3 },
+        { name: 'ER diagram for the library system', subject: 'Databases', priority: 'high', due: 3, hours: 2 },
+        { name: 'Sprint review notes', subject: 'Group project', priority: 'medium', due: 4, hours: 1, group: true },
+        { name: 'Read chapter 4: processes', subject: 'Operating systems', priority: 'medium', due: 4, hours: 2 },
+        { name: 'Probability practice quiz', subject: 'Statistics', priority: 'low', due: 3, hours: 1 },
+        { name: 'Essay outline', subject: 'English', priority: 'low', due: 4, hours: 1.5 },
       ],
     },
     github: 'https://github.com/Sokthearith/Planify',

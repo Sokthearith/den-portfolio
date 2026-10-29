@@ -1,108 +1,88 @@
 import type { CSSProperties } from 'react'
 import { projects, type Part, type Project } from '../data/projects'
 import { skillGroups } from '../data/skills'
+import { AgrixScreenView, PlanifyScreenView } from './WorkScreens'
+import '../styles/work.css'
 
 const keys = new Set(skillGroups.flatMap((g) => g.skills))
 const lights = (part: Part, active: string) => Boolean(part.uses?.includes(active))
-const order = (i: number) => ({ '--i': i }) as CSSProperties
+const delay = (ms: number) => ({ '--d': ms }) as CSSProperties
 
 type Press = { active: string; onPress: (name: string) => void }
 
-// How a reading moves through Agrix: the parts left to right on one rail,
-// with the alert branching off the API. On arrival the rail draws itself and
-// one amber pulse runs its length.
-function System({ system, active }: { system: NonNullable<Project['system']> } & Pick<Press, 'active'>) {
-  const { caption, parts, branch } = system
+// One part of how the app works: lit like a window when it runs on the
+// pressed key.
+function Row({ part, active, extra }: { part: Part; active: string; extra?: string }) {
   return (
-    <figure className="system" data-reveal="system" aria-label={`${caption}: ${parts.map((p) => p.name).join(', then ')}, with ${branch.name} off the ${parts[branch.from].name}`}>
-      <figcaption className="panel__caption">{caption}</figcaption>
-      <div className="system__track">
-        <ol className="system__parts">
-          {parts.map((p, i) => (
-            <li className="part" data-lit={lights(p, active)} style={order(i)} key={p.name}>
-              <span className="part__rail" aria-hidden="true" />
-              <span className="part__name">{p.name}</span>
-              <span className="part__detail">{p.detail}</span>
-            </li>
-          ))}
-        </ol>
-        <span className="system__pulse" aria-hidden="true" />
-      </div>
-      <div className="part system__branch" data-lit={lights(branch, active)} style={{ '--from': branch.from, '--i': parts.length } as CSSProperties}>
-        <span className="part__rail" aria-hidden="true" />
-        <span className="part__name">{branch.name}</span>
-        <span className="part__detail">{branch.detail}</span>
-      </div>
-    </figure>
+    <li className="case__part" data-lit={lights(part, active)}>
+      <span className="case__part-name">{part.name}</span>
+      <span className="case__part-detail">{part.detail}{extra}</span>
+    </li>
   )
 }
 
-function Flow({ flow, active }: { flow: NonNullable<Project['flow']> } & Pick<Press, 'active'>) {
-  return (
-    <figure className="flow" data-reveal="flow">
-      <figcaption className="panel__caption">{flow.caption}</figcaption>
-      <ol className="flow__steps">
-        {flow.steps.map((s, i) => (
-          <li className="part step" data-lit={lights(s, active)} style={order(i)} key={s.name}>
-            <span className="part__rail" aria-hidden="true" />
-            <span className="part__name">{s.name}</span>
-            <span className="part__detail">{s.detail}</span>
-          </li>
-        ))}
-      </ol>
-    </figure>
-  )
-}
-
-// A chip naming a key on the rack presses that key; the rest are plain tags.
-function Chip({ item, active, onPress }: { item: string } & Press) {
-  if (!keys.has(item)) return <li className="chip" data-lit={item === active}>{item}</li>
+// A stack item that names a key on the rack presses it; the rest are words.
+function StackItem({ item, active, onPress }: { item: string } & Press) {
+  if (!keys.has(item)) return <li className="case__item">{item}</li>
   return (
     <li>
-      <button className="chip chip--key" type="button" aria-pressed={item === active} data-lit={item === active} onClick={() => onPress(item)}>
+      <button className="case__key" type="button" aria-pressed={item === active} onClick={() => onPress(item)}>
         {item}
       </button>
     </li>
   )
 }
 
-function ProjectCase({ project, active, onPress, flip }: { project: Project; flip: boolean } & Press) {
+// A plate: the app's own screen fills the frame, and the same row crosses it
+// at half height on every plate, so scrolling turns them like pages. What it
+// does and how it is built slides up over it.
+function Case({ project, active, onPress }: { project: Project } & Press) {
   const lit = project.uses.includes(active)
+  const { system, flow, screen } = project
   return (
-    <article className={`project${flip ? ' project--flip' : ''}`} id={project.id} data-lit={lit} aria-labelledby={`${project.id}-name`}>
-      {project.images && project.images.length > 0 && (
-        <div className="project__shots" data-reveal>
-          {project.images.map((img, i) => (
-            <figure className="project__shot" data-slot={`${project.id}-${i + 1}`} data-kind="product" key={img.src}>
-              <img src={img.src} alt={img.alt} loading="lazy" width="2880" height="1800" />
-            </figure>
+    <article className="case" id={project.id} data-lit={lit} aria-labelledby={`${project.id}-name`}>
+      <div className="case__plate">
+        <div className="case__screen" data-kind={screen?.kind}>
+          {screen?.kind === 'agrix' && <AgrixScreenView screen={screen} />}
+          {screen?.kind === 'planify' && <PlanifyScreenView screen={screen} />}
+        </div>
+        <div className="case__row">
+          <h3 className="case__name" id={`${project.id}-name`}>{project.name}</h3>
+          <p className="case__line">{project.line}</p>
+          <a className="case__code" href={project.github} target="_blank" rel="noreferrer">Code on GitHub</a>
+        </div>
+      </div>
+
+      <div className="case__more">
+        {system && (
+          <div className="case__how" data-reveal>
+            <h4 className="case__caption">{system.caption}</h4>
+            <ol className="case__parts">
+              {system.parts.map((p) => <Row part={p} active={active} key={p.name} />)}
+              <Row part={system.branch} active={active} extra={`, off the ${system.parts[system.branch.from].name}`} />
+            </ol>
+          </div>
+        )}
+        {flow && (
+          <div className="case__how" data-reveal>
+            <h4 className="case__caption">{flow.caption}</h4>
+            <ol className="case__parts">
+              {flow.steps.map((s) => <Row part={s} active={active} key={s.name} />)}
+            </ol>
+          </div>
+        )}
+        <dl className="case__stack" data-reveal style={delay(120)}>
+          {project.stack.map((row) => (
+            <div className="case__stack-row" key={row.label}>
+              <dt>{row.label}</dt>
+              <dd>
+                <ul className="case__items">
+                  {row.items.map((item) => <StackItem item={item} active={active} onPress={onPress} key={item} />)}
+                </ul>
+              </dd>
+            </div>
           ))}
-        </div>
-      )}
-
-      <div className="project__body">
-        <div className="project__intro" data-reveal="fade">
-          <h3 className="project__name" id={`${project.id}-name`}>{project.name}</h3>
-          <p className="project__line">{project.line}</p>
-          <a className="project__link" href={project.github} target="_blank" rel="noreferrer">Code on GitHub</a>
-        </div>
-
-        <div className="panel project__panel" data-reveal style={{ '--d': 120 } as CSSProperties}>
-          {project.system && <System system={project.system} active={active} />}
-          {project.flow && <Flow flow={project.flow} active={active} />}
-          <dl className="project__stack">
-            {project.stack.map((row) => (
-              <div className="project__row" key={row.label}>
-                <dt>{row.label}</dt>
-                <dd>
-                  <ul className="chips">
-                    {row.items.map((item) => <Chip item={item} active={active} onPress={onPress} key={item} />)}
-                  </ul>
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </div>
+        </dl>
       </div>
     </article>
   )
@@ -110,17 +90,12 @@ function ProjectCase({ project, active, onPress, flip }: { project: Project; fli
 
 export default function Work({ active, onPress }: Press) {
   return (
-    <section className="work" id="work" aria-labelledby="work-title">
-      <div className="container">
-        <div className="horizon" aria-hidden="true" />
-        <div className="work__head">
-          <h2 id="work-title" data-reveal="head">Two full-stack apps.</h2>
-          <p className="lead" data-reveal style={{ '--d': 150 } as CSSProperties}>A farm dashboard and a study planner, each with its own API.</p>
-        </div>
-        {projects.map((p, i) => (
-          <ProjectCase project={p} active={active} onPress={onPress} flip={i % 2 === 1} key={p.id} />
-        ))}
+    <section className="cases" id="work" aria-labelledby="work-title">
+      <div className="cases__intro">
+        <h2 id="work-title" data-reveal="head">Two full-stack apps.</h2>
+        <p data-reveal style={delay(150)}>A farm dashboard and a study planner, each with its own API.</p>
       </div>
+      {projects.map((p) => <Case project={p} active={active} onPress={onPress} key={p.id} />)}
     </section>
   )
 }

@@ -1,0 +1,197 @@
+/* ---------- Work, in the dark room: each app a plate ---------- */
+/* Full panels, one midline row (dark-room sheet §7.1). Each app's own screen
+   fills a screen-tall plate; the same row crosses every plate at half height,
+   on a band of the ground, so scrolling turns the plates like pages. The
+   plate holds while what the app does and how it is built slides over it. */
+
+.cases { padding-top: var(--section-gap); }
+.cases__intro {
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); align-items: end;
+  padding-inline: var(--margin); margin-bottom: calc(var(--section-gap) / 2);
+}
+.cases__intro h2 { grid-column: 1 / 8; font: var(--display-weight) var(--step-head)/1 var(--font); letter-spacing: var(--tracking-display); color: var(--ink); }
+.cases__intro p { grid-column: 9 / 13; max-width: 34ch; font-size: var(--step-body); line-height: 1.55; color: var(--ink); }
+
+.case { position: relative; }
+.case__plate { position: sticky; top: 0; height: 100svh; overflow: hidden; background: var(--bg); }
+.case__screen { position: absolute; inset: 0; }
+
+/* The row: name, what it is, where the code is. It never moves. */
+.case__row {
+  position: absolute; left: 0; right: 0; top: calc(50% - 45px); z-index: 1; height: 90px;
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); align-items: center;
+  padding-inline: var(--margin); background: var(--bg);
+}
+.case__name { grid-column: 1 / 4; display: flex; align-items: center; gap: 14px; font: var(--display-weight) var(--step-lead)/1.1 var(--font); letter-spacing: -0.01em; color: var(--ink); }
+/* The project's window: dark until a key it is built with is pressed. */
+.case__name::before { content: ""; flex: none; width: 10px; height: 10px; background: var(--surface-2); transition: background-color var(--dur-short) var(--ease-out); }
+.case[data-lit="true"] .case__name::before { background: var(--accent); }
+.case__line { grid-column: 4 / 10; font-size: var(--step-body); line-height: 1.4; color: var(--ink); }
+.case__code { grid-column: 10 / 13; justify-self: end; display: inline-flex; align-items: center; min-height: 44px; font-size: var(--step-body); font-weight: 500; color: var(--ink); text-decoration: underline; text-decoration-color: var(--muted); text-underline-offset: 0.25em; transition: text-decoration-color var(--dur-short) var(--ease-out); }
+.case__code:hover { text-decoration-color: var(--ink); }
+.case__code:focus-visible, .case__key:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
+
+/* The screen is cropped tighter than the plate: it starts in from the left,
+   runs off the right, and its own gap sits under the row. */
+.case__screen > [data-ui] { position: absolute; left: calc(var(--margin) + 8vw); top: calc(50% - 45px - var(--upper)); width: 1360px; min-height: calc(var(--upper) + 50svh + 45px); }
+
+/* What it does and how it is built, rising over the held plate. */
+.case__more {
+  position: relative; z-index: 2;
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); row-gap: var(--space-2xl);
+  padding: calc(var(--section-gap) / 2) var(--margin) var(--section-gap); background: var(--bg);
+}
+.case__how { grid-column: 1 / 7; }
+.case__stack { grid-column: 8 / 13; margin: 0; }
+.case__caption { margin-bottom: var(--space-lg); font: 400 var(--step-lead)/1.2 var(--font); color: var(--ink); }
+.case__parts { display: grid; gap: var(--space-lg); margin: 0; padding: 0; list-style: none; }
+.case__part { display: grid; grid-template-columns: 10px minmax(0, 1fr); column-gap: 18px; row-gap: var(--space-2xs); }
+.case__part::before { content: ""; grid-row: 1; align-self: center; width: 10px; height: 10px; background: var(--surface-2); transition: background-color var(--dur-short) var(--ease-out); }
+.case__part[data-lit="true"]::before { background: var(--accent); }
+.case__part-name { grid-column: 2; font: var(--display-weight) var(--step-lead)/1.2 var(--font); color: var(--ink); }
+.case__part-detail { grid-column: 2; font-size: var(--step-body); line-height: 1.5; color: var(--muted); }
+
+.case__stack-row { display: grid; grid-template-columns: 7rem minmax(0, 1fr); column-gap: var(--gap-columns); align-items: baseline; }
+.case__stack-row + .case__stack-row { margin-top: var(--space-md); }
+.case__stack-row dt { font-size: var(--step-body); color: var(--muted); }
+.case__stack-row dd { margin: 0; }
+.case__items { display: flex; flex-wrap: wrap; gap: 0 var(--space-lg); margin: 0; padding: 0; list-style: none; }
+.case__item { display: inline-flex; align-items: center; min-height: 44px; font-size: var(--step-body); color: var(--muted); }
+/* A key on the rack: its own small window, lit while it is pressed. */
+.case__key { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0; border: 0; background: none; font: inherit; font-size: var(--step-body); color: var(--ink); cursor: pointer; }
+.case__key::before { content: ""; width: 10px; height: 10px; background: var(--surface-2); transition: background-color var(--dur-short) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
+.case__key:hover::before { background: var(--muted); }
+.case__key:active::before { transform: scale(0.8); }
+.case__key[aria-pressed="true"]::before { background: var(--accent); }
+
+@media (max-width: 60rem) {
+  .cases__intro h2, .cases__intro p { grid-column: 1 / -1; }
+  .cases__intro p { margin-top: var(--space-md); }
+  .case__how, .case__stack { grid-column: 1 / -1; }
+}
+
+/* On a phone the plate is shorter and does not hold: the screen fills it
+   above the row, which sits at its foot on its own ground, so nothing ever
+   lies over the screen's words. */
+@media (max-width: 40rem) {
+  .case__plate { position: relative; display: flex; flex-direction: column; height: 82svh; }
+  .case__screen { position: relative; inset: auto; flex: 1; min-height: 0; overflow: hidden; }
+  .case__row { position: static; height: auto; grid-template-columns: minmax(0, 1fr) auto; row-gap: var(--space-2xs); padding-block: var(--space-md) 20px; }
+  .case__name { grid-column: 1 / -1; }
+  .case__line { grid-column: 1; }
+  .case__code { grid-column: 2; align-self: end; }
+  /* It starts below the bar the site's navigation takes at the top. */
+  .case__screen > [data-ui] { left: var(--margin); right: var(--margin); top: 72px; width: auto; min-height: 0; }
+  .case__more { padding-top: var(--space-2xl); }
+  .case__stack-row { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { .case__key::before { transition: none; } .case__key:active::before { transform: none; } }
+
+/* ---------- The screens: pieces of the apps' own interfaces ---------- */
+/* Inside [data-ui] the apps' own conventions hold: their small radii, their
+   1px control borders. */
+
+[data-ui]:is(.ax, .pf) {
+  container-type: inline-size;
+  background: var(--surface); color: var(--ink);
+  font: 400 15px/1.4 var(--font), "Noto Sans Khmer", "Khmer OS", sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+[data-ui] :is(p, ol, ul, dl, dd) { margin: 0; }
+[data-ui] button { font: inherit; color: inherit; cursor: pointer; }
+[data-ui] button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+/* Agrix: the farm dashboard, one dry evening. */
+[data-ui].ax { --upper: 320px; }
+[data-ui] .ax__upper { box-sizing: border-box; height: var(--upper); display: grid; grid-template-rows: 60px auto 1fr; row-gap: 14px; padding: 0 32px 24px; }
+[data-ui] .ax__bar { display: flex; align-items: center; gap: 28px; border-bottom: 1px solid var(--surface-2); }
+[data-ui] .ax__mark { font-size: 19px; font-weight: 500; letter-spacing: -0.01em; }
+[data-ui] .ax__nav { color: var(--ink); font-weight: 500; }
+[data-ui] .ax__farm { padding: 5px 10px; border: 1px solid var(--surface-2); border-radius: 4px; color: var(--muted); }
+[data-ui] .ax__live { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; color: var(--muted); }
+[data-ui] .ax__dot { display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: var(--color-success); }
+[data-ui] .ax__live .ax__dot { margin-right: 0; }
+[data-ui] .ax__lang { display: inline-flex; padding: 3px; border-radius: 6px; background: var(--bg); }
+[data-ui] .ax__lang button { min-height: 32px; padding: 0 12px; border: 0; border-radius: 4px; background: none; color: var(--muted); }
+[data-ui] .ax__lang button:hover { color: var(--ink); }
+[data-ui] .ax__lang button[aria-pressed="true"] { background: var(--surface-2); color: var(--ink); }
+[data-ui] .ax__greeting { font-size: 26px; font-weight: 300; letter-spacing: -0.02em; }
+[data-ui] .ax__doing { color: var(--muted); }
+[data-ui] .ax__kpis { display: grid; grid-template-columns: 1.3fr repeat(3, 1fr); gap: 14px; }
+[data-ui] .ax__kpi { display: grid; align-content: space-between; gap: 6px; padding: 16px 18px; border-radius: 6px; background: var(--surface-2); }
+[data-ui] .ax__label { color: var(--muted); }
+[data-ui] .ax__value { font-size: 42px; font-weight: 300; line-height: 1; letter-spacing: -0.02em; }
+[data-ui] .ax__of { margin-left: 2px; font-size: 18px; color: var(--muted); }
+[data-ui] .ax__kpi[data-broken] .ax__value { color: var(--accent); }
+[data-ui] .ax__note { color: var(--muted); }
+[data-ui] .ax__state { margin-right: 6px; padding: 1px 8px; border-radius: 4px; background: var(--bg); color: var(--ink); }
+[data-ui] .ax__lower { display: grid; grid-template-columns: 1.7fr 1fr; gap: 14px; margin-top: 90px; padding: 0 32px 40px; }
+[data-ui] .ax__panel { display: grid; align-content: start; gap: 14px; padding: 18px 20px; border-radius: 6px; background: var(--surface-2); }
+[data-ui] .ax__title { font-weight: 500; }
+[data-ui] .ax__sub { margin-left: 8px; font-weight: 400; color: var(--muted); }
+[data-ui] .ax-chart { display: block; width: 100%; height: auto; overflow: visible; }
+[data-ui] .ax-chart__grid { stroke: var(--surface); stroke-width: 1; }
+[data-ui] .ax-chart__limit { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 4; }
+[data-ui] .ax-chart__tick { fill: var(--muted); font-size: 13px; }
+[data-ui] .ax-chart__line { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+[data-ui] .ax-chart__now { fill: var(--ink); }
+[data-ui] .ax__rec, [data-ui] .ax__device { display: grid; gap: 4px; padding-top: 12px; border-top: 1px solid var(--surface); }
+[data-ui] .ax__rec-title { font-size: 17px; }
+[data-ui] .ax__rec-why { color: var(--muted); }
+[data-ui] .ax__priority { margin-left: 8px; padding: 1px 8px; border-radius: 4px; background: var(--bg); font-size: 13px; color: var(--ink); }
+
+/* Planify: the week its local planner made, evenings after class. */
+[data-ui].pf { --upper: 300px; }
+[data-ui] .pf__upper { box-sizing: border-box; height: var(--upper); display: grid; grid-template-rows: 64px auto 1fr; row-gap: 22px; padding: 0 32px 28px; }
+[data-ui] .pf__bar { display: flex; align-items: center; gap: 28px; border-bottom: 1px solid var(--surface-2); }
+[data-ui] .pf__mark { font-size: 19px; font-weight: 500; letter-spacing: -0.01em; }
+[data-ui] .pf__nav { font-weight: 500; }
+[data-ui] .pf__provider { padding: 3px 10px; border: 1px solid var(--surface-2); border-radius: 4px; color: var(--muted); }
+[data-ui] .pf__window { margin-left: auto; color: var(--muted); }
+[data-ui] .pf__metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; }
+[data-ui] .pf__metrics dt { color: var(--muted); }
+[data-ui] .pf__metrics dd { margin-top: 4px; font-size: 30px; font-weight: 300; letter-spacing: -0.02em; }
+[data-ui] .pf__days { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; align-self: end; }
+[data-ui] .pf__days button { display: flex; align-items: center; justify-content: space-between; min-height: 52px; padding: 0 16px; border: 1px solid var(--surface-2); border-radius: 6px; background: none; transition: background-color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out); }
+[data-ui] .pf__days button:hover { border-color: var(--muted); }
+[data-ui] .pf__days button[aria-pressed="true"] { border-color: var(--field-1); background: var(--field-1); color: var(--field-1-ink); }
+[data-ui] .pf__day { font-weight: 500; }
+[data-ui] .pf__count { color: inherit; opacity: 0.75; }
+[data-ui] .pf__lower { display: grid; grid-template-columns: 1.7fr 1fr; gap: 14px; margin-top: 90px; padding: 0 32px 40px; }
+[data-ui] .pf__blocks { display: grid; align-content: start; padding: 0; list-style: none; }
+[data-ui] .pf__block { display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; column-gap: 18px; row-gap: 2px; padding: 14px 16px; border-left: 3px solid var(--surface-2); border-bottom: 1px solid var(--surface-2); }
+[data-ui] .pf__block[data-priority="high"] { border-left-color: var(--ink); }
+[data-ui] .pf__block[data-priority="medium"] { border-left-color: var(--muted); }
+[data-ui] .pf__time { grid-row: 1 / 3; color: var(--muted); }
+[data-ui] .pf__task { font-size: 17px; }
+[data-ui] .pf__meta { grid-column: 2; color: var(--muted); }
+[data-ui] .pf__priority { grid-column: 3; grid-row: 1; color: var(--muted); text-transform: capitalize; }
+[data-ui] .pf__empty { padding: 14px 16px; color: var(--muted); }
+[data-ui] .pf__load { display: grid; align-content: start; gap: 14px; padding: 18px 20px; border-radius: 6px; background: var(--surface-2); }
+[data-ui] .pf__title { font-weight: 500; }
+[data-ui] .pf__bars { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; padding: 0; list-style: none; }
+[data-ui] .pf__bars li { display: grid; grid-template-rows: 120px auto auto; justify-items: center; gap: 6px; }
+[data-ui] .pf__fill { align-self: end; width: 100%; max-width: 36px; border-radius: 3px 3px 0 0; background: var(--muted); }
+[data-ui] .pf__bars li[data-today] .pf__fill { background: var(--accent); }
+[data-ui] .pf__mins { color: var(--muted); font-size: 13px; }
+
+/* Narrow: the screens rearrange the way the apps do on a phone. */
+@container (max-width: 700px) {
+  [data-ui]:is(.ax, .pf) { --upper: auto; }
+  [data-ui] :is(.ax__upper, .pf__upper) { height: auto; padding: 0 16px 16px; }
+  [data-ui] :is(.ax__bar, .pf__bar) { flex-wrap: wrap; gap: 8px 16px; padding-block: 14px; }
+  [data-ui] :is(.ax__nav, .ax__live, .pf__window) { display: none; }
+  [data-ui] .ax__kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  [data-ui] .ax__kpi--health { grid-column: 1 / -1; }
+  [data-ui] .ax__kpi { padding: 12px; }
+  [data-ui] .ax__value { font-size: 28px; }
+  [data-ui] .ax__kpi--health .ax__value { font-size: 34px; }
+  [data-ui] .pf__metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  [data-ui] .pf__days { gap: 6px; }
+  [data-ui] .pf__days button { flex-direction: column; justify-content: center; align-items: center; padding: 0 4px; }
+  [data-ui] :is(.ax__lower, .pf__lower) { grid-template-columns: minmax(0, 1fr); margin-top: 16px; padding: 0 16px 16px; }
+  [data-ui] .pf__block { grid-template-columns: minmax(0, 1fr) auto; padding: 12px; }
+  [data-ui] .pf__time { grid-row: auto; grid-column: 1 / -1; }
+  [data-ui] .pf__meta { grid-column: 1 / -1; }
+  [data-ui] .pf__priority { grid-column: 2; grid-row: 2; }
+}
