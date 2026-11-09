@@ -158,14 +158,15 @@ function BackFace({ project, active }: { project: Project; active: string }) {
 }
 
 // A project as one card with two faces. On a wide screen with motion it is a
-// short scene: the card holds still with the app facing you, then the
-// drawing of it taken apart rises over the app from the bottom edge, like a
-// blind, and holds. The next project simply scrolls in after it. Elsewhere
-// the two faces are two plain cards, front then back.
+// short scene on a held stage: the app sits framed under its name, then
+// opens out until it fills the whole window, edge to edge; then the drawing
+// of it taken apart rises over it from the bottom edge, like a blind, full
+// screen too, and holds. The next project simply scrolls in after it.
+// Elsewhere the two faces are two plain cards, front then back.
 function ProjectCard({ project, active, onPress }: { project: Project } & Press) {
   const lit = project.uses.includes(active)
   return (
-    <article className="flip scene" data-scene="flip" id={project.id} data-lit={lit} aria-labelledby={`${project.id}-name`} style={{ '--hold': 1.6 } as CSSProperties}>
+    <article className="flip scene" data-scene="flip" id={project.id} data-lit={lit} aria-labelledby={`${project.id}-name`} style={{ '--hold': 2.6 } as CSSProperties}>
       <div className="flip__stage">
         <div className="flip__tilt">
           <div className="flip__card">
@@ -180,7 +181,7 @@ function ProjectCard({ project, active, onPress }: { project: Project } & Press)
 
 const LIVE = '(min-width: 68.76rem) and (prefers-reduced-motion: no-preference)'
 const REST = '(max-width: 68.75rem), (prefers-reduced-motion: reduce)'
-const TURNED = 0.5 // the moment in the scene the drawing covers half the app
+const TURNED = 0.64 // the moment in the scene the drawing covers half the app
 
 function useCardScenes(root: React.RefObject<HTMLElement | null>) {
   useEffect(() => {
@@ -194,6 +195,7 @@ function useCardScenes(root: React.RefObject<HTMLElement | null>) {
           scenes.forEach((s) => s.classList.add('is-rest'))
           return () => scenes.forEach((s) => s.classList.remove('is-rest'))
         }
+        const undo: (() => void)[] = []
         scenes.forEach((scene) => {
           scene.classList.add('is-live')
           const front = scene.querySelector<HTMLElement>('.flip__face--front')!
@@ -213,9 +215,29 @@ function useCardScenes(root: React.RefObject<HTMLElement | null>) {
             if (video) { if (side === 'back' && inView) video.play().catch(() => {}); else video.pause() }
           }
           face('front', false)
-          // The blind: the back face rises from below the card's bottom edge
-          // while its contents move down by as much, so the drawing stays
-          // put and is uncovered from the bottom up. Transforms only.
+          // Opening out: the screen is laid out full window and clipped to
+          // its frame under the head; the clip opens to the window's edges
+          // while the app inside slides from the frame's top to the window's.
+          const head = front.querySelector<HTMLElement>('.pile__head')!
+          const screen = front.querySelector<HTMLElement>('.pile__screen')!
+          const app = screen.firstElementChild as HTMLElement
+          // Full window, the app is set a little larger so it fills the
+          // window's height: zoom reflows it, so it is measured twice.
+          const fit = () => {
+            app.style.zoom = '1'
+            let z = Math.min(1.45, Math.max(1, innerHeight / app.getBoundingClientRect().height))
+            app.style.zoom = String(z)
+            z = Math.min(1.45, Math.max(1, z * innerHeight / app.getBoundingClientRect().height))
+            app.style.zoom = String(z)
+          }
+          fit()
+          ScrollTrigger.addEventListener('refreshInit', fit)
+          undo.push(() => { ScrollTrigger.removeEventListener('refreshInit', fit); app.style.zoom = '' })
+          const side = () => head.offsetLeft
+          const top = () => head.offsetTop + head.offsetHeight + 40
+          // The blind: the back face rises from below the window's bottom
+          // edge while its contents move down by as much, so the drawing
+          // stays put and is uncovered from the bottom up. Transforms only.
           const backInner = back.querySelector<HTMLElement>('.pile__inner')!
           const shade = front.querySelector<HTMLElement>('.flip__shade')!
           gsap.timeline({
@@ -225,13 +247,17 @@ function useCardScenes(root: React.RefObject<HTMLElement | null>) {
               onToggle: (st) => face(st.progress > TURNED ? 'back' : 'front', st.isActive),
             },
           })
-            .fromTo(back, { yPercent: 100, force3D: true }, { yPercent: 0, duration: 0.4, ease: 'power2.inOut' }, 0.3)
-            .fromTo(backInner, { yPercent: -100, force3D: true }, { yPercent: 0, duration: 0.4, ease: 'power2.inOut' }, 0.3)
-            .fromTo(shade, { opacity: 0 }, { opacity: 0.45, duration: 0.4, ease: 'none' }, 0.3)
-            .to({}, { duration: 0.3 }, 0.7)
+            .fromTo(screen, { clipPath: () => `inset(${top()}px ${side()}px ${side()}px ${side()}px)` }, { clipPath: 'inset(0px 0px 0px 0px)', duration: 0.32, ease: 'power3.inOut' }, 0.06)
+            .fromTo(app, { y: () => top() / (parseFloat(app.style.zoom) || 1), force3D: true }, { y: 0, duration: 0.32, ease: 'power3.inOut' }, 0.06)
+            .fromTo(head, { autoAlpha: 1, y: 0 }, { autoAlpha: 0, y: -32, duration: 0.2, ease: 'power1.in' }, 0.12)
+            .fromTo(back, { yPercent: 100, force3D: true }, { yPercent: 0, duration: 0.3, ease: 'power2.inOut' }, 0.5)
+            .fromTo(backInner, { yPercent: -100, force3D: true }, { yPercent: 0, duration: 0.3, ease: 'power2.inOut' }, 0.5)
+            .fromTo(shade, { opacity: 0 }, { opacity: 0.5, duration: 0.3, ease: 'none' }, 0.5)
+            .to({}, { duration: 0.2 }, 0.8)
         })
         ScrollTrigger.refresh()
         return () => scenes.forEach((s) => {
+          undo.splice(0).forEach((u) => u())
           s.classList.remove('is-live')
           s.querySelectorAll<HTMLElement>('.flip__face').forEach((f) => { f.inert = false })
         })

@@ -70,26 +70,36 @@
 .case__key[aria-pressed="true"]::before { background: var(--accent); }
 @media (prefers-reduced-motion: reduce) { .case__key::before { transition: none; } .case__key:active::before { transform: none; } }
 
-/* ---------- A project as a card with a drawing laid over it ---------- */
+/* ---------- A project that opens out to the whole window ---------- */
 /* At rest the card's two faces are two cards, front then back. Live, each
-   project is a short scene on a held stage: the app faces you, then the
-   drawing rises over it from the bottom edge like a blind (Work.tsx), and
-   the app beneath darkens a little under its shade. Flat, transforms only. */
+   project is a short scene on a held stage the size of the window: the app
+   sits framed under its name, opens out to fill the window edge to edge
+   (the clip on .pile__screen, Work.tsx), then the drawing rises over it
+   from the bottom edge like a blind, full window too, and the app beneath
+   darkens under its shade. Only a rectangle clip and transforms move. */
 .flip__stage, .flip__tilt, .flip__card { display: grid; gap: var(--space-2xl); }
 .flip__shade { position: absolute; inset: 0; z-index: 60; background: var(--bg); opacity: 0; pointer-events: none; }
 .flip__hardware-title, .route { display: none; }
 
 .flip.is-live { height: calc((var(--hold) + 1) * 100svh); }
-.flip.is-live .flip__stage {
-  position: sticky; top: 0; display: block; height: 100svh; box-sizing: border-box;
-  padding: var(--top) var(--margin) var(--margin);
-}
-.flip.is-live .flip__tilt { display: block; height: 100%; }
-.flip.is-live .flip__card { display: block; position: relative; height: 100%; overflow: hidden; }
-.flip.is-live .flip__face { position: absolute; inset: 0; height: auto; max-height: none; overflow: hidden; }
-.flip.is-live .flip__face--back { z-index: 2; will-change: transform; }
-.flip.is-live .flip__face--back > .pile__inner { will-change: transform; }
+.flip.is-live .flip__stage { position: sticky; top: 0; display: block; height: 100svh; overflow: hidden; }
+.flip.is-live .flip__tilt, .flip.is-live .flip__card { display: block; position: relative; height: 100%; }
+.flip.is-live .flip__face { position: absolute; inset: 0; overflow: hidden; }
 .flip.is-live .flip__face .pile__inner { height: 100%; overflow: hidden; }
+
+/* The front: the head on the page, the app full window under its clip. */
+.flip.is-live .flip__face--front { z-index: 1; }
+.flip.is-live .flip__face--front .pile__inner { display: block; }
+.flip.is-live .pile__head { position: absolute; z-index: 2; left: var(--margin); right: var(--margin); top: var(--top); padding: 0; }
+.flip.is-live .pile__screen { position: absolute; inset: 0; z-index: 3; background: var(--surface); }
+.flip.is-live .pile__screen > [data-ui] { min-height: 100%; will-change: transform; }
+
+/* The back: the drawing as a full-window sheet, margins inside it, its
+   title set in the monument's face. */
+.flip.is-live .flip__face--back :is(.xp__fig, .flip__hardware-title) { font: 400 clamp(2.5rem, 4vw, 3.75rem)/0.9 var(--font-display); letter-spacing: var(--tracking-display); text-transform: uppercase; color: var(--ink); }
+.flip.is-live .xp__caption { font-size: var(--step-lead); }
+.flip.is-live .flip__face--back { z-index: 4; will-change: transform; }
+.flip.is-live .flip__face--back > .pile__inner { box-sizing: border-box; padding: clamp(24px, 3vw, 48px) var(--margin); will-change: transform; }
 
 /* Agrix's back, face up: den's render and the route a reading takes. The
    full drawing stays on the resting cards, where there is room for both. */
