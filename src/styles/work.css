@@ -16,9 +16,12 @@
 .cases__intro a { color: inherit; }
 .cases__intro :focus-visible { outline-color: var(--field-amber-ink); }
 
-/* The cards are panels on the sky; the section itself stays clear. */
+/* The app's card is no box at all: its name and stack sit on the page and
+   the app's own screen is the one panel. The drawing's card is a field of
+   surface, so it reads as a sheet laid over the app. */
 .pile { --top: 88px; display: grid; gap: var(--space-2xl); padding-inline: var(--margin); }
-.pile__inner { position: relative; container-type: inline-size; background: var(--surface); }
+.pile__inner { position: relative; container-type: inline-size; }
+.pile__card--apart .pile__inner { background: var(--surface); }
 
 /* On a wide screen each card is about a screen tall, the drawing's card
    exactly fitting its stage. */
@@ -37,11 +40,11 @@
 .pile__card--screen .pile__inner { display: grid; grid-template-rows: auto minmax(0, 1fr); }
 .pile__head {
   display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); row-gap: var(--space-md);
-  padding: var(--space-xl) var(--space-xl) var(--space-lg);
+  align-items: end; padding: 0 0 var(--space-xl);
 }
 .pile__title { grid-column: 1 / 6; display: grid; align-content: start; gap: var(--space-xs); }
-.case__stack { grid-column: 7 / 13; display: grid; gap: var(--space-2xs); margin: 0; }
-.pile__screen { min-height: 0; padding-inline: var(--space-xl); }
+.case__stack { grid-column: 7 / 13; display: grid; gap: 0; margin: 0; }
+.pile__screen { min-height: 0; overflow: hidden; }
 .pile__screen > [data-ui] { border-radius: 0; }
 
 /* The app's name as its own poster line, in the monument's face. */
@@ -67,25 +70,25 @@
 .case__key[aria-pressed="true"]::before { background: var(--accent); }
 @media (prefers-reduced-motion: reduce) { .case__key::before { transition: none; } .case__key:active::before { transform: none; } }
 
-/* ---------- A project as a card that turns over ---------- */
+/* ---------- A project as a card with a drawing laid over it ---------- */
 /* At rest the card's two faces are two cards, front then back. Live, each
-   project is a short scene on a held stage with perspective: the card is
-   dealt in tilted from below, turns over on its upright axis to show its
-   back, then tips back and lifts away before the next is dealt. Only the
-   card's transforms move; it darkens under a shade inside each face. */
-.flip__stage, .flip__tilt, .flip__card { display: grid; gap: var(--space-xl); }
+   project is a short scene on a held stage: the app faces you, then the
+   drawing rises over it from the bottom edge like a blind (Work.tsx), and
+   the app beneath darkens a little under its shade. Flat, transforms only. */
+.flip__stage, .flip__tilt, .flip__card { display: grid; gap: var(--space-2xl); }
 .flip__shade { position: absolute; inset: 0; z-index: 60; background: var(--bg); opacity: 0; pointer-events: none; }
 .flip__hardware-title, .route { display: none; }
 
 .flip.is-live { height: calc((var(--hold) + 1) * 100svh); }
 .flip.is-live .flip__stage {
   position: sticky; top: 0; display: block; height: 100svh; box-sizing: border-box;
-  padding: var(--top) var(--margin) var(--margin); perspective: 1600px; perspective-origin: 50% 40%;
+  padding: var(--top) var(--margin) var(--margin);
 }
-.flip.is-live .flip__tilt { display: block; height: 100%; transform-style: preserve-3d; transform-origin: 50% 100%; will-change: transform; }
-.flip.is-live .flip__card { display: block; position: relative; height: 100%; transform-style: preserve-3d; will-change: transform; }
-.flip.is-live .flip__face { position: absolute; inset: 0; height: auto; max-height: none; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-.flip.is-live .flip__face--back { transform: rotateY(180deg); }
+.flip.is-live .flip__tilt { display: block; height: 100%; }
+.flip.is-live .flip__card { display: block; position: relative; height: 100%; overflow: hidden; }
+.flip.is-live .flip__face { position: absolute; inset: 0; height: auto; max-height: none; overflow: hidden; }
+.flip.is-live .flip__face--back { z-index: 2; will-change: transform; }
+.flip.is-live .flip__face--back > .pile__inner { will-change: transform; }
 .flip.is-live .flip__face .pile__inner { height: 100%; overflow: hidden; }
 
 /* Agrix's back, face up: den's render and the route a reading takes. The
@@ -171,9 +174,9 @@
 .xp__layer[data-side="left"] .xp__callout { right: var(--reach); top: calc(var(--y) - var(--rise)); flex-direction: row-reverse; }
 .xp__lead { flex: none; width: 56px; height: 2px; overflow: visible; }
 .xp__lead line, .xp__wire line { stroke: var(--muted); stroke-width: 1; }
-.xp__label { width: var(--callw); padding: 10px 14px; background: var(--surface-2); }
+.xp__label { width: var(--callw); padding: 0 4px; }
 .xp__title { font-size: var(--step-body); font-weight: 500; line-height: 1.3; color: var(--ink); }
-.xp__fact { font-size: var(--step-body); line-height: 1.35; color: var(--ink); }
+.xp__fact { font-size: var(--step-body); line-height: 1.35; color: var(--muted); }
 
 /* The branch: a small slab off the right corner of the layer it leaves,
    joined by a wire, its label above it. */
@@ -222,9 +225,9 @@
 @media (max-width: 68.75rem) {
   .cases__intro { min-height: 0; }
   .cases__intro h2, .cases__intro p { grid-column: 1 / -1; }
-  .pile__head { padding: var(--space-lg); }
+  .pile__head { padding: 0 0 var(--space-lg); }
   .pile__title, .case__stack { grid-column: 1 / -1; }
-  .pile__screen { padding: 0 var(--space-lg) var(--space-lg); }
+  .pile__screen { overflow: visible; }
   .xp, .xp[data-n] { --s: 0.16; }
   .xp { display: grid; gap: var(--space-lg); height: auto; min-height: 0; padding: var(--space-lg); }
   .xp__fig, .xp__caption { position: static; }

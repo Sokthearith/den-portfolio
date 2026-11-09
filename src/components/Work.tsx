@@ -158,14 +158,14 @@ function BackFace({ project, active }: { project: Project; active: string }) {
 }
 
 // A project as one card with two faces. On a wide screen with motion it is a
-// short scene: the card is dealt in from below, holds with the app facing
-// you, turns over to show it taken apart, holds, then tips back and lifts
-// away before the next one is dealt. Nothing ever lies over anything else.
-// Elsewhere the two faces are two plain cards, front then back.
+// short scene: the card holds still with the app facing you, then the
+// drawing of it taken apart rises over the app from the bottom edge, like a
+// blind, and holds. The next project simply scrolls in after it. Elsewhere
+// the two faces are two plain cards, front then back.
 function ProjectCard({ project, active, onPress }: { project: Project } & Press) {
   const lit = project.uses.includes(active)
   return (
-    <article className="flip scene" data-scene="flip" id={project.id} data-lit={lit} aria-labelledby={`${project.id}-name`} style={{ '--hold': 2.4 } as CSSProperties}>
+    <article className="flip scene" data-scene="flip" id={project.id} data-lit={lit} aria-labelledby={`${project.id}-name`} style={{ '--hold': 1.6 } as CSSProperties}>
       <div className="flip__stage">
         <div className="flip__tilt">
           <div className="flip__card">
@@ -180,7 +180,7 @@ function ProjectCard({ project, active, onPress }: { project: Project } & Press)
 
 const LIVE = '(min-width: 68.76rem) and (prefers-reduced-motion: no-preference)'
 const REST = '(max-width: 68.75rem), (prefers-reduced-motion: reduce)'
-const TURNED = 0.47 // the moment in the scene the card is edge on
+const TURNED = 0.5 // the moment in the scene the drawing covers half the app
 
 function useCardScenes(root: React.RefObject<HTMLElement | null>) {
   useEffect(() => {
@@ -194,11 +194,8 @@ function useCardScenes(root: React.RefObject<HTMLElement | null>) {
           scenes.forEach((s) => s.classList.add('is-rest'))
           return () => scenes.forEach((s) => s.classList.remove('is-rest'))
         }
-        scenes.forEach((scene, i) => {
+        scenes.forEach((scene) => {
           scene.classList.add('is-live')
-          // The last card is carried off with the section by the curtain, so
-          // it never lifts away by itself (and never drops back in on the way up).
-          const last = i === scenes.length - 1
           const front = scene.querySelector<HTMLElement>('.flip__face--front')!
           const back = scene.querySelector<HTMLElement>('.flip__face--back')!
           const video = back.querySelector('video')
@@ -216,21 +213,22 @@ function useCardScenes(root: React.RefObject<HTMLElement | null>) {
             if (video) { if (side === 'back' && inView) video.play().catch(() => {}); else video.pause() }
           }
           face('front', false)
-          // This card's own parts only: a bare selector would reach every card.
-          const q = gsap.utils.selector(scene)
-          const tl = gsap.timeline({
+          // The blind: the back face rises from below the card's bottom edge
+          // while its contents move down by as much, so the drawing stays
+          // put and is uncovered from the bottom up. Transforms only.
+          const backInner = back.querySelector<HTMLElement>('.pile__inner')!
+          const shade = front.querySelector<HTMLElement>('.flip__shade')!
+          gsap.timeline({
             scrollTrigger: {
               trigger: scene, start: 'top top', end: 'bottom bottom', scrub: 0.4, invalidateOnRefresh: true,
               onUpdate: (st) => face(st.progress > TURNED ? 'back' : 'front', st.isActive),
               onToggle: (st) => face(st.progress > TURNED ? 'back' : 'front', st.isActive),
             },
           })
-            .fromTo(q('.flip__tilt'), { yPercent: 32, rotateX: 18, scale: 0.94, force3D: true }, { yPercent: 0, rotateX: 0, scale: 1, duration: 0.12, ease: 'power2.out' }, 0)
-            .fromTo(q('.flip__card'), { rotateY: 0 }, { rotateY: 180, duration: 0.18, ease: 'power2.inOut' }, 0.38)
-          if (last) tl.to({}, { duration: 0.12 }, 0.88) // keeps the scene's length, so the turn lands where it did
-          else tl
-            .to(q('.flip__tilt'), { yPercent: -28, rotateX: -12, scale: 0.92, duration: 0.12, ease: 'power2.in' }, 0.88)
-            .fromTo(q('.flip__shade'), { opacity: 0 }, { opacity: 0.65, duration: 0.12, ease: 'none' }, 0.88)
+            .fromTo(back, { yPercent: 100, force3D: true }, { yPercent: 0, duration: 0.4, ease: 'power2.inOut' }, 0.3)
+            .fromTo(backInner, { yPercent: -100, force3D: true }, { yPercent: 0, duration: 0.4, ease: 'power2.inOut' }, 0.3)
+            .fromTo(shade, { opacity: 0 }, { opacity: 0.45, duration: 0.4, ease: 'none' }, 0.3)
+            .to({}, { duration: 0.3 }, 0.7)
         })
         ScrollTrigger.refresh()
         return () => scenes.forEach((s) => {

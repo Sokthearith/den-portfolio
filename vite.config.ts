@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import type { IncomingMessage, ServerResponse } from 'node:http'
@@ -45,6 +46,16 @@ function api(): Plugin {
     configurePreviewServer(server) {
       Object.assign(process.env, loadEnv('production', process.cwd(), ''))
       server.middlewares.use(handle)
+      // Each page is prerendered to dist/<page>/index.html. Vercel serves
+      // /lab from there; vite preview would fall back to the home page, so
+      // send it to the folder the way Vercel does.
+      server.middlewares.use((req, _res, next) => {
+        const [path, query = ''] = (req.url ?? '/').split('?')
+        if (path !== '/' && !path.endsWith('/') && !/\.\w+$/.test(path) && existsSync(resolve('dist', `.${path}`, 'index.html'))) {
+          req.url = `${path}/${query && `?${query}`}`
+        }
+        next()
+      })
     },
   }
 }
