@@ -249,7 +249,7 @@ export default function Work({ active, onPress }: Press) {
   return (
     <section className="cases" id="work" aria-labelledby="work-title" ref={ref}>
       <div className="cases__intro">
-        <h2 id="work-title" data-reveal="head">Two full-stack apps.</h2>
+        <h2 id="work-title" data-reveal="head">Two <span className="nowrap">full-stack</span> apps.</h2>
         <p data-reveal style={delay(150)}>A farm dashboard and a study planner, each with its own API.</p>
       </div>
       <div className="pile">

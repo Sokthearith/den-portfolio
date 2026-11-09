@@ -3,13 +3,18 @@
    apart into its real layers (den's reference clip, held still). The page's
    one transition, the curtain (lib/curtain.ts), is between sections. */
 
-.cases { padding-top: var(--section-gap); }
+/* The chapter opens on a whole field of den's amber: the title as a poster,
+   two lines margin to margin, and one sentence under it on the right. */
 .cases__intro {
-  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); align-items: end;
-  padding-inline: var(--margin); margin-bottom: calc(var(--section-gap) / 2);
+  --ink: var(--field-amber-ink); --muted: var(--field-amber-ink);
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); align-content: end; row-gap: clamp(28px, 4vw, 56px);
+  min-height: min(100svh, 62rem); padding: clamp(96px, 12vw, 160px) var(--margin) var(--margin);
+  margin-bottom: var(--space-2xl); background: var(--field-amber); color: var(--ink);
 }
-.cases__intro h2 { grid-column: 1 / 8; font: var(--display-weight) var(--step-head)/1 var(--font); letter-spacing: var(--tracking-display); color: var(--ink); }
-.cases__intro p { grid-column: 9 / 13; max-width: 34ch; font-size: var(--step-body); line-height: 1.55; color: var(--ink); }
+.cases__intro h2 { grid-column: 1 / -1; max-width: none; font-size: var(--step-poster); line-height: 0.86; color: var(--ink); }
+.cases__intro p { grid-column: 8 / 13; max-width: 34ch; font-size: var(--step-lead); line-height: 1.35; color: var(--ink); }
+.cases__intro a { color: inherit; }
+.cases__intro :focus-visible { outline-color: var(--field-amber-ink); }
 
 /* The cards are panels on the sky; the section itself stays clear. */
 .pile { --top: 88px; display: grid; gap: var(--space-2xl); padding-inline: var(--margin); }
@@ -39,11 +44,12 @@
 .pile__screen { min-height: 0; padding-inline: var(--space-xl); }
 .pile__screen > [data-ui] { border-radius: 0; }
 
-.case__name { display: flex; align-items: center; gap: 14px; font: var(--display-weight) var(--step-head)/1 var(--font); letter-spacing: var(--tracking-display); color: var(--ink); }
+/* The app's name as its own poster line, in the monument's face. */
+.case__name { display: flex; align-items: center; gap: 0.16em; font: 400 var(--step-head)/0.86 var(--font-display); letter-spacing: var(--tracking-display); text-transform: uppercase; color: var(--ink); }
 /* The project's window: dark until a key it is built with is pressed. */
-.case__name::before { content: ""; flex: none; width: 12px; height: 12px; background: var(--surface-2); transition: background-color var(--dur-short) var(--ease-out); }
+.case__name::before { content: ""; flex: none; width: 0.16em; height: 0.16em; background: var(--surface-2); transition: background-color var(--dur-short) var(--ease-out); }
 .pile__card[data-lit="true"] .case__name::before { background: var(--accent); }
-.case__line { max-width: 40ch; font-size: var(--step-body); line-height: 1.45; color: var(--ink); }
+.case__line { max-width: 40ch; margin-top: var(--space-xs); font-size: var(--step-lead); line-height: 1.35; color: var(--ink); }
 .case__code { justify-self: start; display: inline-flex; align-items: center; min-height: 44px; font-size: var(--step-body); font-weight: 500; color: var(--ink); text-decoration: underline; text-decoration-color: var(--muted); text-underline-offset: 0.25em; transition: text-decoration-color var(--dur-short) var(--ease-out); }
 .case__code:hover { text-decoration-color: var(--ink); }
 .case__code:focus-visible, .case__key:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
@@ -214,8 +220,8 @@
    card stacks its head over its screen, and the drawing lists each layer as
    a small slab with its label beside it. */
 @media (max-width: 68.75rem) {
+  .cases__intro { min-height: 0; }
   .cases__intro h2, .cases__intro p { grid-column: 1 / -1; }
-  .cases__intro p { margin-top: var(--space-md); }
   .pile__head { padding: var(--space-lg); }
   .pile__title, .case__stack { grid-column: 1 / -1; }
   .pile__screen { padding: 0 var(--space-lg) var(--space-lg); }

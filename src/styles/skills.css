@@ -16,12 +16,15 @@
 .skillset__canvas { position: absolute !important; inset: 0; }
 
 .skillset__side { grid-column: 7 / 13; min-width: 0; }
-.skillset__side h2 { max-width: 14ch; font-size: var(--step-head); font-weight: 300; line-height: 1; letter-spacing: -0.035em; color: var(--ink); }
+.skillset__side h2 { max-width: 12ch; font-size: var(--step-head); color: var(--ink); }
 .skillset__lead { margin-top: var(--gap-columns); max-width: 40ch; font-size: var(--step-lead); line-height: 1.4; color: var(--ink); }
 
 .skillset__groups { margin-top: 48px; }
-.skillset__group + .skillset__group { margin-top: 40px; }
-.skillset__label { max-width: none; margin-bottom: 8px; font-size: var(--step-body); font-weight: 500; line-height: 1.4; letter-spacing: 0; color: var(--muted); }
+/* The group's name sits beside its first key, on the same line, so it is a
+   column of the list rather than a label over it. */
+.skillset__group { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); align-items: start; }
+.skillset__group + .skillset__group { margin-top: 32px; }
+.skillset__label { max-width: none; margin: 0; padding-top: 22px; font-size: var(--step-body); font-weight: 600; line-height: 1.4; letter-spacing: 0; color: var(--muted); }
 .skillset__list { margin: 0; padding: 0; list-style: none; }
 
 /* A row rests in the soft ink; the pressed one is the full ink on a step of
@@ -31,14 +34,19 @@
 .skillset__item[data-on] { background: var(--surface); }
 .skillset__key {
   display: flex; align-items: center; justify-content: space-between; gap: var(--gap-columns);
-  width: 100%; min-height: 58px; padding: 0 var(--pad);
+  width: 100%; min-height: 64px; padding: 0 var(--pad);
   border: 0; border-radius: var(--radius); background: none;
   color: var(--muted); font-family: var(--font); text-align: left; cursor: pointer;
   transition: color var(--dur-short) var(--ease-out);
 }
 .skillset__key:hover, .skillset__key[aria-pressed="true"] { color: var(--ink); }
 .skillset__key:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
-.skillset__name { font-size: var(--step-lead); font-weight: 400; line-height: 1.2; letter-spacing: -0.01em; }
+/* Each key is a poster line: the name in the monument's face, the count
+   small at the far end on the same line. The pressed one lights amber. */
+.skillset__name { font: 400 clamp(2.25rem, 3.9vw, 3.75rem)/1 var(--font-display); letter-spacing: var(--tracking-display); text-transform: uppercase; transition: color var(--dur-short) var(--ease-out), translate var(--dur-short) var(--ease-out); }
+.skillset__key[aria-pressed="true"] .skillset__name { color: var(--accent); }
+.skillset__key:hover .skillset__name { translate: 6px 0; }
+@media (prefers-reduced-motion: reduce) { .skillset__key:hover .skillset__name { translate: none; } }
 .skillset__count { flex: none; font-size: var(--step-body); color: var(--muted); font-variant-numeric: tabular-nums; }
 
 .skillset__used {
@@ -77,4 +85,8 @@ html:not(.js) .skillset__side { grid-column: 1 / -1; max-width: 48rem; }
   .skillset { --pad: var(--margin); }
   .skillset__item { margin-inline: calc(-1 * var(--margin)); }
   .skillset__key { min-height: 56px; }
+  /* On a phone the groups part by space alone; their names stay for screen readers. */
+  .skillset__group { display: block; }
+  .skillset__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .skillset__count { font-size: var(--step-small); }
 }

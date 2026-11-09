@@ -25,3 +25,4 @@ button, input, select, textarea { font: inherit; }
 @media (prefers-reduced-motion: reduce) { *:not(.keep-motion), *:not(.keep-motion)::before, *:not(.keep-motion)::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } }
 /* photographs: muted sepia=14 */
 [data-slot] > img { filter: saturate(0.65) contrast(0.97) sepia(0.14); }
+.nowrap { white-space: nowrap; }

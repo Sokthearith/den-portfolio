@@ -38,11 +38,6 @@
 /* The lab's bench has no land colour of its own at dawn: it is the sky. */
 :root[data-theme="dawn"] :is(.nightbench__stage, .night.nightbench__night) { background: linear-gradient(to bottom, var(--dawn-sky-top), var(--dawn-sky)); }
 
-/* The hero's two buttons sit on the pale sky, so they take the ground's
-   tone to stand off it. */
-:root[data-theme="dawn"] .hero__controls .btn:not([data-playing="true"]) { background: var(--bg); }
-:root[data-theme="dawn"] .hero__controls .btn:not([data-playing="true"]):hover { background: var(--surface-2); }
-
 /* ---------- The contact card ---------- */
 /* At night the card is the one lit sheet on a dark town. At dawn it is
    still a sheet of the room's own light on the sky, set in the ink; its
@@ -51,18 +46,11 @@
 :root[data-theme="dawn"] .card :focus-visible { outline-color: var(--ink); }
 :root[data-theme="dawn"] .field__input { background: var(--surface); }
 
-/* ---------- The bar on a phone ---------- */
-/* It sits over the hero's frame, which at dawn is a pale sky, so it keeps
-   the dawn roles instead of shell.css's night ones. */
-@media (max-width: 40rem) {
-  :root[data-theme="dawn"] body:has(.hero) .nav { color-scheme: light; --bg: inherit; --surface: inherit; --surface-2: inherit; --ink: inherit; }
-}
-
 /* ---------- Amber that has to be read ---------- */
 /* On paper the amber is a fill, never a word: anything set in the accent
    takes the deeper bronze, and the main button deepens its amber on hover
    instead of turning bronze under dark words. */
-:root[data-theme="dawn"] :is(.nav__icon[aria-pressed="true"], .deck[data-on-air="true"] .deck__state, .notes__draft, .note__draft) { color: var(--color-focus); }
+:root[data-theme="dawn"] :is(.nav__icon[aria-pressed="true"], .deck[data-on-air="true"] .deck__state, .notes__draft, .note__draft, .skillset__key[aria-pressed="true"] .skillset__name) { color: var(--color-focus); }
 :root[data-theme="dawn"] .btn--primary:hover { background: oklch(70% 0.15 60); }
 
 /* ---------- The palette ---------- */
@@ -92,3 +80,13 @@
 :root[data-theme="dawn"] .deck .deck__groove { stroke: var(--field-1-ink); stroke-opacity: 0.08; }
 :root[data-theme="dawn"] .deck .deck__gap { stroke: color-mix(in oklch, var(--field-1), var(--field-1-ink) 10%); }
 :root[data-theme="dawn"] .deck .deck__sheen { fill: var(--field-1-ink); opacity: 0.07; }
+
+/* ---------- The name, by day ---------- */
+/* Inside the letters the morning is deeper than the paper around them: a
+   clear blue going down to the sun's peach at the horizon, the land a
+   darker lavender, so D, E and N read as windows onto the sunrise. */
+:root[data-theme="dawn"] .hero .night {
+  --dawn-sky-top: oklch(56% 0.11 258);
+  --dawn-sky: oklch(79% 0.11 60);
+  --dawn-land: oklch(50% 0.07 292);
+}

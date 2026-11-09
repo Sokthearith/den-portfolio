@@ -11,62 +11,97 @@
    full repaint every frame. */
 .night__grain { position: absolute; inset: 0; background-image: var(--grain); background-size: 160px; opacity: 0.05; pointer-events: none; }
 
-/* ---------- Hero: the night in a frame, the name crossing out of it ---------- */
-/* Still, the night hangs in a frame on the left half. On a wide screen with
-   motion the stage holds for one screen while the frame opens to the whole
-   screen (--open, 0 to 1, set by Hero) and the night becomes the page's sky. */
+/* ---------- Hero: the name as a monument, the night inside it ---------- */
+/* The word runs from margin to margin under a band holding the one sentence
+   and the night's two controls. The night fills the whole stage; over it,
+   the room's ground is a sheet with the word cut out (.hero__cut), so the
+   town shows only through the letters. The word is as wide as the page
+   allows while staying whole on the screen; on a wide screen what width it
+   leaves at the right holds the controls.
+   With motion the stage holds for a screen while the sheet grows about a
+   point inside the E (the scene in Hero.tsx) until the night is everything. */
 
 .hero { position: relative; isolation: isolate; }
-.hero__stage { position: relative; height: 100svh; min-height: 40rem; overflow: clip; }
-.hero.is-live { height: 200svh; }
+.hero__stage {
+  --band: calc(var(--margin) + 7.75rem);
+  position: relative; height: 100svh; min-height: 36rem; overflow: clip; cursor: default;
+}
+.hero.is-live { height: 185svh; }
 .hero.is-live .hero__stage { position: sticky; top: 0; }
 
-.hero__frame {
-  --horizon: 20%;
-  --shut: calc(1 - var(--open, 0));
-  position: absolute; inset: 0;
-  clip-path: inset(calc(var(--margin) * var(--shut)) calc(53% * var(--shut)) calc(var(--margin) * var(--shut)) calc(var(--margin) * var(--shut)));
-  isolation: isolate; overflow: hidden; cursor: default;
+/* The night inside the letters: a deeper, bluer sky than the room, so the
+   word reads as lit glass in a dark wall. */
+.hero .night { --sky: oklch(31% 0.075 257); --land: oklch(17% 0.03 258); --horizon: 22%; z-index: 0; }
+
+/* The h1 is the word's box; the sheet inside it is what the scene grows.
+   Its font size is the letters' own, so the title measures as it looks. */
+.hero__name {
+  position: absolute; z-index: 1; left: var(--margin); top: var(--band);
+  width: min(100% - 2 * var(--margin), (100svh - var(--band) - var(--margin)) * 1.5448); aspect-ratio: 1327 / 859;
+  max-width: none; margin: 0; font-size: calc(min(100vw - 2 * var(--margin), (100svh - var(--band) - var(--margin)) * 1.5448) / 1.327); line-height: 1;
 }
-.hero__controls { position: absolute; left: calc(var(--margin) + 20px); bottom: calc(var(--margin) + 20px); z-index: 2; display: flex; align-items: center; gap: 8px; }
-/* Just above the controls, clear of the bar and of the name. */
-.hero__hint { position: absolute; left: calc(var(--margin) + 20px); bottom: calc(var(--margin) + 80px); z-index: 2; font-size: var(--step-small); color: var(--ink); }
+.hero__cut {
+  display: block; width: 100%; height: 100%;
+  overflow: visible;
+  fill: var(--bg); transform-origin: 49.9% 49.9%;
+}
+.hero__letters { font-family: var(--font-display); font-size: 1000px; font-kerning: normal; }
+/* The 404's word is longer, so its box is wider and shorter. */
+.hero:has(#hero-cut-dark) .hero__name { aspect-ratio: 1898 / 859; width: min(100% - 2 * var(--margin), (100svh - var(--band) - var(--margin)) * 2.2096); font-size: calc(min(100vw - 2 * var(--margin), (100svh - var(--band) - var(--margin)) * 2.2096) / 1.898); }
+@media (max-width: 64rem) { .hero:has(#hero-cut-dark) .hero__name { width: 100%; font-size: calc((100vw - 2 * var(--margin)) / 1.898); } }
+
+/* Away from home the bar carries the name in its corner, so the band
+   starts under it. */
+@media (min-width: 64.01rem) {
+  body:has(.nav__mark) .hero__stage { --band: calc(var(--margin) + 11rem); }
+  body:has(.nav__mark) .hero__words { top: calc(var(--margin) + 64px); }
+}
+
+/* The band: the sentence on the left, the night's controls on the right,
+   both under the bar. */
+.hero__words { position: absolute; z-index: 2; left: var(--margin); top: calc(var(--margin) + 6px); width: min(40ch, 48%); }
+.hero__sentence { font-size: var(--step-lead); line-height: 1.3; color: var(--ink); text-wrap: pretty; }
+.hero__actions { margin-top: 24px; }
+/* Beside the word, at its foot: the hint over the two buttons, stacked. */
+.hero__tools {
+  position: absolute; z-index: 3; right: var(--margin); bottom: var(--margin);
+  display: flex; flex-direction: column; align-items: flex-end; gap: 16px; max-width: 12rem; text-align: right;
+}
+.hero__controls { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+/* A squarer screen leaves no width beside the word: the tools go up under
+   the bar instead. */
+@media (max-aspect-ratio: 7/5) and (min-width: 64.01rem) {
+  .hero__tools { bottom: auto; top: calc(var(--margin) + 64px); flex-direction: row; align-items: center; max-width: none; }
+  .hero__controls { flex-direction: row; }
+  .hero__tools .listen__panel { top: calc(100% + 8px); bottom: auto; }
+}
+.hero__hint { font-size: var(--step-small); color: var(--muted); }
+/* In the band the mixer opens downward, over the letters. */
+.hero__tools .listen__panel { left: auto; right: 0; }
 .hint--coarse { display: none; }
 @media (hover: none) { .hint--fine { display: none; } .hint--coarse { display: inline; } }
 html:not(.js) .hero__hint, html:not(.js) .hero__pause { display: none; }
-/* The mixer opens upward over the hint; the hint steps aside while it is open. */
-.hero__frame:has(.listen__panel) .hero__hint { opacity: 0; }
+.hero__tools:has(.listen__panel) .hero__hint { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .hero__hint, .hero__pause { display: none; } }
 
-/* The one sentence, at 44% of the height, on the right half's own axis. */
-.hero__words { position: absolute; left: 47%; right: var(--margin); top: 44%; z-index: 1; translate: 0 -50%; display: grid; justify-items: center; }
-.hero__sentence { width: min(100%, 26ch); font-size: var(--step-lead); line-height: 1.35; }
-/* Measured in the sentence's own size, so the button lines up under it. */
-.hero__actions { width: min(100%, 26ch); margin-top: 32px; font-size: var(--step-lead); }
-
-/* The name: a monument that starts over the night's lower right corner and
-   runs out into the room, its baseline 40px above the bottom edge. */
-.hero__name { position: absolute; left: calc(37% - 0.04em); bottom: 40px; z-index: 1; max-width: none; margin: 0; font-size: clamp(8rem, 26vw, 26rem); font-weight: 300; line-height: 0.74; letter-spacing: -0.045em; white-space: nowrap; pointer-events: none; }
-.hero__name-in { display: block; transform-origin: 0 100%; }
 @media (prefers-reduced-motion: no-preference) {
-  .hero__name-in { transform: scale(calc(1 - var(--exit, 0) * 0.07)); }
-  .js .hero__name-in { animation: name-rise 1.1s var(--ease-out) both 120ms; }
-  .js .hero__sentence { animation: settle 0.8s var(--ease-out) both 420ms; }
-  .js .hero__controls, .js .hero__hint, .js .hero__actions { animation: settle 0.8s var(--ease-out) both 700ms; }
+  .js .hero__cut { animation: cut-rise 1s var(--ease-out) both 100ms; }
+  .js .hero__sentence { animation: settle 0.8s var(--ease-out) both 380ms; }
+  .js .hero__tools, .js .hero__actions { animation: settle 0.8s var(--ease-out) both 620ms; }
 }
-@keyframes name-rise { from { opacity: 0; translate: 0 0.12em; } }
+/* The night arrives first, then the room settles in around the name. */
+@keyframes cut-rise { from { opacity: 0; } }
 @keyframes settle { from { opacity: 0; translate: 0 16px; } }
 
-/* On a phone the night takes the top of the screen, the name runs under it
-   overlapping its edge, and the sentence follows. */
-@media (max-width: 40rem) {
-  .hero__stage { display: flex; flex-direction: column; height: auto; min-height: 0; padding-bottom: 48px; }
-  .hero__name { order: 1; }
-  .hero__words { order: 2; }
-  .hero__frame { position: relative; inset: auto; height: 58svh; margin: 12px; clip-path: none; }
-  .hero__hint { display: none; }
-  .hero__controls { left: 12px; bottom: 12px; }
-  .hero__name { position: relative; left: auto; bottom: auto; margin: -0.2em 0 0 calc(var(--margin) - 0.04em); font-size: 34vw; }
-  .hero__words { position: static; translate: none; justify-items: start; margin: 20px var(--margin) 0; }
-  .hero__sentence { width: auto; font-size: 1.0625rem; }
+/* A phone or a tablet: the bar, the sentence, the word across the screen,
+   the controls. The stage grows with what it holds; the night still fills it. */
+@media (max-width: 64rem) {
+  .hero__stage { display: flex; flex-direction: column; height: auto; min-height: 0; padding: clamp(76px, 12vw, 120px) var(--margin) clamp(36px, 6vw, 64px); }
+  .hero__words, .hero__tools { position: relative; inset: auto; width: auto; }
+  .hero__words { order: 1; }
+  .hero__name { position: relative; order: 2; inset: auto; width: 100%; margin: 36px 0 28px; font-size: calc((100vw - 2 * var(--margin)) / 1.327); }
+  .hero__tools { order: 3; flex-direction: column-reverse; align-items: flex-start; gap: 12px; max-width: none; text-align: left; }
+  .hero__controls { flex-direction: row; }
+  .hero__tools .listen__panel { left: 0; right: auto; }
+  .hero .night { --horizon: 30%; }
 }

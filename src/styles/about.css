@@ -3,16 +3,27 @@
    three numbers at display size, and what comes next. The window is the one
    amber thing on the screen. */
 
-.about { padding: var(--section-gap) var(--margin) 0; }
+/* About is the one sheet of paper in the night: the page turns over to a
+   whole field of it, set in the night's ink. At dawn it turns the other way,
+   to the night's navy. */
+.about {
+  --ink: var(--field-paper-ink); --muted: color-mix(in oklch, var(--field-paper-ink) 72%, var(--field-paper));
+  --surface: color-mix(in oklch, var(--field-paper), var(--field-paper-ink) 6%); --surface-2: color-mix(in oklch, var(--field-paper), var(--field-paper-ink) 12%);
+  --color-focus: var(--field-paper-ink);
+  margin-top: var(--section-gap); padding: clamp(96px, 11vw, 160px) var(--margin) clamp(96px, 10vw, 144px);
+  background: var(--field-paper); color: var(--ink);
+}
 
 .about__top { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); align-items: end; }
-.about__words { grid-column: 1 / 8; }
-.about__title { max-width: none; font: var(--display-weight) var(--step-head)/1 var(--font); letter-spacing: var(--tracking-display); color: var(--ink); text-wrap: balance; }
-.about__lead { max-width: 40ch; margin-top: var(--space-xl); font-size: var(--step-lead); line-height: 1.45; color: var(--ink); text-wrap: pretty; }
-.about__picture { grid-column: 9 / 13; }
+.about__words { grid-column: 1 / 10; }
+.about__title { max-width: none; font-size: min(var(--step-head), 8.6vw); color: var(--ink); text-wrap: balance; }
+.about__lead { max-width: 40ch; margin-top: var(--space-xl); font-weight: 400; font-size: var(--step-lead); line-height: 1.45; color: var(--ink); text-wrap: pretty; }
+.about__picture { grid-column: 10 / 13; }
 
 /* The window: wall, frame and sill in the room's tones, four panes lit. */
-.about__window { display: block; width: 100%; height: auto; }
+/* The window keeps the night's own tones on the paper: it is a picture of
+   den's room at night, hung on the sheet. */
+.about__window { --surface: oklch(16.5% 0.022 258); --surface-2: oklch(22% 0.022 258); display: block; width: 100%; height: auto; }
 .about__wall { fill: var(--surface); }
 .about__frame { fill: var(--surface-2); }
 .about__glass { fill: var(--accent); }
@@ -29,8 +40,8 @@
   margin: var(--space-3xl) 0 0; padding-top: var(--space-xl);
 }
 .about__figure { display: flex; flex-direction: column-reverse; gap: var(--space-xs); }
-.about__value { margin: 0; font: 300 clamp(4rem, 9vw, 8.5rem)/0.9 var(--font); letter-spacing: -0.045em; color: var(--ink); font-variant-numeric: tabular-nums; }
-.about__label { font-size: var(--step-body); color: var(--ink); }
+.about__value { margin: 0; font: 400 var(--step-poster)/0.86 var(--font-display); letter-spacing: var(--tracking-display); color: var(--ink); font-variant-numeric: tabular-nums; }
+.about__label { font-size: var(--step-lead); color: var(--ink); }
 
 .about__next { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap-columns); margin: var(--space-3xl) 0 0; }
 .about__next > div { grid-column: span 6; }
@@ -38,15 +49,15 @@
 .about__next dd { margin: var(--space-2xs) 0 0; max-width: 32ch; font-size: var(--step-lead); line-height: 1.35; color: var(--ink); }
 
 @media (max-width: 60rem) {
-  .about__words { grid-column: 1 / 9; }
-  .about__picture { grid-column: 9 / 13; }
+  .about__top { row-gap: var(--space-xl); }
+  .about__words { grid-column: 1 / -1; }
+  .about__picture { grid-column: 1 / 7; }
 }
 @media (max-width: 40rem) {
   .about__top { row-gap: var(--space-xl); }
   .about__words, .about__picture { grid-column: 1 / -1; }
   .about__picture { width: 60%; }
   .about__figures { grid-template-columns: 1fr; row-gap: var(--space-lg); margin-top: var(--space-2xl); }
-  .about__value { font-size: 4.5rem; }
   .about__next > div { grid-column: 1 / -1; }
   .about__next > div + div { margin-top: var(--space-lg); }
 }

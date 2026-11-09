@@ -1,7 +1,11 @@
-/* The dark room (tasteskill direction `dark-room`, seed 687218942): one dark
-   field from top to bottom, and in it, lit things. The roles below are the
-   contract every section builds on; the older names further down are aliases
-   so components not yet rebuilt keep working. */
+/* The name as a monument (tasteskill direction `name-as-monument`, seed
+   1549672330), in den's own night: a blue-black room, the name set in
+   heavy condensed capitals as big as the screen allows, and a few whole
+   fields of colour (den's amber, and the paper of the About sheet) where the
+   page changes chapter. The roles below are the contract every section
+   builds on; the older names further down are aliases. */
+@font-face { font-family: "Anton"; src: url("/fonts/anton-400-latin.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: block; }
+
 :root {
   color-scheme: dark;
 
@@ -16,17 +20,28 @@
   --accent-ink: oklch(18% 0.03 60);
   --field-1: oklch(94% 0.006 250);
   --field-1-ink: oklch(12.5% 0.022 258);
+  /* The two chapter fields: den's amber as a whole ground (Work's title,
+     the close), and a sheet of paper (About). Each carries its own ink. */
+  --field-amber: oklch(80% 0.12 68);
+  --field-amber-ink: oklch(17% 0.035 55);
+  --field-paper: oklch(93% 0.005 80);
+  --field-paper-ink: oklch(16% 0.03 258);
 
-  /* Type: Work Sans alone. Five steps; the hero's wordmark is the sixth
-     thing on the page and is set by the hero itself. */
+  /* Type: Anton for the name and the headings, in capitals, and Work Sans
+     for everything read. Five steps; the hero's word and the poster lines
+     are set to fill their measure instead. */
   --font: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display-face: "Anton", "Impact", "Arial Narrow", sans-serif;
   --step-small: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
   --step-body: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
   --step-lead: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
-  --step-head: clamp(2rem, 1.3rem + 3.2vw, 4rem);
-  --step-display: clamp(7.5rem, 12vw, 12.5rem);
-  --tracking-display: -0.035em;
-  --display-weight: 300;
+  --step-head: clamp(2.75rem, 1.2rem + 5vw, 5.75rem);
+  --step-display: clamp(5rem, 13vw, 13rem);
+  /* The poster lines: Work's and Now's titles, About's numbers. */
+  --step-poster: clamp(3.25rem, 13.4vw, 15rem);
+  --tracking-display: -0.005em;
+  --display-weight: 400;
+  --display-leading: 0.9;
 
   /* The frame: one pair of margins everywhere, sections far apart. */
   --margin: clamp(16px, 2.2vw, 32px);
@@ -52,7 +67,7 @@
   --metal-hi: oklch(44% 0.012 255); --metal-lo: oklch(25% 0.014 255);
   --edge-light: none; --shadow-part: none; --shadow-panel: none; --shadow-card: none;
   --color-sky-hi: var(--bg); --color-sky-lo: var(--bg); --color-land: oklch(9.5% 0.016 258); --color-land-hi: oklch(9.5% 0.016 258); --color-glass: var(--bg);
-  --font-display: var(--font); --font-body: var(--font);
+  --font-display: var(--font-display-face); --font-body: var(--font);
   --font-lean: "Instrument Sans Lean", "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
   --radius-card: var(--radius); --radius-part: var(--radius); --radius-pill: var(--radius); --rule-hair: 0;
 }
@@ -72,6 +87,9 @@
   --accent-ink: oklch(20% 0.035 60);
   --field-1: oklch(22% 0.035 255);
   --field-1-ink: oklch(97.2% 0.011 85);
+  /* By day the paper sheet turns over: About is the night's navy. */
+  --field-paper: oklch(22% 0.035 255);
+  --field-paper-ink: oklch(96% 0.012 85);
   /* Amber as text falls short on paper; where the accent has to be read,
      it is this deeper bronze (5:1 on the ground). */
   --color-focus: oklch(47% 0.11 58);

@@ -5,7 +5,11 @@
 
 body { background: var(--bg); color: var(--ink); font: 400 var(--step-body)/1.55 var(--font); transition: background-color var(--dur-long) var(--ease-out), color var(--dur-long) var(--ease-out); }
 p { color: var(--ink); }
-h1, h2, h3 { color: var(--ink); font-weight: var(--display-weight); letter-spacing: var(--tracking-display); line-height: 1.02; }
+h1, h2, h3 { color: var(--ink); }
+/* The headings are the monument's smaller cousins: Anton, in capitals, set
+   tight. What sits under them (h3 and below) is read, so it is Work Sans. */
+h1, h2 { font-family: var(--font-display); font-weight: 400; text-transform: uppercase; letter-spacing: var(--tracking-display); line-height: var(--display-leading); font-kerning: normal; }
+h3, h4 { font-family: var(--font); font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; text-transform: none; }
 a { text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
 :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
 
@@ -38,7 +42,7 @@ a { text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
   padding: var(--margin);
 }
 .nav[data-home] { justify-content: flex-end; padding-top: calc(var(--margin) + 4px); }
-.nav__mark { display: inline-flex; align-items: center; min-height: 44px; font: 400 1.5rem/1 var(--font); letter-spacing: var(--tracking-display); color: var(--ink); text-decoration: none; }
+.nav__mark { display: inline-flex; align-items: center; min-height: 44px; font: 400 2rem/1 var(--font-display); letter-spacing: var(--tracking-display); text-transform: uppercase; color: var(--ink); text-decoration: none; }
 .nav__bar { position: relative; display: flex; align-items: center; gap: 8px; }
 .nav__links { display: flex; gap: 22px; margin: 0 12px 0 0; padding: 0; list-style: none; }
 .nav__links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); font-size: 0.9375rem; text-decoration: none; white-space: nowrap; }
@@ -68,7 +72,7 @@ a { text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
 .palette { width: min(36rem, 100% - 2 * var(--margin)); max-height: min(32rem, 100dvh - 80px); margin: 14dvh auto auto; padding: 0; border: 0; background: none; color: var(--ink); overflow: visible; }
 .palette::backdrop { background: color-mix(in oklch, var(--bg) 78%, transparent); }
 .palette__panel { display: flex; flex-direction: column; max-height: inherit; overflow: hidden; background: var(--surface); }
-.palette__input { min-height: 60px; padding: 0 24px; border: 0; background: var(--surface-2); color: var(--ink); font-size: var(--step-lead); font-weight: 300; outline: 2px solid transparent; outline-offset: -2px; }
+.palette__input { min-height: 60px; padding: 0 24px; border: 0; background: var(--surface-2); color: var(--ink); font-size: var(--step-lead); font-weight: 400; outline: 2px solid transparent; outline-offset: -2px; }
 .palette__input::placeholder { color: var(--muted); }
 .palette__input:focus-visible { outline-color: var(--color-focus); }
 .palette__list { flex: 1; margin: 0; padding: 8px; overflow-y: auto; list-style: none; }
@@ -92,7 +96,7 @@ a { text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
 }
 .listen__faders { display: flex; gap: 20px; padding: 16px 20px; background: var(--bg); }
 .fader { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
-.fader__value { font: 300 var(--step-lead)/1 var(--font); font-variant-numeric: tabular-nums; color: var(--ink); }
+.fader__value { font: 400 var(--step-lead)/1 var(--font-display); font-variant-numeric: tabular-nums; color: var(--ink); }
 .fader__name { font-size: var(--step-small); color: var(--muted); }
 /* A real range input, stood on end. */
 .fader__input { writing-mode: vertical-lr; direction: rtl; appearance: none; -webkit-appearance: none; width: 32px; height: 132px; margin: 0; background: none; cursor: pointer; }

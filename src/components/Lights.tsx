@@ -91,7 +91,7 @@ export function LeaveLight({ onLeave }: { onLeave: Leave }) {
   return (
     <div className="leave">
       <details className="leave__fold" ref={fold} onToggle={(e) => { if (e.currentTarget.open && state === 'on') setState('idle') }}>
-        <summary className="leave__summary" ref={summary}>Leave a light on</summary>
+        <summary className="leave__summary" ref={summary}>Write a note</summary>
         <form className="leave__form" ref={form} action="/api/lights" method="post" onSubmit={submit}>
           <p className="leave__lede">Leave a note. Once I’ve read it, a window stays lit in the town below.</p>
           <label className="field">
